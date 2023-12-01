@@ -1,5 +1,8 @@
 package com.sakura.anime
 
+import com.sakura.anime.util.BASE_URL
+import com.sakura.anime.util.DownloadManager
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,5 +16,13 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun test_network() {
+        runBlocking {
+            val html = DownloadManager.getHtml(BASE_URL)
+            println(html)
+        }
     }
 }
