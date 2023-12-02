@@ -3,7 +3,6 @@ package com.sakura.anime.presentation.screen.videoplay
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio

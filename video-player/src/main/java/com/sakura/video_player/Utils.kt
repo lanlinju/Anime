@@ -12,10 +12,12 @@ internal inline fun VideoSize.aspectRatio(): Float =
 internal inline fun Constraints.resizeForVideo(
     aspectRatio: Float
 ): Constraints {
-    if (aspectRatio <= 0f) return this
-
     val height = maxHeight
-    val width = (height * aspectRatio).toInt()
+    val width = if (aspectRatio <= 0f) {
+        (height * 1.778f).toInt() // default 16 : 9
+    } else {
+        (height * aspectRatio).toInt()
+    }
     return this.copy(maxWidth = width, maxHeight = height)
 }
 
