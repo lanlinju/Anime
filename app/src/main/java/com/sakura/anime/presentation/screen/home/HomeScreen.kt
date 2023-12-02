@@ -37,7 +37,9 @@ import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.bannerParallax
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToAnimeDetail: (detailUrl: String) -> Unit
+) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
 
@@ -110,7 +112,7 @@ fun HomeScreen() {
                             HomeRow(
                                 list = home.animList,
                                 title = home.title,
-                                onItemClicked = { }
+                                onItemClicked = { onNavigateToAnimeDetail(it.detailUrl) }
                             )
                         }
                         

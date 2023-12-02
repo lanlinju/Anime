@@ -14,4 +14,6 @@
     <dimen name="media_card_top_padding">96dp</dimen>
     <dimen name="related_anime_card_width">96dp</dimen>
     <dimen name="trailer_corner_radius">30dp</dimen>
+
+    <dimen name="edge_gradient_size">8dp</dimen>
 </resources>
