@@ -66,9 +66,6 @@ private fun VideoPlayer(
             .fillMaxWidth()
             .defaultPlayerTapGestures(playerState)
     ) {
-        BackHandler(enabled = playerState.isFullscreen.value) {
-            playerState.control.setFullscreen(false)
-        }
 
         AndroidView(
             modifier = Modifier
@@ -103,6 +100,7 @@ fun VideoPlayer(
     url: String,
     playerState: VideoPlayerState,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onBackPress: () -> Unit,
     controller: @Composable () -> Unit,
 ) {
     VideoPlayer(
@@ -130,5 +128,9 @@ fun VideoPlayer(
         playerState.player.setMediaItem(MediaItem.fromUri(url))
         playerState.player.prepare()
         playerState.player.playWhenReady = true
+    }
+
+    BackHandler() {
+        onBackPress()
     }
 }

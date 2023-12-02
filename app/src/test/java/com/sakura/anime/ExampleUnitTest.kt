@@ -17,6 +17,7 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
@@ -39,6 +40,18 @@ class ExampleUnitTest {
             )
 
             println(api.getAnimeDetail("5042.html"))
+        }
+    }
+
+    @Test
+    fun test_get_video_url() {
+        runBlocking {
+            val api = AnimeApiImpl(
+                animeJsoupParser = YhdmJsoupParser,
+                downloadManager = DownloadManager
+            )
+            val videoHtmlUrl = "/2-1085.html"
+            println(api.getVideoUrl(videoHtmlUrl))
         }
     }
 }

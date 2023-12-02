@@ -7,4 +7,6 @@ interface AnimeJsoupParser {
     suspend fun getHomeAllData(source: String): List<HomeBean>
 
     suspend fun getAnimeDetail(source: String): AnimeDetailBean
+
+    suspend fun getVideoUrl(source: String): String
 }

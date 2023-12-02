@@ -8,4 +8,6 @@ interface AnimeRepository {
     suspend fun getHomeAllData(): Resource<List<Home>>
 
     suspend fun getAnimeDetail(detailUrl: String): Resource<AnimeDetail?>
+
+    suspend fun getVideoUrl(episodeUrl: String): Resource<String>
 }

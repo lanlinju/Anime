@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.repository.AnimeRepository
+import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
 import com.sakura.anime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val DETAIL_ARGUMENT_URL = "detailUrl"
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

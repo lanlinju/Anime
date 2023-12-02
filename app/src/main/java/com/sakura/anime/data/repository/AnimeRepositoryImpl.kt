@@ -35,4 +35,17 @@ class AnimeRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun getVideoUrl(episodeUrl: String): Resource<String> {
+        val response = invokeApi {
+            animeApi.getVideoUrl(episodeUrl)
+        }
+        return when (response) {
+            is Resource.Error -> Resource.Error(error = response.error)
+            is Resource.Loading -> Resource.Loading()
+            is Resource.Success -> Resource.Success(
+                data = response.data.orEmpty()
+            )
+        }
+    }
 }

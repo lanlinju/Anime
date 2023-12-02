@@ -58,6 +58,14 @@ object YhdmJsoupParser : AnimeJsoupParser {
         }
     }
 
+    override suspend fun getVideoUrl(source: String): String {
+        val document = Jsoup.parse(source)
+        val elements = document.select("div.playbo > a")
+        val re = """changeplay\('(.*)\$""".toRegex()
+        val url = re.find(elements[0].attr("onclick"))!!.groupValues[1]
+        return url
+    }
+
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {
         val dramaElements = document.select("div.movurl > ul > li") //剧集列表
         val episodes = mutableListOf<EpisodeBean>()

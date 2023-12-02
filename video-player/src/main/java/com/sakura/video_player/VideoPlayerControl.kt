@@ -32,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.imherrera.videoplayer.icons.Fullscreen
+import com.imherrera.videoplayer.icons.FullscreenExit
 import com.sakura.video_player.component.Slider
 import com.sakura.video_player.icons.ArrowBackIos
 import com.sakura.video_player.icons.Pause
@@ -152,8 +154,7 @@ private fun TimelineControl(
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
     }
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -162,6 +163,16 @@ private fun TimelineControl(
         ) {
             Text(text = timestamp, style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.weight(1.0f))
+            AdaptiveIconButton(
+                modifier = Modifier.size(SmallIconButtonSize),
+                onClick = onFullScreenToggle
+            ) {
+                Icon(
+                    imageVector = if (isFullScreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen,
+                    contentDescription = null
+                )
+            }
+
         }
         Slider(
             value = if (videoProgress.isNaN()) 0f else videoProgress,

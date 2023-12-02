@@ -7,4 +7,6 @@ interface AnimeApi {
     suspend fun getHomeAllData(): List<HomeBean>
 
     suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean
+
+    suspend fun getVideoUrl(episodeUrl: String): String
 }

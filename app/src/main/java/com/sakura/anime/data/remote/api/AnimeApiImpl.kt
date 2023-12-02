@@ -20,4 +20,9 @@ class AnimeApiImpl @Inject constructor(
         val source = downloadManager.getHtml("$BASE_URL/show/$detailUrl")
         return animeJsoupParser.getAnimeDetail(source)
     }
+
+    override suspend fun getVideoUrl(episodeUrl: String): String {
+        val source = downloadManager.getHtml("$BASE_URL/v/$episodeUrl")
+        return animeJsoupParser.getVideoUrl(source)
+    }
 }

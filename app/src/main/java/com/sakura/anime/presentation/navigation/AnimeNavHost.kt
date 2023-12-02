@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
+import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
 
 @Composable
 fun AnimeNavHost(
@@ -16,6 +17,8 @@ fun AnimeNavHost(
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String) -> Unit,
+    onBackClick: () -> Unit,
+    activity: Activity
 ) {
     NavHost(
         modifier = modifier,
@@ -27,6 +30,9 @@ fun AnimeNavHost(
         }
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(onRelatedAnimeClick = onNavigateToAnimeDetail, onEpisodeClick = onEpisodeClick)
+        }
+        composable(Screen.VideoPlayScreen.route) {
+            VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
     }
 }
