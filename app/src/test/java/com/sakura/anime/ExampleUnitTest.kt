@@ -38,7 +38,7 @@ class ExampleUnitTest {
                 downloadManager = DownloadManager
             )
 
-            println(api.getAnimeDetail("/show/5042.html"))
+            println(api.getAnimeDetail("5042.html"))
         }
     }
 }

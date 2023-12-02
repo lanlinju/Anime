@@ -27,3 +27,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Anime"
 include(":app")
+include(":video-player")
