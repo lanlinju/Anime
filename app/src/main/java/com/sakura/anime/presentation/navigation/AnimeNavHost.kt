@@ -40,7 +40,7 @@ fun AnimeNavHost(
             SearchScreen(navController)
         }
         composable(Screen.WeekScreen.route) {
-            WeekScreen()
+            WeekScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail)
         }
 
     }

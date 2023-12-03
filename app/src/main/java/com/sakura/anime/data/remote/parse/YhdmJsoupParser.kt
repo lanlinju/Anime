@@ -4,6 +4,7 @@ import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
+import com.sakura.anime.util.TABS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -84,6 +85,25 @@ object YhdmJsoupParser : AnimeJsoupParser {
             animeList.add(AnimeBean(title = title, img = img, url = url))
         }
         return animeList
+    }
+
+    override suspend fun getWeekData(source: String): Map<String, List<AnimeBean>> {
+        val document = Jsoup.parse(source)
+        val elements = document.select("div.tlist > ul")
+        val weekMap = mutableMapOf<String, List<AnimeBean>>()
+        elements.forEachIndexed { i, element ->
+            val dayList = mutableListOf<AnimeBean>()
+            element.select("li").forEach { el ->
+                with(el.select("a")) {
+                    val title = get(1).text()
+                    val url = get(1).attr("href")
+                    val episode = get(0).text()
+                    dayList.add(AnimeBean(title = title, img = "", url = url, episode = episode))
+                }
+            }
+            weekMap.put(TABS[i], dayList)
+        }
+        return weekMap;
     }
 
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {

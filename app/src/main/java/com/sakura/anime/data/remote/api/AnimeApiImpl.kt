@@ -31,4 +31,9 @@ class AnimeApiImpl @Inject constructor(
         val source = downloadManager.getHtml("$BASE_URL/search/$query/")
         return animeJsoupParser.getSearchData(source)
     }
+
+    override suspend fun getWeekDate(): Map<String, List<AnimeBean>> {
+        val source = downloadManager.getHtml(BASE_URL)
+        return animeJsoupParser.getWeekData(source)
+    }
 }

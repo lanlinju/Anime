@@ -9,6 +9,9 @@
     <!-- search   -->
     <string name="lbl_search_placeholder">请输入动漫名</string>
     <string name="lbl_search_empty">什么都没找到啊T T</string>
+    
+    <!-- week  -->
+    <string name="lbl_schedule">时间表</string>
 
     <string name="home">Home</string>
     <string name="profile">Profile</string>

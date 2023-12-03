@@ -61,4 +61,11 @@ class ExampleUnitTest {
             println(api.getSearchData(query))
         }
     }
+
+    @Test
+    fun test_week() {
+        runBlocking {
+            println(api.getWeekDate())
+        }
+    }
 }

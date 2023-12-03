@@ -12,4 +12,6 @@ interface AnimeJsoupParser {
     suspend fun getVideoUrl(source: String): String
 
     suspend fun getSearchData(source: String): List<AnimeBean>
+
+    suspend fun getWeekData(source: String): Map<String, List<AnimeBean>>
 }
