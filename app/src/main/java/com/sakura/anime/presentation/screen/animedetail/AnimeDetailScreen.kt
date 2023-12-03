@@ -92,7 +92,6 @@ fun AnimeDetailScreen(
                             description = Html
                                 .fromHtml(animeDetail.desc, Html.FROM_HTML_MODE_COMPACT)
                                 .toString(),
-                            // TODO Can we do something about this Modifier chain?
                             modifier = Modifier
                                 .padding(
                                     start = dimensionResource(Res.dimen.large_padding)
