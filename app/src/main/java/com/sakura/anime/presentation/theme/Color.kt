@@ -1,4 +1,4 @@
-package com.sakura.anime.ui.theme
+package com.sakura.anime.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

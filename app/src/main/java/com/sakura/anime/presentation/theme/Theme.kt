@@ -1,4 +1,4 @@
-package com.sakura.anime.ui.theme
+package com.sakura.anime.presentation.theme
 
 import android.app.Activity
 import android.os.Build
