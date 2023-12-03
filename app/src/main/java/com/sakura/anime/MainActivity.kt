@@ -50,7 +50,7 @@ fun MainScreen(modifier: Modifier = Modifier,activity: Activity) {
 
     Box(modifier) {
         AnimeNavHost(
-            modifier = Modifier.fillMaxSize(), navController = navController,
+            modifier = Modifier.align(Alignment.TopCenter).fillMaxSize(), navController = navController,
             onNavigateToAnimeDetail = { detailUrl ->
                 navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl))
             },

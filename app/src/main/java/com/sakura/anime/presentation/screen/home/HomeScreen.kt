@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,7 +44,7 @@ fun HomeScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
 
-    Column {
+    Column(Modifier.padding(bottom = dimensionResource(Res.dimen.navigation_bar_height)).navigationBarsPadding()) {
         StateHandler(state = availableDataList.value, onLoading = {
             LoadingIndicator()
         }, onFailure = {
