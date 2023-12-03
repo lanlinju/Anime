@@ -41,7 +41,8 @@ object YhdmJsoupParser : AnimeJsoupParser {
             val desc = select("div.info").text()
             val score = select("div.score > em").text()
             val img = select("div.thumb > img").attr("src")
-            val updateTime = select("div.sinfo > p").let { if (it.size > 1) it[1].text() else it[0].text() }
+            val updateTime =
+                select("div.sinfo > p").let { if (it.size > 1) it[1].text() else it[0].text() }
             val tagElements = Elements()
             val tagInfo = select("div.sinfo > span")
             tagInfo.forEachIndexed { i, tag ->
@@ -53,7 +54,13 @@ object YhdmJsoupParser : AnimeJsoupParser {
             val episodes = getAnimeEpisodes(this)
             val relatedAnimes = getRelatedAnimes(this)
             AnimeDetailBean(
-                AnimeBean(title, img, url = ""), desc, score, tags, updateTime, episodes, relatedAnimes
+                AnimeBean(title, img, url = ""),
+                desc,
+                score,
+                tags,
+                updateTime,
+                episodes,
+                relatedAnimes
             )
         }
     }
@@ -64,6 +71,19 @@ object YhdmJsoupParser : AnimeJsoupParser {
         val re = """changeplay\('(.*)\$""".toRegex()
         val url = re.find(elements[0].attr("onclick"))!!.groupValues[1]
         return url
+    }
+
+    override suspend fun getSearchData(source: String): List<AnimeBean> {
+        val document = Jsoup.parse(source)
+        val elements = document.select("div.lpic > ul > li")
+        val animeList = mutableListOf<AnimeBean>()
+        elements.forEach { el ->
+            val title = el.select("h2").text()
+            val url = el.select("h2 > a").attr("href")
+            val img = el.select("img").attr("src")
+            animeList.add(AnimeBean(title = title, img = img, url = url))
+        }
+        return animeList
     }
 
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {

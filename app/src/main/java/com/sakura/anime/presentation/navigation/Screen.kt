@@ -2,7 +2,6 @@ package com.sakura.anime.presentation.navigation
 
 const val DETAIL_ARGUMENT_URL = "detailUrl"
 const val Video_ARGUMENT_EPISODE_URL = "episodeUrl"
-const val Search_ARGUMENT_QUERY = "query"
 
 sealed class Screen(
     val route: String
@@ -18,4 +17,6 @@ sealed class Screen(
             return "videoPlay$episodeUrl"
         }
     }
+    object SearchScreen : Screen(route = "search")
+    object WeekScreen : Screen(route = "week")
 }

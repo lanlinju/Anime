@@ -18,6 +18,10 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
 
+    val api = AnimeApiImpl(
+        animeJsoupParser = YhdmJsoupParser,
+        downloadManager = DownloadManager
+    )
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
@@ -38,7 +42,6 @@ class ExampleUnitTest {
                 animeJsoupParser = YhdmJsoupParser,
                 downloadManager = DownloadManager
             )
-
             println(api.getAnimeDetail("5042.html"))
         }
     }
@@ -46,12 +49,16 @@ class ExampleUnitTest {
     @Test
     fun test_get_video_url() {
         runBlocking {
-            val api = AnimeApiImpl(
-                animeJsoupParser = YhdmJsoupParser,
-                downloadManager = DownloadManager
-            )
             val videoHtmlUrl = "/2-1085.html"
             println(api.getVideoUrl(videoHtmlUrl))
+        }
+    }
+
+    @Test
+    fun test_search() {
+        runBlocking {
+            val query = "海贼王"
+            println(api.getSearchData(query))
         }
     }
 }

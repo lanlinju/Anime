@@ -5,4 +5,14 @@
     <string name="lbl_related_anime">相关推荐</string>
     <string name="video_error_msg">视频加载失败</string>
     <string name="video_ended_msg">视频播放完毕</string>
+
+    <!-- search   -->
+    <string name="lbl_search_placeholder">请输入动漫名</string>
+    <string name="lbl_search_empty">什么都没找到啊T T</string>
+
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
+    <string name="week">WeekRank</string>
+    <string name="rslash">r/</string>
 </resources>

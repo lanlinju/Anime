@@ -30,7 +30,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.componentsui.anime.domain.model.Anime
 import com.example.componentsui.anime.domain.model.Episode
-import com.sakura.anime.presentation.component.LoadingHome
+import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.MediaSmallRow
 import com.sakura.anime.presentation.component.ScrollableText
@@ -54,7 +54,7 @@ fun AnimeDetailScreen(
 
     StateHandler(
         state = animeDetailState,
-        onLoading = { LoadingHome() },
+        onLoading = { LoadingIndicator() },
         onFailure = { WarningMessage(textId = Res.string.txt_empty_result) }
     ) { resource ->
         resource.data?.let { animeDetail ->

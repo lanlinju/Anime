@@ -8,7 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
+import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
+import com.sakura.anime.presentation.screen.week.WeekScreen
 
 @Composable
 fun AnimeNavHost(
@@ -34,5 +36,12 @@ fun AnimeNavHost(
         composable(Screen.VideoPlayScreen.route) {
             VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
+        composable(Screen.SearchScreen.route) {
+            SearchScreen(navController)
+        }
+        composable(Screen.WeekScreen.route) {
+            WeekScreen()
+        }
+
     }
 }

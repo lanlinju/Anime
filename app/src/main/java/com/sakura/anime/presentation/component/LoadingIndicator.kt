@@ -8,7 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun LoadingHome(onLoading: () -> Unit={}){
+fun LoadingIndicator(onLoading: () -> Unit={}){
     onLoading()
     Box(
         modifier = Modifier.fillMaxSize(),

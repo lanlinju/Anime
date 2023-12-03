@@ -27,7 +27,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sakura.anime.presentation.component.LoadingHome
+import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.R
@@ -45,7 +45,7 @@ fun VideoPlayScreen(
 
     StateHandler(
         state = animeVideoUrlState,
-        onLoading = { LoadingHome() },
+        onLoading = { LoadingIndicator() },
         onFailure = { WarningMessage(textId = R.string.txt_empty_result) }
     ) { resource ->
         resource.data?.let { videoUrl ->
