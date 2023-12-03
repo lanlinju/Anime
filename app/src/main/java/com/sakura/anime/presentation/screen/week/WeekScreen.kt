@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.week
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -70,6 +71,7 @@ fun WeekScreen(
 
     Column(
         Modifier
+            .background(MaterialTheme.colorScheme.background)
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
             .navigationBarsPadding()
     ) {

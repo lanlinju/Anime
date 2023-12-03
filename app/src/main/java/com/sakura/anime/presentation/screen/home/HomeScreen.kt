@@ -44,7 +44,11 @@ fun HomeScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
 
-    Column(Modifier.padding(bottom = dimensionResource(Res.dimen.navigation_bar_height)).navigationBarsPadding()) {
+    Column(
+        Modifier
+            .padding(bottom = dimensionResource(Res.dimen.navigation_bar_height))
+            .navigationBarsPadding()
+    ) {
         StateHandler(state = availableDataList.value, onLoading = {
             LoadingIndicator()
         }, onFailure = {

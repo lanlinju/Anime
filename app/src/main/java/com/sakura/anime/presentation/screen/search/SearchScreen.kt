@@ -58,7 +58,8 @@ fun SearchScreen(
             IconButton(onClick = viewModel::clearSearchQuery) {
                 Icon(imageVector = Icons.Rounded.Clear, contentDescription = "")
             }
-        }
+        },
+        modifier = Modifier.navigationBarsPadding()
     ) {
         if (isLoading) {
             LoadingIndicator()
