@@ -32,14 +32,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AnimeTheme {
-                MainScreen(Modifier.fillMaxSize(),this)
+                MainScreen(Modifier.fillMaxSize(), this)
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier,activity: Activity) {
+fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -50,7 +50,10 @@ fun MainScreen(modifier: Modifier = Modifier,activity: Activity) {
 
     Box(modifier) {
         AnimeNavHost(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxSize(), navController = navController,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxSize(),
+            navController = navController,
             onNavigateToAnimeDetail = { detailUrl ->
                 navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl))
             },
@@ -59,6 +62,9 @@ fun MainScreen(modifier: Modifier = Modifier,activity: Activity) {
             },
             onBackClick = {
                 navController.popBackStack()
+            },
+            onSearchClick = {
+                navController.navigate(Screen.SearchScreen.route)
             },
             activity = activity
         )

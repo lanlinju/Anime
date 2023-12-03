@@ -22,8 +22,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -43,7 +48,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WeekScreen(
-    onNavigateToAnimeDetail: (detailUrl: String) -> Unit
+    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
+    onSearchClick: () -> Unit
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
     val weekDataState by viewModel.weeKDataMap.collectAsState()
@@ -56,12 +62,27 @@ fun WeekScreen(
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
             .navigationBarsPadding()
     ) {
-        TopAppBar(title = {
-            Text(
-                text = stringResource(id = R.string.lbl_schedule),
-                style = MaterialTheme.typography.titleLarge,
-            )
-        })
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(id = R.string.lbl_schedule),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            },
+            actions = {
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(id = R.string.more)
+                    )
+                }
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = stringResource(id = R.string.search)
+                    )
+                }
+            })
 
         TabRow(
             selectedTabIndex = pagerState.currentPage,

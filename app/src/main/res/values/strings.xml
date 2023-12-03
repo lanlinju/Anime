@@ -16,6 +16,7 @@
     <string name="home">Home</string>
     <string name="profile">Profile</string>
     <string name="search">Search</string>
+    <string name="more">more</string>
     <string name="week">WeekRank</string>
     <string name="rslash">r/</string>
 </resources>

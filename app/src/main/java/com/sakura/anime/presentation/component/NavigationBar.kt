@@ -102,21 +102,5 @@ enum class NavigationBarPaths(
                 )
             )
         }
-    ),
-    Search(
-        Screen.SearchScreen.route,
-        {
-            Icon(
-                ImageVector.vectorResource(
-                    id = com.sakura.anime.R.drawable.search
-                ),
-                contentDescription = stringResource(
-                    id = Res.string.search
-                ),
-                modifier = Modifier
-                    .padding(3.dp)
-                    .size(18.dp)
-            )
-        }
     )
 }

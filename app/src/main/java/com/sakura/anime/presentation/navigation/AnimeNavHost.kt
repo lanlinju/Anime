@@ -19,6 +19,7 @@ fun AnimeNavHost(
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String) -> Unit,
+    onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
 ) {
@@ -40,7 +41,7 @@ fun AnimeNavHost(
             SearchScreen(navController)
         }
         composable(Screen.WeekScreen.route) {
-            WeekScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail)
+            WeekScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail, onSearchClick = onSearchClick)
         }
 
     }
