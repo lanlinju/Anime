@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -25,6 +26,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,14 +37,20 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.util.GITHUB_ADDR
 import com.sakura.anime.util.TABS
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -64,6 +73,8 @@ fun WeekScreen(
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
             .navigationBarsPadding()
     ) {
+        var expanded by remember { mutableStateOf(false) }
+        val uriHandler = LocalUriHandler.current
         TopAppBar(
             title = {
                 Text(
@@ -78,11 +89,32 @@ fun WeekScreen(
                         contentDescription = stringResource(id = R.string.more)
                     )
                 }
-                IconButton(onClick = { /* doSomething() */ }) {
-                    Icon(
-                        imageVector = Icons.Rounded.MoreVert,
-                        contentDescription = stringResource(id = R.string.search)
-                    )
+
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Rounded.MoreVert,
+                            contentDescription = stringResource(id = R.string.search)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("GitHub仓库") },
+                            onClick = {
+                                expanded = false
+                                uriHandler.openUri(GITHUB_ADDR)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    modifier = Modifier.size(24.dp),
+                                    painter = painterResource(id = R.drawable.ic_github),
+                                    contentDescription = null
+                                )
+                            })
+                    }
                 }
             })
 
