@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.util.TABS
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +56,8 @@ fun WeekScreen(
     val weekDataState by viewModel.weeKDataMap.collectAsState()
 
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(pageCount = { TABS.size })
+    val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
+    val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
     Column(
         Modifier

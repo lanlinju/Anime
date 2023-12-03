@@ -10,6 +10,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.util.Calendar
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -67,5 +70,18 @@ class ExampleUnitTest {
         runBlocking {
             println(api.getWeekDate())
         }
+    }
+
+    @Test
+    fun  test_dayOfWeek(){
+        // 获取当前日期
+        val currentDate = LocalDate.now()
+
+        // 获取今天是星期几的数字表示形式（1 表示星期一，2 表示星期二，以此类推）
+        val dayOfWeekNumber: Int = currentDate.dayOfWeek.value
+
+        // 输出星期几的数字表示形式
+        println("今天是星期：$dayOfWeekNumber")
+
     }
 }

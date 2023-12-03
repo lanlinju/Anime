@@ -226,7 +226,6 @@ fun AnimeDetails(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeGenres(
     genres: List<String>,
