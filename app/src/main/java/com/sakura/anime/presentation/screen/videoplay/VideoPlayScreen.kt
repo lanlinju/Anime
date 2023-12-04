@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,6 +52,8 @@ fun VideoPlayScreen(
     activity: Activity
 ) {
     val animeVideoUrlState by viewModel.videoUrlState.collectAsState()
+    val localView = LocalView.current
+    localView.keepScreenOn = true
 
     StateHandler(
         state = animeVideoUrlState,
@@ -69,8 +72,6 @@ fun VideoPlayScreen(
                 }
 
             Box(contentAlignment = Alignment.Center) {
-                val localView = LocalView.current
-                localView.keepScreenOn = true
                 VideoPlayer(
                     url = videoUrl,
                     modifier = Modifier
@@ -95,6 +96,12 @@ fun VideoPlayScreen(
                 }
 
                 VideoStateMessage(playerState)
+
+                DisposableEffect(localView){
+                    onDispose {
+                        localView.keepScreenOn = false
+                    }
+                }
             }
 
         }
