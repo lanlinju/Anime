@@ -44,7 +44,7 @@ fun VideoPlayerControl(
     state: VideoPlayerState,
     title: String,
     subtitle: String? = null,
-    background: Color = Color.Black.copy(0.30f),
+    background: Color = Color.Black.copy(0.25f),
     contentColor: Color = Color.White,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
@@ -64,13 +64,17 @@ fun VideoPlayerControl(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                ControlHeader(
-                    modifier = Modifier.fillMaxWidth(),
-                    title = title,
-                    subtitle = subtitle,
-                    onOptionsContent = onOptionsContent,
-                    onBackClick = onBackClick
-                )
+
+                if (!state.isSeeking.value)
+                    ControlHeader(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = title,
+                        subtitle = subtitle,
+                        onOptionsContent = onOptionsContent,
+                        onBackClick = onBackClick
+                    )
+
+                Spacer(Modifier.size(2.dp))
 
                 TimelineControl(
                     modifier = Modifier.fillMaxWidth(),
@@ -80,10 +84,10 @@ fun VideoPlayerControl(
                     videoPositionMs = state.videoPositionMs.value,
                     videoProgress = state.videoProgress.value,
                     control = state.control,
-                    isScrolling = state.isSeeking.value,
+                    isSeeking = state.isSeeking.value,
                     onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
                     onDragSlider = { state.onSeeking(it) },
-                    onDragSliderFinished = { state.onSeeked(state.videoProgress.value) },
+                    onDragSliderFinished = { state.onSeeked() },
                     isPlaying = state.isPlaying.value
                 )
             }
@@ -143,7 +147,7 @@ private fun TimelineControl(
     videoDurationMs: Long,
     videoPositionMs: Long,
     videoProgress: Float,
-    isScrolling: Boolean,
+    isSeeking: Boolean,
     isPlaying: Boolean,
     control: VideoPlayerControl,
     onDragSlider: (Float) -> Unit,
@@ -156,24 +160,26 @@ private fun TimelineControl(
     Column(
         modifier = modifier
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = timestamp, style = MaterialTheme.typography.bodySmall)
-            Spacer(modifier = Modifier.weight(1.0f))
-            AdaptiveIconButton(
-                modifier = Modifier.size(SmallIconButtonSize),
-                onClick = onFullScreenToggle
+        if (!isSeeking)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (isFullScreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen,
-                    contentDescription = null
-                )
+                Text(text = timestamp, style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.weight(1.0f))
+                AdaptiveIconButton(
+                    modifier = Modifier.size(SmallIconButtonSize),
+                    onClick = onFullScreenToggle
+                ) {
+                    Icon(
+                        imageVector = if (isFullScreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen,
+                        contentDescription = null
+                    )
+                }
+
             }
 
-        }
         Slider(
             value = if (videoProgress.isNaN()) 0f else videoProgress,
             onValueChange = onDragSlider,
@@ -181,20 +187,23 @@ private fun TimelineControl(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp),
-            isScrolling = isScrolling,
+            isScrolling = isSeeking,
             color = progressLineColor,
             trackColor = Color.LightGray
         )
-        AdaptiveIconButton(
-            modifier = Modifier.size(42.dp),
-            onClick = { if (isPlaying) control.pause() else control.play() }
-        ) {
-            Icon(
-                modifier = Modifier.fillMaxSize(),
-                imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                contentDescription = null
-            )
-        }
+        if (isSeeking)
+            Spacer(modifier = Modifier.size(42.dp))
+        else
+            AdaptiveIconButton(
+                modifier = Modifier.size(42.dp),
+                onClick = { if (isPlaying) control.pause() else control.play() }
+            ) {
+                Icon(
+                    modifier = Modifier.fillMaxSize(),
+                    imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                    contentDescription = null
+                )
+            }
     }
 }
 

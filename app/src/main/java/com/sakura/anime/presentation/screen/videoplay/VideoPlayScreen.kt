@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,7 +22,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,7 +38,11 @@ import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.R
 import com.sakura.video_player.VideoPlayer
 import com.sakura.video_player.VideoPlayerControl
+import com.sakura.video_player.VideoPlayerState
+import com.sakura.video_player.prettyVideoTimestamp
 import com.sakura.video_player.rememberVideoPlayerState
+import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun VideoPlayScreen(
@@ -67,6 +76,7 @@ fun VideoPlayScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.Black)
+                        .defaultPlayerDragGesture(playerState)
                         .adaptiveSize(playerState.isFullscreen.value, localView),
                     playerState = playerState,
                     onBackPress = {
@@ -84,17 +94,7 @@ fun VideoPlayScreen(
                     )
                 }
 
-                if (playerState.isLoading.value && !playerState.isError.value) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-
-                if (playerState.isError.value) {
-                    ShowVideoMessage(stringResource(id = R.string.video_error_msg))
-                }
-
-                if (playerState.isEnded.value) {
-                    ShowVideoMessage(stringResource(id = R.string.video_ended_msg))
-                }
+                VideoStateMessage(playerState)
             }
 
         }
@@ -102,6 +102,80 @@ fun VideoPlayScreen(
     }
 
 }
+
+@Composable
+fun VideoStateMessage(playerState: VideoPlayerState, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        if (playerState.isLoading.value && !playerState.isError.value && !playerState.isSeeking.value) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+
+        if (playerState.isError.value) {
+            ShowVideoMessage(stringResource(id = R.string.video_error_msg))
+        }
+
+        if (playerState.isEnded.value) {
+            ShowVideoMessage(stringResource(id = R.string.video_ended_msg))
+        }
+
+        if (playerState.isSeeking.value) {
+            TimelineIndicator(
+                (playerState.videoDurationMs.value * playerState.videoProgress.value).toLong(),
+                playerState.videoDurationMs.value
+            )
+        }
+    }
+}
+
+@Composable
+fun TimelineIndicator(
+    videoPositionMs: Long,
+    videoDurationMs: Long,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .width(120.dp)
+            .aspectRatio(2.5f)
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color.Black.copy(0.7f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = prettyVideoTimestamp(
+                videoPositionMs.milliseconds,
+                videoDurationMs.milliseconds
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White
+        )
+    }
+}
+
+private fun Modifier.defaultPlayerDragGesture(playerState: VideoPlayerState) =
+    pointerInput(Unit) {
+        var totalDrag = 0f
+        val maxFastForwardDuration = 100_000L // 最大快进时长为100秒
+        val threshold = 10.dp // 水平距离超过10dp后开始计算
+        detectDragGestures(onDragEnd = {
+            playerState.onSeeked()
+            totalDrag = 0f
+        }) { _, dragAmount ->
+            if (playerState.videoDurationMs.value == 0L || abs(dragAmount.x) < 3 * abs(dragAmount.y)) return@detectDragGestures
+            totalDrag += dragAmount.x
+            if (abs(totalDrag) > threshold.toPx()) {
+                val deltaMs = dragAmount.x / size.width * maxFastForwardDuration
+                playerState.onSeeking(
+                    (playerState.videoProgress.value + (deltaMs / playerState.videoDurationMs.value)).coerceIn(
+                        0F..1F
+                    )
+                )
+            }
+        }
+    }
 
 private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View): Modifier {
     return if (fullscreen) {
@@ -142,3 +216,5 @@ private fun showSystemBars(view: View) {
     // Show both the status bar and the navigation bar
     windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 }
+
+

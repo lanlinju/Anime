@@ -65,12 +65,12 @@ class VideoPlayerStateImpl(
             this.videoProgress.value = it
             if (videoDurationMs.value > 0) {
                 videoPositionMs.value = player.currentPosition
-                player.seekTo((player.duration * videoProgress.value).toLong())
             }
         }
-    override val onSeeked: (endDragProcess: Float) -> Unit
+    override val onSeeked: () -> Unit
         get() = {
             isSeeking.value = false
+            player.seekTo((player.duration * videoProgress.value).toLong())
         }
 
     override val isControlUiVisible = mutableStateOf(false)
@@ -167,7 +167,7 @@ interface VideoPlayerState {
     val videoProgress: State<Float> /*0f - 1f*/
 
     val onSeeking: (dragProcess: Float) -> Unit
-    val onSeeked: (endDragProcess: Float) -> Unit
+    val onSeeked: () -> Unit
 
     val isControlUiVisible: State<Boolean>
     val control: VideoPlayerControl

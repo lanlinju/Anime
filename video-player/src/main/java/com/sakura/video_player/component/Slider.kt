@@ -31,7 +31,7 @@ fun Slider(
     modifier: Modifier = Modifier,
     onValueChangeFinished: () -> Unit = {},
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
     isScrolling: Boolean = false
 ) {
     val animHeight = animateDpAsState(
