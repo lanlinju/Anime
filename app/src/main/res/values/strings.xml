@@ -20,4 +20,7 @@
     <string name="week">WeekRank</string>
     <string name="rslash">r/</string>
     <string name="back">back</string>
+    <string name="brightness">brightness</string>
+    <string name="volume_mute">volume mute</string>
+    <string name="volume_up">volume up</string>
 </resources>

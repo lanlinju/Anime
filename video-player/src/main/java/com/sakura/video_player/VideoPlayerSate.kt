@@ -1,6 +1,9 @@
 package com.sakura.video_player
 
+import android.app.Activity
 import android.content.Context
+import android.media.AudioManager
+import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +29,8 @@ fun rememberVideoPlayerState(
 ): VideoPlayerState = remember {
     VideoPlayerStateImpl(
         player = ExoPlayer.Builder(context).apply(config).build(),
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager,
+        window = (context as Activity).window,
         coroutineScope = coroutineScope,
         hideControllerAfterMs = hideControllerAfterMs,
         videoPositionPollInterval = videoPositionPollInterval
@@ -36,10 +41,12 @@ fun rememberVideoPlayerState(
 
 class VideoPlayerStateImpl(
     override val player: ExoPlayer,
+    override val audioManager: AudioManager,
+    override val window: Window,
     private val coroutineScope: CoroutineScope,
     private val hideControllerAfterMs: Long,
     private val videoPositionPollInterval: Long,
-) : VideoPlayerState, Player.Listener {
+    ) : VideoPlayerState, Player.Listener {
     override val videoSize = mutableStateOf(player.videoSize)
     override val videoPositionMs = mutableStateOf(0L)
     override val videoDurationMs = mutableStateOf(0L)
@@ -52,7 +59,12 @@ class VideoPlayerStateImpl(
     override val playerState = mutableStateOf(player.playbackState)
 
     override val isSeeking = mutableStateOf(false)
+    override val isChangingVolume = mutableStateOf(false)
+    override val isChangingBrightness = mutableStateOf(false)
+
     override val videoProgress = mutableStateOf(0F)
+    override val volumeBrightnessProgress = mutableStateOf(0F)
+
 
     override val onSeeking: (Float) -> Unit
         get() = {
@@ -67,6 +79,21 @@ class VideoPlayerStateImpl(
             isSeeking.value = false
             player.seekTo((player.duration * videoProgress.value).toLong())
         }
+
+    override fun onChangeVolume(value: Float) {
+        isChangingVolume.value = true
+        volumeBrightnessProgress.value = value
+    }
+
+    override fun onChangeBrightness(value: Float) {
+        isChangingBrightness.value = true
+        volumeBrightnessProgress.value = value
+    }
+
+    override fun onChanged() {
+        isChangingVolume.value = false
+        isChangingBrightness.value = false
+    }
 
     override val isControlUiVisible = mutableStateOf(false)
     override val control = object : VideoPlayerControl {
@@ -145,6 +172,8 @@ class VideoPlayerStateImpl(
 
 interface VideoPlayerState {
     val player: ExoPlayer
+    val audioManager: AudioManager
+    val window: Window
 
     val videoSize: State<VideoSize>
     val videoPositionMs: State<Long>
@@ -158,10 +187,17 @@ interface VideoPlayerState {
     val playerState: State<Int>
 
     val isSeeking: State<Boolean>
+    val isChangingVolume: State<Boolean>
+    val isChangingBrightness: State<Boolean>
     val videoProgress: State<Float> /*0f - 1f*/
+    val volumeBrightnessProgress: State<Float>
 
     val onSeeking: (dragProcess: Float) -> Unit
     val onSeeked: () -> Unit
+
+    fun onChangeVolume(value: Float)
+    fun onChangeBrightness(value: Float)
+    fun onChanged()
 
     val isControlUiVisible: State<Boolean>
     val control: VideoPlayerControl
