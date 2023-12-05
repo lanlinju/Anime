@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -32,23 +31,19 @@ fun Slider(
     onValueChangeFinished: () -> Unit = {},
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-    isScrolling: Boolean = false
+    isSeeking: Boolean = false
 ) {
     val animHeight = animateDpAsState(
-        targetValue = if (isScrolling) 4.dp else 2.dp,
+        targetValue = if (isSeeking) 4.dp else 2.dp,
         animationSpec = tween()
     )
-    var width by remember { mutableStateOf(1) }
     Box(
         modifier = modifier
-            .onSizeChanged {
-                width = it.width
-            }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = onValueChangeFinished
                 ) { change, _ ->
-                    onValueChange((change.position.x / width).coerceIn(0f, 1f))
+                    onValueChange((change.position.x / size.width).coerceIn(0f, 1f))
                     change.consume()
                 }
 

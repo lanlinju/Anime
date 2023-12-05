@@ -187,7 +187,7 @@ private fun TimelineControl(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp),
-            isScrolling = isSeeking,
+            isSeeking = isSeeking,
             color = progressLineColor,
             trackColor = Color.LightGray
         )
