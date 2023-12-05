@@ -77,7 +77,7 @@ fun VideoPlayScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.Black)
-                        .defaultPlayerDragGesture(playerState)
+                        .defaultPlayerDragGestures(playerState)
                         .adaptiveSize(playerState.isFullscreen.value, localView),
                     playerState = playerState,
                     onBackPress = {
@@ -97,7 +97,7 @@ fun VideoPlayScreen(
 
                 VideoStateMessage(playerState)
 
-                DisposableEffect(localView){
+                DisposableEffect(localView) {
                     onDispose {
                         localView.keepScreenOn = false
                     }
@@ -162,24 +162,29 @@ fun TimelineIndicator(
     }
 }
 
-private fun Modifier.defaultPlayerDragGesture(playerState: VideoPlayerState) =
+private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
     pointerInput(Unit) {
-        var totalDrag = 0f
+        var totalDragX = 0f
+        var isSeek = false
         val maxFastForwardDuration = 100_000L // 最大快进时长为100秒
-        val threshold = 10.dp // 水平距离超过10dp后开始计算
+        val threshold = 12.dp // 水平距离超过12dp后开始计算
         detectDragGestures(onDragEnd = {
-            playerState.onSeeked()
-            totalDrag = 0f
+            if (isSeek) playerState.onSeeked()
+            totalDragX = 0f
+            isSeek = false
+            println("totalDrag")
         }) { _, dragAmount ->
-            if (playerState.videoDurationMs.value == 0L || abs(dragAmount.x) < 3 * abs(dragAmount.y)) return@detectDragGestures
-            totalDrag += dragAmount.x
-            if (abs(totalDrag) > threshold.toPx()) {
-                val deltaMs = dragAmount.x / size.width * maxFastForwardDuration
-                playerState.onSeeking(
-                    (playerState.videoProgress.value + (deltaMs / playerState.videoDurationMs.value)).coerceIn(
-                        0F..1F
+            if (playerState.videoDurationMs.value > 0L && abs(dragAmount.x) > 3 * abs(dragAmount.y)) {
+                totalDragX += dragAmount.x
+                if (abs(totalDragX) > threshold.toPx()) {
+                    val deltaMs = dragAmount.x / size.width * maxFastForwardDuration
+                    playerState.onSeeking(
+                        (playerState.videoProgress.value + (deltaMs / playerState.videoDurationMs.value)).coerceIn(
+                            0F..1F
+                        )
                     )
-                )
+                    isSeek = true
+                }
             }
         }
     }

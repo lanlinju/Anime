@@ -59,13 +59,8 @@ class VideoPlayerStateImpl(
             controlUiLastInteractionMs = 0
             isSeeking.value = true
             isEnded.value = false
-            if (!isControlUiVisible.value) {
-                showControlUi()
-            }
+            if (!isControlUiVisible.value) showControlUi()
             this.videoProgress.value = it
-            if (videoDurationMs.value > 0) {
-                videoPositionMs.value = player.currentPosition
-            }
         }
     override val onSeeked: () -> Unit
         get() = {
@@ -106,15 +101,14 @@ class VideoPlayerStateImpl(
         pollVideoPositionJob?.cancel()
         pollVideoPositionJob = coroutineScope.launch {
             while (true) {
-                if (!isSeeking.value) {
-                    if (videoDurationMs.value > 0) {
-                        videoPositionMs.value = player.currentPosition
+                if (videoDurationMs.value > 0) {
+                    videoPositionMs.value = player.currentPosition
+                    if (!isSeeking.value)
                         videoProgress.value =
                             videoPositionMs.value / videoDurationMs.value.toFloat()
-                    }
-                    controlUiLastInteractionMs += videoPositionPollInterval
-
                 }
+                controlUiLastInteractionMs += videoPositionPollInterval
+
                 delay(videoPositionPollInterval)
                 if (controlUiLastInteractionMs >= hideControllerAfterMs) {
                     hideControlUi()
