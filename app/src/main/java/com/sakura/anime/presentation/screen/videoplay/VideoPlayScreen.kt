@@ -71,7 +71,11 @@ fun VideoPlayScreen(
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 }
 
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                contentAlignment = Alignment.Center, modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
                 VideoPlayer(
                     url = videoUrl,
                     modifier = Modifier
