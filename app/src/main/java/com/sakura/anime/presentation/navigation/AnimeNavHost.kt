@@ -38,7 +38,7 @@ fun AnimeNavHost(
             VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
         composable(Screen.SearchScreen.route) {
-            SearchScreen(navController)
+            SearchScreen(navController=navController,onBackClick=onBackClick)
         }
         composable(Screen.WeekScreen.route) {
             WeekScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail, onSearchClick = onSearchClick)
