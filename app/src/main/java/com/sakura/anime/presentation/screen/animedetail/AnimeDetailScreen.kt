@@ -43,7 +43,7 @@ import com.sakura.anime.R as Res
 
 @Composable
 fun AnimeDetailScreen(
-    viewModel:AnimeDetailViewModel = hiltViewModel(),
+    viewModel: AnimeDetailViewModel = hiltViewModel(),
     onRelatedAnimeClick: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String) -> Unit
 ) {
@@ -80,11 +80,10 @@ fun AnimeDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .padding(
-                                top = bannerHeight,
-                                bottom = dimensionResource(Res.dimen.large_padding)
-                            )
-                            .background(MaterialTheme.colorScheme.background),
+                            .padding(top = bannerHeight)
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(bottom = dimensionResource(Res.dimen.large_padding))
+                            .navigationBarsPadding(),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
