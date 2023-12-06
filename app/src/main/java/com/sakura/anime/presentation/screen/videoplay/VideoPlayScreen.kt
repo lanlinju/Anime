@@ -176,7 +176,6 @@ private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
             if (isSeek) playerState.onSeeked()
             totalDragX = 0f
             isSeek = false
-            println("totalDrag")
         }) { _, dragAmount ->
             if (playerState.videoDurationMs.value > 0L && abs(dragAmount.x) > 3 * abs(dragAmount.y)) {
                 totalDragX += dragAmount.x
