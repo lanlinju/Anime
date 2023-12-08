@@ -24,7 +24,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.exoplayer2.MediaItem
 import kotlin.math.abs
 
-
 private fun Modifier.adaptiveLayout(
     aspectRatio: Float,
 ) = layout { measurable, constraints ->
@@ -207,6 +206,7 @@ fun VideoPlayer(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            playerState.abandonAudioFocus()
             lifecycleOwner.lifecycle.removeObserver(observer)
             playerState.player.release()
         }
@@ -216,9 +216,10 @@ fun VideoPlayer(
         playerState.player.setMediaItem(MediaItem.fromUri(url))
         playerState.player.prepare()
         playerState.player.playWhenReady = true
+        playerState.requestAudioFocus()
     }
 
-    BackHandler() {
+    BackHandler {
         onBackPress()
     }
 }
