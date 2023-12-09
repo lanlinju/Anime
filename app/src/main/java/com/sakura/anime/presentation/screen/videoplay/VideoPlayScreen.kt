@@ -1,19 +1,25 @@
 package com.sakura.anime.presentation.screen.videoplay
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,8 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
@@ -42,9 +50,9 @@ import com.sakura.video_player.VideoPlayerControl
 import com.sakura.video_player.VideoPlayerState
 import com.sakura.video_player.prettyVideoTimestamp
 import com.sakura.video_player.rememberVideoPlayerState
-import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
+@SuppressLint("ServiceCast")
 @Composable
 fun VideoPlayScreen(
     viewModel: VideoPlayViewModel = hiltViewModel(),
@@ -52,8 +60,6 @@ fun VideoPlayScreen(
     activity: Activity
 ) {
     val animeVideoUrlState by viewModel.videoUrlState.collectAsState()
-    val localView = LocalView.current
-    localView.keepScreenOn = true
 
     StateHandler(
         state = animeVideoUrlState,
@@ -62,6 +68,10 @@ fun VideoPlayScreen(
     ) { resource ->
         resource.data?.let { videoUrl ->
             val playerState = rememberVideoPlayerState()
+
+            val localView = LocalView.current
+            localView.keepScreenOn = true
+
             activity.requestedOrientation =
                 if (playerState.isFullscreen.value) {
                     hideSystemBars(LocalView.current)
@@ -70,18 +80,17 @@ fun VideoPlayScreen(
                     showSystemBars(LocalView.current)
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 }
-
             Box(
-                contentAlignment = Alignment.Center, modifier = Modifier
+                modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
             ) {
                 VideoPlayer(
                     url = videoUrl,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.Black)
-                        .defaultPlayerDragGestures(playerState)
                         .adaptiveSize(playerState.isFullscreen.value, localView),
                     playerState = playerState,
                     onBackPress = {
@@ -100,6 +109,8 @@ fun VideoPlayScreen(
                 }
 
                 VideoStateMessage(playerState)
+
+                VolumeBrightnessIndicator(playerState)
 
                 DisposableEffect(localView) {
                     onDispose {
@@ -142,6 +153,60 @@ fun VideoStateMessage(playerState: VideoPlayerState, modifier: Modifier = Modifi
 }
 
 @Composable
+fun VolumeBrightnessIndicator(playerState: VideoPlayerState, modifier: Modifier = Modifier) {
+    if (playerState.isChangingBrightness.value || playerState.isChangingVolume.value) {
+        Box(
+            modifier = modifier
+                .width(200.dp)
+                .aspectRatio(3.5f)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.Black.copy(0.35f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
+            ) {
+                if (playerState.isChangingBrightness.value) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(id = R.drawable.ic_brightness),
+                        tint = Color.White,
+                        contentDescription = stringResource(id = R.string.brightness)
+                    )
+                } else {
+                    if (playerState.volumeBrightnessProgress.value == 0f) {
+                        Icon(
+                            modifier = Modifier.size(32.dp),
+                            painter = painterResource(id = R.drawable.ic_volume_mute),
+                            tint = Color.White,
+                            contentDescription = stringResource(id = R.string.brightness)
+                        )
+                    } else {
+                        Icon(
+                            modifier = Modifier.size(32.dp),
+                            painter = painterResource(id = R.drawable.ic_volume_up),
+                            tint = Color.White,
+                            contentDescription = stringResource(id = R.string.brightness)
+                        )
+                    }
+                }
+
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .padding(dimensionResource(id = R.dimen.medium_padding))
+                        .height(2.dp),
+                    progress = playerState.volumeBrightnessProgress.value,
+                    strokeCap = StrokeCap.Round
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 fun TimelineIndicator(
     videoPositionMs: Long,
     videoDurationMs: Long,
@@ -165,32 +230,6 @@ fun TimelineIndicator(
         )
     }
 }
-
-private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
-    pointerInput(Unit) {
-        var totalDragX = 0f
-        var isSeek = false
-        val maxFastForwardDuration = 100_000L // 最大快进时长为100秒
-        val threshold = 12.dp // 水平距离超过12dp后开始计算
-        detectDragGestures(onDragEnd = {
-            if (isSeek) playerState.onSeeked()
-            totalDragX = 0f
-            isSeek = false
-        }) { _, dragAmount ->
-            if (playerState.videoDurationMs.value > 0L && abs(dragAmount.x) > 3 * abs(dragAmount.y)) {
-                totalDragX += dragAmount.x
-                if (abs(totalDragX) > threshold.toPx()) {
-                    val deltaMs = dragAmount.x / size.width * maxFastForwardDuration
-                    playerState.onSeeking(
-                        (playerState.videoProgress.value + (deltaMs / playerState.videoDurationMs.value)).coerceIn(
-                            0F..1F
-                        )
-                    )
-                    isSeek = true
-                }
-            }
-        }
-    }
 
 private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View): Modifier {
     return if (fullscreen) {

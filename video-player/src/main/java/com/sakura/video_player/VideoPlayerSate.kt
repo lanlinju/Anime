@@ -1,6 +1,13 @@
 package com.sakura.video_player
 
+import android.app.Activity
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
+import android.view.Window
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +33,8 @@ fun rememberVideoPlayerState(
 ): VideoPlayerState = remember {
     VideoPlayerStateImpl(
         player = ExoPlayer.Builder(context).apply(config).build(),
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager,
+        window = (context as Activity).window,
         coroutineScope = coroutineScope,
         hideControllerAfterMs = hideControllerAfterMs,
         videoPositionPollInterval = videoPositionPollInterval
@@ -36,6 +45,8 @@ fun rememberVideoPlayerState(
 
 class VideoPlayerStateImpl(
     override val player: ExoPlayer,
+    override val audioManager: AudioManager,
+    override val window: Window,
     private val coroutineScope: CoroutineScope,
     private val hideControllerAfterMs: Long,
     private val videoPositionPollInterval: Long,
@@ -52,7 +63,11 @@ class VideoPlayerStateImpl(
     override val playerState = mutableStateOf(player.playbackState)
 
     override val isSeeking = mutableStateOf(false)
+    override val isChangingVolume = mutableStateOf(false)
+    override val isChangingBrightness = mutableStateOf(false)
+
     override val videoProgress = mutableStateOf(0F)
+    override val volumeBrightnessProgress = mutableStateOf(0F)
 
     override val onSeeking: (Float) -> Unit
         get() = {
@@ -67,6 +82,21 @@ class VideoPlayerStateImpl(
             isSeeking.value = false
             player.seekTo((player.duration * videoProgress.value).toLong())
         }
+
+    override fun onChangeVolume(value: Float) {
+        isChangingVolume.value = true
+        volumeBrightnessProgress.value = value
+    }
+
+    override fun onChangeBrightness(value: Float) {
+        isChangingBrightness.value = true
+        volumeBrightnessProgress.value = value
+    }
+
+    override fun onChanged() {
+        isChangingVolume.value = false
+        isChangingBrightness.value = false
+    }
 
     override val isControlUiVisible = mutableStateOf(false)
     override val control = object : VideoPlayerControl {
@@ -133,6 +163,36 @@ class VideoPlayerStateImpl(
         }
     }
 
+    private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                control.play() // 重新获得焦点，恢复播放
+            }
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                control.pause() // Permanent loss of audio focus，Pause playback immediately
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                control.pause() // 暂时失去音频焦点，暂停播放
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                // 暂时失去音频焦点，但可以继续播放，不过需要降低音量(系统默认降低音量)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val focusRequest =
+        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT).run {
+            setAudioAttributes(AudioAttributes.Builder().run {
+                setUsage(AudioAttributes.USAGE_MEDIA)
+                setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                build()
+            })
+            setAcceptsDelayedFocusGain(true)
+            setOnAudioFocusChangeListener(audioFocusChangeListener)
+            build()
+        }
+
     override fun onVideoSizeChanged(videoSize: VideoSize) {
         this.videoSize.value = videoSize
     }
@@ -140,11 +200,23 @@ class VideoPlayerStateImpl(
     override fun onPlayerError(error: PlaybackException) {
         isError.value = true
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun requestAudioFocus() {
+        audioManager.requestAudioFocus(focusRequest)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun abandonAudioFocus() {
+        audioManager.abandonAudioFocusRequest(focusRequest)
+    }
 }
 
 
 interface VideoPlayerState {
     val player: ExoPlayer
+    val audioManager: AudioManager
+    val window: Window
 
     val videoSize: State<VideoSize>
     val videoPositionMs: State<Long>
@@ -158,10 +230,20 @@ interface VideoPlayerState {
     val playerState: State<Int>
 
     val isSeeking: State<Boolean>
+    val isChangingVolume: State<Boolean>
+    val isChangingBrightness: State<Boolean>
     val videoProgress: State<Float> /*0f - 1f*/
+    val volumeBrightnessProgress: State<Float>
 
     val onSeeking: (dragProcess: Float) -> Unit
     val onSeeked: () -> Unit
+
+    fun onChangeVolume(value: Float)
+    fun onChangeBrightness(value: Float)
+    fun onChanged()
+
+    fun requestAudioFocus()
+    fun abandonAudioFocus()
 
     val isControlUiVisible: State<Boolean>
     val control: VideoPlayerControl
