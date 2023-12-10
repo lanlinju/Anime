@@ -180,7 +180,6 @@ class VideoPlayerStateImpl(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private val focusRequest =
         AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT).run {
             setAudioAttributes(AudioAttributes.Builder().run {
@@ -201,12 +200,10 @@ class VideoPlayerStateImpl(
         isError.value = true
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun requestAudioFocus() {
         audioManager.requestAudioFocus(focusRequest)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun abandonAudioFocus() {
         audioManager.abandonAudioFocusRequest(focusRequest)
     }
