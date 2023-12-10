@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -84,11 +85,17 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
-    //hilt navigation
+    // hilt navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // coil
     implementation("io.coil-kt:coil-compose:2.1.0")
+
+    // room
+    val room_version = "2.5.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 }
 
 kapt {
