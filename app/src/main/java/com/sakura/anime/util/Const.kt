@@ -7,4 +7,7 @@ const val CROSSFADE_DURATION = 500
 
 val TABS = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 
-val GITHUB_ADDR = "https://github.com/Lanlinju/Anime"
+const val GITHUB_ADDR = "https://github.com/Lanlinju/Anime"
+
+const val ANIME_DATABASE = "anime_database.db"
+const val FAVOURITE_TABLE = "favourite_table"

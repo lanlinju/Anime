@@ -4,14 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.sakura.anime.R
-import com.sakura.anime.presentation.component.LoadingIndicator
-import com.sakura.anime.presentation.component.StateHandler
-import com.sakura.anime.presentation.component.WarningMessage
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
@@ -38,6 +31,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +46,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.presentation.component.LoadingIndicator
+import com.sakura.anime.presentation.component.StateHandler
+import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDR
 import com.sakura.anime.util.TABS
 import kotlinx.coroutines.launch
@@ -60,6 +61,7 @@ import java.time.LocalDate
 @Composable
 fun WeekScreen(
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
+    onNavigateToFavourite: () -> Unit,
     onSearchClick: () -> Unit
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
@@ -85,6 +87,13 @@ fun WeekScreen(
                 )
             },
             actions = {
+                IconButton(onClick = onNavigateToFavourite) {
+                    Icon(
+                        imageVector = Icons.Rounded.FavoriteBorder,
+                        contentDescription = stringResource(id = R.string.favourite)
+                    )
+                }
+
                 IconButton(onClick = onSearchClick) {
                     Icon(
                         imageVector = Icons.Rounded.Search,

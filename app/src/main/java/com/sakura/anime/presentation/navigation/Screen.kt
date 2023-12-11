@@ -19,4 +19,5 @@ sealed class Screen(
     }
     object SearchScreen : Screen(route = "search")
     object WeekScreen : Screen(route = "week")
+    object FavouriteScreen : Screen(route = "favourite")
 }

@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
+import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
@@ -19,6 +20,7 @@ fun AnimeNavHost(
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String) -> Unit,
+    onNavigateToFavourite: () -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
@@ -32,17 +34,29 @@ fun AnimeNavHost(
             HomeScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail)
         }
         composable(Screen.AnimeDetailScreen.route) {
-            AnimeDetailScreen(onRelatedAnimeClick = onNavigateToAnimeDetail, onEpisodeClick = onEpisodeClick)
+            AnimeDetailScreen(
+                onRelatedAnimeClick = onNavigateToAnimeDetail,
+                onEpisodeClick = onEpisodeClick
+            )
         }
         composable(Screen.VideoPlayScreen.route) {
             VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
         composable(Screen.SearchScreen.route) {
-            SearchScreen(navController=navController,onBackClick=onBackClick)
+            SearchScreen(navController = navController, onBackClick = onBackClick)
         }
         composable(Screen.WeekScreen.route) {
-            WeekScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail, onSearchClick = onSearchClick)
+            WeekScreen(
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
+                onSearchClick = onSearchClick,
+                onNavigateToFavourite = onNavigateToFavourite
+            )
         }
-
+        composable(Screen.FavouriteScreen.route) {
+            FavouriteScreen(
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
+                onBackClick = onBackClick
+            )
+        }
     }
 }

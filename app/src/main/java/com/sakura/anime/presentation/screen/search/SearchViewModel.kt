@@ -15,9 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel@Inject constructor(
+class SearchViewModel @Inject constructor(
     private val repository: AnimeRepository
-):ViewModel() {
+) : ViewModel() {
     private val _isLoading = Channel<Boolean>()
     val isLoading: Flow<Boolean>
         get() = _isLoading.receiveAsFlow()
@@ -34,15 +34,15 @@ class SearchViewModel@Inject constructor(
         getSearchData(query)
     }
 
-    fun clearSearchQuery(){
+    fun clearSearchQuery() {
         _query.value = ""
     }
 
-    fun onQuery(query:String){
+    fun onQuery(query: String) {
         _query.value = query
     }
 
-     fun getSearchData(query: String){
+    fun getSearchData(query: String) {
         viewModelScope.launch {
             _isLoading.send(true)
             _animes.value = when (val response = repository.getSearchData(query)) {

@@ -1,7 +1,6 @@
 package com.sakura.anime.presentation.component
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +36,7 @@ import com.sakura.anime.R as Res
 /**
  * A [LazyRow] of [MediaSmall]s.
  *
- * @param mediaList A list of [MediaListQuery.Medium]s.
+ * @param mediaList A list of [HomeItem]s.
  */
 @Composable
 fun <T> MediaSmallRow(
@@ -75,11 +74,13 @@ fun MediaSmall(
     image: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     label: String? = null,
 ) {
     Card(
         modifier = modifier,
         onClick = onClick,
+        enabled = enabled,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),

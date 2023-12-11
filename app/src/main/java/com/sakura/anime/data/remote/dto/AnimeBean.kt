@@ -13,8 +13,8 @@ data class AnimeBean(
     val img: String,
     val url: String,
     val episode: String = ""
-){
-    fun toAnime():Anime{
+) {
+    fun toAnime(): Anime {
         return Anime(
             title = title,
             img = img,

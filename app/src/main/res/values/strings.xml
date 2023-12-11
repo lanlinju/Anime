@@ -13,6 +13,10 @@
     <!-- week  -->
     <string name="lbl_schedule">时间表</string>
 
+    <string name="my_favourite">我的收藏</string>
+    <string name="add_favourite">添加收藏成功！</string>
+    <string name="remove_favourite">移除收藏成功！</string>
+
     <string name="home">Home</string>
     <string name="profile">Profile</string>
     <string name="search">Search</string>
@@ -23,4 +27,5 @@
     <string name="brightness">brightness</string>
     <string name="volume_mute">volume mute</string>
     <string name="volume_up">volume up</string>
+    <string name="favourite">favourite</string>
 </resources>

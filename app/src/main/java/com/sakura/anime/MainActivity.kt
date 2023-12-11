@@ -63,6 +63,9 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onBackClick = {
                 navController.popBackStack()
             },
+            onNavigateToFavourite = {
+                navController.navigate(Screen.FavouriteScreen.route)
+            },
             onSearchClick = {
                 navController.navigate(Screen.SearchScreen.route)
             },
