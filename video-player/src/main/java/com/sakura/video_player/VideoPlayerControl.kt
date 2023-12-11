@@ -121,7 +121,7 @@ private fun ControlHeader(
             Text(
                 text = title,
                 color = LocalContentColor.current,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

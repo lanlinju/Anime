@@ -19,7 +19,7 @@ fun AnimeNavHost(
     navController: NavHostController,
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
-    onEpisodeClick: (episodeUrl: String) -> Unit,
+    onEpisodeClick: (episodeUrl: String, title: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,

@@ -80,7 +80,7 @@ import com.sakura.anime.R as Res
 fun AnimeDetailScreen(
     viewModel: AnimeDetailViewModel = hiltViewModel(),
     onRelatedAnimeClick: (detailUrl: String) -> Unit,
-    onEpisodeClick: (episodeUrl: String) -> Unit
+    onEpisodeClick: (episodeUrl: String, title: String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
@@ -165,6 +165,7 @@ fun AnimeDetailScreen(
 
                         AnimeEpisodes(
                             episodes = animeDetail.episodes,
+                            title = animeDetail.title,
                             contentPadding = PaddingValues(
                                 start = dimensionResource(Res.dimen.large_padding) + if (
                                     LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -341,10 +342,11 @@ fun AnimeGenres(
 @Composable
 fun AnimeEpisodes(
     episodes: List<Episode>,
+    title: String,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
-    onEpisodeClick: (episodeUrl: String) -> Unit
+    onEpisodeClick: (episodeUrl: String, title: String) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(
@@ -355,7 +357,7 @@ fun AnimeEpisodes(
     ) {
         items(episodes) { episode ->
             FilledTonalButton(
-                onClick = { onEpisodeClick(episode.url) },
+                onClick = { onEpisodeClick(episode.url, "$title-${episode.name}") },
                 colors = ButtonDefaults.buttonColors(containerColor = color.copy(0.5f))
             ) {
                 Text(

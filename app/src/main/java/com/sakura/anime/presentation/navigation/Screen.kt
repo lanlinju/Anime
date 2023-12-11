@@ -3,7 +3,8 @@ package com.sakura.anime.presentation.navigation
 import android.net.Uri
 
 const val DETAIL_ARGUMENT_URL = "detailUrl"
-const val Video_ARGUMENT_EPISODE_URL = "episodeUrl"
+const val VIDEO_ARGUMENT_EPISODE_URL = "episodeUrl"
+const val VIDEO_ARGUMENT_TITLE = "episodeTitleUrl"
 
 sealed class Screen(
     val route: String
@@ -15,9 +16,10 @@ sealed class Screen(
         }
     }
 
-    object VideoPlayScreen : Screen(route = "videoPlay/{$Video_ARGUMENT_EPISODE_URL}") {
-        fun passUrl(episodeUrl: String): String {
-            return "videoPlay/${Uri.encode(episodeUrl)}"
+    object VideoPlayScreen :
+        Screen(route = "videoPlay/{$VIDEO_ARGUMENT_EPISODE_URL}/{$VIDEO_ARGUMENT_TITLE}") {
+        fun passUrl(episodeUrl: String, title: String): String {
+            return "videoPlay/${Uri.encode(episodeUrl)}/$title"
         }
     }
 

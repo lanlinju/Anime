@@ -100,7 +100,7 @@ fun VideoPlayScreen(
                 ) {
                     VideoPlayerControl(
                         state = playerState,
-                        title = "",
+                        title = viewModel.animeTitle,
                         onBackClick = {
                             playerState.control.setFullscreen(false)
                             onBackClick()
