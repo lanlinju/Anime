@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.videoplay
 
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,7 +26,7 @@ class VideoPlayViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>(key = Video_ARGUMENT_EPISODE_URL)?.let { episodeUrl ->
-            getVideoUrl(episodeUrl)
+            getVideoUrl(Uri.decode(episodeUrl))
         }
     }
 

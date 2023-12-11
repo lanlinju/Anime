@@ -1,5 +1,6 @@
 package com.sakura.anime.presentation.screen.animedetail
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,8 +38,8 @@ class AnimeDetailViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>(key = DETAIL_ARGUMENT_URL)?.let { detailUrl ->
-            this.detailUrl = detailUrl
-            getAnimeDetail(detailUrl)
+            this.detailUrl = Uri.decode(detailUrl)
+            getAnimeDetail(this.detailUrl)
         }
     }
 

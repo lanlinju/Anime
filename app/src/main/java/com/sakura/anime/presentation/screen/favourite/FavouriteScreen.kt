@@ -64,7 +64,7 @@ fun FavouriteScreen(
                 resource.data?.let { favouriteList ->
                     items(favouriteList) { anime ->
                         MediaSmall(image = anime.imgUrl, label = anime.title, onClick = {
-                            onNavigateToAnimeDetail("/show/${anime.detailUrl}")
+                            onNavigateToAnimeDetail(anime.detailUrl)
                         })
                     }
                 }
