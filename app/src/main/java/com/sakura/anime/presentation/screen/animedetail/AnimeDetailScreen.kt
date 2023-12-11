@@ -1,13 +1,46 @@
 package com.sakura.anime.presentation.screen.animedetail
 
+import android.content.Context
 import android.content.res.Configuration
 import android.text.Html
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,7 +62,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.componentsui.anime.domain.model.Anime
+import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.MediaSmallRow
@@ -51,6 +86,9 @@ fun AnimeDetailScreen(
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
 
     val animeDetailState by viewModel.animeDetailState.collectAsState()
+    val isFavourite by viewModel.isFavourite.collectAsState()
+
+    val view = LocalContext.current
 
     StateHandler(
         state = animeDetailState,
@@ -160,12 +198,48 @@ fun AnimeDetailScreen(
                             image = animeDetail.img,
                             label = null,
                             onClick = {},
+                            enabled = false,
                             modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
                         )
+
+                        FavouriteIcon(isFavourite, animeDetail, viewModel, view)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FavouriteIcon(
+    isFavourite: Boolean,
+    animeDetail: AnimeDetail,
+    viewModel: AnimeDetailViewModel,
+    view: Context
+) {
+    val msg = stringResource(
+        id = if (!isFavourite) Res.string.add_favourite else Res.string.remove_favourite
+    )
+    IconButton(
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                alpha = 0.45f
+            )
+        ),
+        onClick = {
+            val favourite = Favourite(
+                animeDetail.title,
+                viewModel.detailUrl,
+                animeDetail.img
+            )
+            Toast.makeText(view, msg, Toast.LENGTH_SHORT).show()
+            viewModel.favourite(favourite)
+        }) {
+        Icon(
+            if (isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+            contentDescription = stringResource(id = Res.string.favourite),
+            tint = Color.White,
+        )
     }
 }
 
