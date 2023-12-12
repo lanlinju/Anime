@@ -8,13 +8,19 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -121,25 +127,39 @@ private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
         }
     }
 
-private fun Modifier.defaultPlayerTapGestures(playerState: VideoPlayerState) =
-    pointerInput(Unit) {
-        detectTapGestures(
-            onDoubleTap = {
-                if (playerState.isPlaying.value) {
-                    playerState.control.pause()
-                } else {
-                    playerState.control.play()
-                }
-            },
-            onTap = {
-                if (playerState.isControlUiVisible.value) {
-                    playerState.hideControlUi()
-                } else {
-                    playerState.showControlUi()
-                }
+private fun Modifier.defaultPlayerTapGestures(
+    playerState: VideoPlayerState,
+    haptics: HapticFeedback,
+) = pointerInput(Unit) {
+    detectTapGestures(
+        onTap = {
+            if (playerState.isControlUiVisible.value) {
+                playerState.hideControlUi()
+            } else {
+                playerState.showControlUi()
             }
-        )
-    }
+        },
+        onDoubleTap = {
+            if (playerState.isPlaying.value) {
+                playerState.control.pause()
+            } else {
+                playerState.control.play()
+            }
+        },
+        onLongPress = {
+            if (playerState.isPlaying.value) {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                playerState.onLongPress()
+            }
+        },
+        onPress = {
+            tryAwaitRelease()
+            if (playerState.isLongPress.value) {
+                playerState.onDisLongPress()
+            }
+        }
+    )
+}
 
 @Composable
 private fun VideoPlayer(
@@ -147,10 +167,12 @@ private fun VideoPlayer(
     playerState: VideoPlayerState,
     controller: @Composable () -> Unit
 ) {
+    val haptics = LocalHapticFeedback.current
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .defaultPlayerTapGestures(playerState)
+            .defaultPlayerTapGestures(playerState, haptics)
             .defaultPlayerDragGestures(playerState)
     ) {
 

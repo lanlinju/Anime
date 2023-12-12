@@ -5,9 +5,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.os.Build
 import android.view.Window
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +61,7 @@ class VideoPlayerStateImpl(
     override val playerState = mutableStateOf(player.playbackState)
 
     override val isSeeking = mutableStateOf(false)
+    override val isLongPress = mutableStateOf(false)
     override val isChangingVolume = mutableStateOf(false)
     override val isChangingBrightness = mutableStateOf(false)
 
@@ -98,6 +97,16 @@ class VideoPlayerStateImpl(
         isChangingBrightness.value = false
     }
 
+    override fun onLongPress() {
+        isLongPress.value = true
+        control.setPlaybackSpeed(2.0f)
+    }
+
+    override fun onDisLongPress() {
+        isLongPress.value = false
+        control.setPlaybackSpeed(1.0f)
+    }
+
     override val isControlUiVisible = mutableStateOf(false)
     override val control = object : VideoPlayerControl {
         override fun play() {
@@ -113,6 +122,10 @@ class VideoPlayerStateImpl(
         override fun setFullscreen(value: Boolean) {
             controlUiLastInteractionMs = 0
             isFullscreen.value = value
+        }
+
+        override fun setPlaybackSpeed(speed: Float) {
+            player.setPlaybackSpeed(speed)
         }
     }
 
@@ -168,12 +181,15 @@ class VideoPlayerStateImpl(
             AudioManager.AUDIOFOCUS_GAIN -> {
                 control.play() // 重新获得焦点，恢复播放
             }
+
             AudioManager.AUDIOFOCUS_LOSS -> {
                 control.pause() // Permanent loss of audio focus，Pause playback immediately
             }
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 control.pause() // 暂时失去音频焦点，暂停播放
             }
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // 暂时失去音频焦点，但可以继续播放，不过需要降低音量(系统默认降低音量)
             }
@@ -227,6 +243,7 @@ interface VideoPlayerState {
     val playerState: State<Int>
 
     val isSeeking: State<Boolean>
+    val isLongPress: State<Boolean>
     val isChangingVolume: State<Boolean>
     val isChangingBrightness: State<Boolean>
     val videoProgress: State<Float> /*0f - 1f*/
@@ -238,6 +255,9 @@ interface VideoPlayerState {
     fun onChangeVolume(value: Float)
     fun onChangeBrightness(value: Float)
     fun onChanged()
+
+    fun onLongPress()
+    fun onDisLongPress()
 
     fun requestAudioFocus()
     fun abandonAudioFocus()
@@ -254,4 +274,6 @@ interface VideoPlayerControl {
     fun pause()
 
     fun setFullscreen(value: Boolean)
+    fun setPlaybackSpeed(speed: Float)
+
 }

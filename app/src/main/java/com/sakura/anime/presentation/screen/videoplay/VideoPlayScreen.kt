@@ -1,9 +1,15 @@
 package com.sakura.anime.presentation.screen.videoplay
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +18,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -41,10 +50,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sakura.anime.R
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
-import com.sakura.anime.R
 import com.sakura.video_player.VideoPlayer
 import com.sakura.video_player.VideoPlayerControl
 import com.sakura.video_player.VideoPlayerState
@@ -52,7 +61,6 @@ import com.sakura.video_player.prettyVideoTimestamp
 import com.sakura.video_player.rememberVideoPlayerState
 import kotlin.time.Duration.Companion.milliseconds
 
-@SuppressLint("ServiceCast")
 @Composable
 fun VideoPlayScreen(
     viewModel: VideoPlayViewModel = hiltViewModel(),
@@ -147,6 +155,65 @@ fun VideoStateMessage(playerState: VideoPlayerState, modifier: Modifier = Modifi
             TimelineIndicator(
                 (playerState.videoDurationMs.value * playerState.videoProgress.value).toLong(),
                 playerState.videoDurationMs.value
+            )
+        }
+
+        if (playerState.isLongPress.value) {
+            FastForwardIndicator(Modifier.align(Alignment.TopCenter))
+        }
+
+    }
+}
+
+@Composable
+fun FastForwardIndicator(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .padding(top = dimensionResource(id = R.dimen.medium_padding))
+            .height(40.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color.Black.copy(0.35f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FastForwardAnimation()
+
+            Text(
+                text = stringResource(id = R.string.fast_forward_2x),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                modifier = Modifier.offset(-12.dp)
+            )
+        }
+
+    }
+}
+
+@Composable
+fun FastForwardAnimation(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition()
+
+    Row(modifier) {
+        repeat(3) { index ->
+            val color by transition.animateColor(
+                initialValue = Color.LightGray.copy(alpha = 0.1f),
+                targetValue = Color.LightGray,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 500, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                    initialStartOffset = StartOffset(index * 250)
+                )
+            )
+
+            Icon(
+                imageVector = Icons.Rounded.PlayArrow,
+                contentDescription = "",
+                modifier = Modifier.offset(-(index * 12).dp),
+                tint = color
             )
         }
     }

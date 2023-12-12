@@ -28,4 +28,5 @@
     <string name="volume_mute">volume mute</string>
     <string name="volume_up">volume up</string>
     <string name="favourite">favourite</string>
+    <string name="fast_forward_2x">2x倍速中</string>
 </resources>
