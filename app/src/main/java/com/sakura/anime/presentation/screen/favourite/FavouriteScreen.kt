@@ -2,6 +2,7 @@ package com.sakura.anime.presentation.screen.favourite
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -38,7 +39,7 @@ fun FavouriteScreen(
     StateHandler(state = availableDataList.value, onLoading = {
         LoadingIndicator()
     }, onFailure = {}) { resource ->
-        Scaffold(topBar = {
+        Scaffold(modifier = Modifier.displayCutoutPadding(), topBar = {
             TopAppBar(title = {
                 Text(
                     text = stringResource(id = R.string.my_favourite),

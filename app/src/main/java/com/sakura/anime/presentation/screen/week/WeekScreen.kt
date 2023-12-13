@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -75,7 +75,7 @@ fun WeekScreen(
         Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
-            .navigationBarsPadding()
+            .displayCutoutPadding()
     ) {
         var expanded by remember { mutableStateOf(false) }
         val uriHandler = LocalUriHandler.current
