@@ -65,6 +65,7 @@ import com.example.componentsui.anime.domain.model.Anime
 import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Favourite
+import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.MediaSmallRow
@@ -165,7 +166,6 @@ fun AnimeDetailScreen(
 
                         AnimeEpisodes(
                             episodes = animeDetail.episodes,
-                            title = animeDetail.title,
                             contentPadding = PaddingValues(
                                 start = dimensionResource(Res.dimen.large_padding) + if (
                                     LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -175,7 +175,17 @@ fun AnimeDetailScreen(
                                 } else 0.dp,
                                 end = dimensionResource(Res.dimen.large_padding)
                             ),
-                            onEpisodeClick = onEpisodeClick
+                            onEpisodeClick = { episode ->
+                                val history =
+                                    History(
+                                        title = animeDetail.title,
+                                        imgUrl = animeDetail.img,
+                                        detailUrl = viewModel.detailUrl,
+                                        episodes = listOf(episode)
+                                    )
+                                viewModel.addHistory(history)
+                                onEpisodeClick(episode.url, "${animeDetail.title}-${episode.name}")
+                            }
                         )
 
                         AnimeRelated(
@@ -342,11 +352,10 @@ fun AnimeGenres(
 @Composable
 fun AnimeEpisodes(
     episodes: List<Episode>,
-    title: String,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
-    onEpisodeClick: (episodeUrl: String, title: String) -> Unit
+    onEpisodeClick: (episode: Episode) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(
@@ -357,7 +366,7 @@ fun AnimeEpisodes(
     ) {
         items(episodes) { episode ->
             FilledTonalButton(
-                onClick = { onEpisodeClick(episode.url, "$title-${episode.name}") },
+                onClick = { onEpisodeClick(episode) },
                 colors = ButtonDefaults.buttonColors(containerColor = color.copy(0.5f))
             ) {
                 Text(

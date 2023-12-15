@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Favourite
+import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
@@ -54,6 +55,12 @@ class AnimeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _isFavourite.value = !_isFavourite.value
             roomRepository.addOrRemoveFavourite(favourite)
+        }
+    }
+
+    fun addHistory(history: History) {
+        viewModelScope.launch {
+            roomRepository.addHistory(history)
         }
     }
 }

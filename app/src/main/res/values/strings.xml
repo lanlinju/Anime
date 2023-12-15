@@ -3,6 +3,7 @@
     <string name="txt_empty_result">Oops...! we couldn\'t find the Anime</string>
     <string name="lbl_anime">Anime</string>
     <string name="lbl_related_anime">相关推荐</string>
+    <string name="lbl_anime_img">动漫封面</string>
     <string name="video_error_msg">视频加载失败</string>
     <string name="video_ended_msg">视频播放完毕</string>
 
@@ -28,5 +29,8 @@
     <string name="volume_mute">volume mute</string>
     <string name="volume_up">volume up</string>
     <string name="favourite">favourite</string>
+    <string name="history">history</string>
     <string name="fast_forward_2x">2x倍速中</string>
+    <string name="resume_play">继续播放</string>
+    <string name="play_history">播放记录</string>
 </resources>

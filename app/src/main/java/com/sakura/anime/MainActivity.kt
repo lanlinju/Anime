@@ -66,6 +66,9 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToFavourite = {
                 navController.navigate(Screen.FavouriteScreen.route)
             },
+            onNavigateToHistory = {
+                navController.navigate(Screen.HistoryScreen.route)
+            },
             onSearchClick = {
                 navController.navigate(Screen.SearchScreen.route)
             },

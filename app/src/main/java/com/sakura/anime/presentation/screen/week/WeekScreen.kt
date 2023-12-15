@@ -6,11 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -62,6 +63,7 @@ import java.time.LocalDate
 fun WeekScreen(
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     onSearchClick: () -> Unit
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
@@ -75,7 +77,8 @@ fun WeekScreen(
         Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
-            .displayCutoutPadding()
+            .navigationBarsPadding()
+            .statusBarsPadding()
     ) {
         var expanded by remember { mutableStateOf(false) }
         val uriHandler = LocalUriHandler.current
@@ -93,6 +96,14 @@ fun WeekScreen(
                         contentDescription = stringResource(id = R.string.favourite)
                     )
                 }
+
+                IconButton(onClick = onNavigateToHistory) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_history),
+                        contentDescription = stringResource(id = R.string.history)
+                    )
+                }
+
 
                 IconButton(onClick = onSearchClick) {
                     Icon(

@@ -18,4 +18,7 @@
     <dimen name="trailer_corner_radius">30dp</dimen>
 
     <dimen name="edge_gradient_size">8dp</dimen>
+
+    <dimen name="history_item_height">80dp</dimen>
+    <dimen name="history_cover_radius">8dp</dimen>
 </resources>

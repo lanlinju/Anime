@@ -1,7 +1,9 @@
 package com.sakura.anime.data.repository
 
 import com.sakura.anime.data.local.database.AnimeDatabase
+import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.domain.model.Favourite
+import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -13,6 +15,8 @@ class RoomRepositoryImpl @Inject constructor(
     private val database: AnimeDatabase
 ) : RoomRepository {
     private val favouriteDao = database.favouriteDao()
+    private val historyDao = database.historyDao()
+    private val episodeDao = database.episodeDao()
 
     override suspend fun getFavourites(): Flow<List<Favourite>> {
         return favouriteDao.getAllFavourites()
@@ -35,4 +39,35 @@ class RoomRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun addHistory(history: History) {
+        val isStoredHistory = checkHistory(history.detailUrl).first()
+        with(history.episodes.first()) {
+            var historyId: Long
+            if (!isStoredHistory) {
+                historyId = historyDao.insertHistory(history.toHistoryEntity())
+            } else {
+                historyId = historyDao.getHistory(history.detailUrl).first().historyId
+                historyDao.updateHistoryDate(history.detailUrl)
+            }
+            val episodeEntity =
+                EpisodeEntity(historyId = historyId, name = name, episodeUrl = url)
+            episodeDao.insertEpisode(episodeEntity)
+        }
+    }
+
+    override suspend fun checkHistory(detailUrl: String): Flow<Boolean> {
+        return flow {
+            historyDao.checkHistory(detailUrl).collect {
+                emit(value = it != null)
+            }
+        }
+    }
+
+    override suspend fun getHistories(): Flow<List<History>> {
+        return historyDao.getHistories().map {
+            it.map { it.toHistory() }
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.sakura.anime.domain.repository
 
 import com.sakura.anime.domain.model.Favourite
+import com.sakura.anime.domain.model.History
 import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
@@ -9,4 +10,10 @@ interface RoomRepository {
     suspend fun addOrRemoveFavourite(favourite: Favourite)
 
     suspend fun checkFavourite(detailUrl: String): Flow<Boolean>
+
+    suspend fun addHistory(history: History)
+
+    suspend fun checkHistory(detailUrl: String): Flow<Boolean>
+
+    suspend fun getHistories(): Flow<List<History>>
 }

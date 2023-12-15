@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
 import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
+import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
@@ -21,6 +22,7 @@ fun AnimeNavHost(
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String, title: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
@@ -49,7 +51,8 @@ fun AnimeNavHost(
             WeekScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onSearchClick = onSearchClick,
-                onNavigateToFavourite = onNavigateToFavourite
+                onNavigateToFavourite = onNavigateToFavourite,
+                onNavigateToHistory = onNavigateToHistory,
             )
         }
         composable(Screen.FavouriteScreen.route) {
@@ -58,5 +61,13 @@ fun AnimeNavHost(
                 onBackClick = onBackClick
             )
         }
+        composable(Screen.HistoryScreen.route) {
+            HistoryScreen(
+                onBackClick = onBackClick,
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
+                onPlayClick = onEpisodeClick
+            )
+        }
+
     }
 }
