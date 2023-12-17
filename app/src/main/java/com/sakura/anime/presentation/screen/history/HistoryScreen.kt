@@ -77,6 +77,7 @@ fun HistoryScreen(
                 modifier = Modifier
                     .systemBarsPadding()
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 TopAppBar(
                     title = { Text(stringResource(id = R.string.play_history)) },
@@ -90,7 +91,6 @@ fun HistoryScreen(
                     })
 
                 LazyColumn(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
                 ) {
                     items(histories, key = { item -> item.detailUrl }) { history ->
