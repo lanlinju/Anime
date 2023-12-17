@@ -70,4 +70,8 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteHistory(detailUrl: String) {
+        historyDao.deleteHistory(detailUrl)
+    }
+
 }

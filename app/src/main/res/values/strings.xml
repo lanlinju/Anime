@@ -13,6 +13,7 @@
     
     <!-- week  -->
     <string name="lbl_schedule">时间表</string>
+    <string name="github_repo">GitHub仓库</string>
 
     <string name="my_favourite">我的收藏</string>
     <string name="add_favourite">添加收藏成功！</string>
@@ -33,4 +34,5 @@
     <string name="fast_forward_2x">2x倍速中</string>
     <string name="resume_play">继续播放</string>
     <string name="play_history">播放记录</string>
+    <string name="delete">删除</string>
 </resources>

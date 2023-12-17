@@ -4,6 +4,8 @@
     <dimen name="medium_padding">16dp</dimen>
     <dimen name="large_padding">24dp</dimen>
 
+    <dimen name="lager_corner_radius">16dp</dimen>
+
     <dimen name="media_card_corner_radius">18dp</dimen>
     <dimen name="media_card_text_padding_horizontal">16dp</dimen>
     <dimen name="media_card_text_padding_vertical">10dp</dimen>

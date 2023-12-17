@@ -56,6 +56,27 @@ class EpisodeDaoTest {
         Assert.assertEquals(episodes.size, 2)
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun daoGetAllEpisodes_returnsAllEpisodesFromDB() = runBlocking {
+        addTwoEpisodesToDb()
+        val history = historyDao.getHistory("/video1").first()
+
+        val episodes = episodeDao.getEpisodes(history.historyId).first()
+        Assert.assertEquals(episodes.size, 2)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun daoDeleteEpisodes_DatabaseWillBeEmpty() = runBlocking {
+        addOneEpisodesToDb()
+        episodeDao.deleteAll()
+
+        val history = historyDao.getHistory("/video1").first()
+        val episodes = episodeDao.getEpisodes(history.historyId).first()
+        Assert.assertEquals(episodes.size, 0)
+    }
+
     private suspend fun addOneHistoryToDb() {
         historyDao.insertHistory(history1)
     }

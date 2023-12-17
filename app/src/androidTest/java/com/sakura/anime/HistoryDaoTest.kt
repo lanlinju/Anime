@@ -87,6 +87,15 @@ class HistoryDaoTest {
         Assert.assertNotEquals(history1.updatedAt, actualHistory.updatedAt)
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun daoDeleteOneHistory_deleteOneHistoryFromDB() = runBlocking {
+        addOneHistoryToDb()
+        historyDao.deleteHistory(history1.detailUrl)
+        val actualHistory = historyDao.checkHistory(history1.detailUrl).first()
+        Assert.assertNull(actualHistory)
+    }
+
     private suspend fun addOneHistoryToDb() {
         historyDao.insertHistory(history1)
     }

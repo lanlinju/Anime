@@ -124,7 +124,7 @@ fun WeekScreen(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("GitHub仓库") },
+                            text = { Text(stringResource(id = R.string.github_repo)) },
                             onClick = {
                                 expanded = false
                                 uriHandler.openUri(GITHUB_ADDR)

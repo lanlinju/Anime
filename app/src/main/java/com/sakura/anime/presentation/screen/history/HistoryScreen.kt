@@ -1,10 +1,13 @@
 package com.sakura.anime.presentation.screen.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -19,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,14 +34,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -45,11 +55,11 @@ import com.sakura.anime.R
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
-import com.sakura.anime.util.ASPECT_RATIO
+import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HistoryScreen(
     onBackClick: () -> Unit,
@@ -84,11 +94,41 @@ fun HistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
                 ) {
                     items(histories, key = { item -> item.detailUrl }) { history ->
-                        HistoryItem(
-                            history = history,
-                            onClick = onNavigateToAnimeDetail,
-                            onPlayClick = onPlayClick
-                        )
+                        var expanded by remember { mutableStateOf(false) }
+                        val haptic = LocalHapticFeedback.current
+
+                        Box(modifier = Modifier.combinedClickable(
+                            onLongClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                expanded = true
+                            },
+                            onClick = { onNavigateToAnimeDetail(history.detailUrl) }
+                        )) {
+                            HistoryItem(
+                                history = history,
+                                onPlayClick = onPlayClick
+                            )
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                offset = DpOffset(
+                                    x = 80.dp * VIDEO_ASPECT_RATIO + 4.dp,
+                                    y = (-40).dp
+                                ),
+                            ) {
+                                DropdownMenuItem(text = {
+                                    Text(
+                                        text = stringResource(id = R.string.delete),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }, onClick = {
+                                    expanded = false
+                                    viewModel.deleteHistory(history.detailUrl)
+                                })
+                            }
+                        }
+
                     }
                 }
             }
@@ -101,13 +141,13 @@ fun HistoryScreen(
 fun HistoryItem(
     modifier: Modifier = Modifier,
     history: History,
-    onClick: (detailUrl: String) -> Unit,
     onPlayClick: (episodeUrl: String, title: String) -> Unit,
 ) {
-    Surface(modifier = modifier
-        .fillMaxWidth()
-        .height(dimensionResource(id = R.dimen.history_item_height)),
-        onClick = { onClick(history.detailUrl) }) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(dimensionResource(id = R.dimen.history_item_height)),
+    ) {
         Row(
             modifier = Modifier.padding(
                 horizontal = dimensionResource(id = R.dimen.small_padding),
@@ -124,7 +164,7 @@ fun HistoryItem(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .aspectRatio(ASPECT_RATIO)
+                    .aspectRatio(VIDEO_ASPECT_RATIO)
                     .clip(RoundedCornerShape(dimensionResource(id = R.dimen.history_cover_radius)))
             )
             Column(
@@ -186,7 +226,7 @@ fun HistoryItemPreview() {
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
     ) {
         items(histories) { history ->
-            HistoryItem(history = history, onClick = {}, onPlayClick = { _, _ -> })
+            HistoryItem(history = history, onPlayClick = { _, _ -> })
         }
     }
 

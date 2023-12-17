@@ -32,4 +32,10 @@ class HistoryViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteHistory(detailUrl: String) {
+        viewModelScope.launch {
+            roomRepository.deleteHistory(detailUrl)
+        }
+    }
 }

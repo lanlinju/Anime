@@ -16,4 +16,6 @@ interface RoomRepository {
     suspend fun checkHistory(detailUrl: String): Flow<Boolean>
 
     suspend fun getHistories(): Flow<List<History>>
+
+    suspend fun deleteHistory(detailUrl: String)
 }
