@@ -68,6 +68,13 @@ class EpisodeDaoTest {
 
     @Test
     @Throws(Exception::class)
+    fun daoGetNoExistEpisode_returnsNullEpisodeFromDB() = runBlocking {
+        val episodes = episodeDao.getEpisodes(-1).first()
+        Assert.assertTrue(episodes.isEmpty())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun daoDeleteEpisodes_DatabaseWillBeEmpty() = runBlocking {
         addOneEpisodesToDb()
         episodeDao.deleteAll()

@@ -371,7 +371,7 @@ fun AnimeEpisodes(
             ) {
                 Text(
                     text = episode.name,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = if (episode.isPlayed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(
                         vertical = dimensionResource(Res.dimen.small_padding)

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.util.EPISODE_TABLE
 
 @Entity(
@@ -28,4 +29,13 @@ data class EpisodeEntity(
     @ColumnInfo(name = "episode_url") val episodeUrl: String,
     @ColumnInfo(name = "last_position") val lastPosition: Long = 0L,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    fun toEpisode(): Episode {
+        return Episode(
+            name = name,
+            url = episodeUrl,
+            lastPosition = lastPosition,
+            isPlayed = false
+        )
+    }
+}

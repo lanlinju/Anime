@@ -7,6 +7,7 @@ data class AnimeDetail(
     val score: String,
     val tags: List<String>,
     val updateTime: String,
+    val lastPosition: Int,
     val episodes: List<Episode>,
     val relatedAnimes: List<Anime>
 )

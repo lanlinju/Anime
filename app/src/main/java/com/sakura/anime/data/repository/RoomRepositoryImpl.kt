@@ -1,5 +1,6 @@
 package com.sakura.anime.data.repository
 
+import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.domain.model.Favourite
@@ -72,6 +73,13 @@ class RoomRepositoryImpl @Inject constructor(
 
     override suspend fun deleteHistory(detailUrl: String) {
         historyDao.deleteHistory(detailUrl)
+    }
+
+    override suspend fun getEpisodes(detailUrl: String): Flow<List<Episode>> {
+        val history = historyDao.getHistory(detailUrl).first()
+        return episodeDao.getEpisodes(history.historyId).map {
+            it.map { it.toEpisode() }
+        }
     }
 
 }

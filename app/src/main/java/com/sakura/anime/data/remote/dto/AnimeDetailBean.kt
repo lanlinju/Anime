@@ -19,6 +19,7 @@ data class AnimeDetailBean(
             score = score,
             tags = tags.map { it.uppercase() },
             updateTime = updateTime,
+            lastPosition = 0,
             episodes = episodes.map { it.toEpisode() },
             relatedAnimes = relatedAnimes.map { it.toAnime() }
         )

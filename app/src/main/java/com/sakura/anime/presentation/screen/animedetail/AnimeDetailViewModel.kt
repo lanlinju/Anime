@@ -7,22 +7,23 @@ import androidx.lifecycle.viewModelScope
 import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
-import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
+import com.sakura.anime.domain.usecase.GetAnimeDetailUseCase
 import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
 import com.sakura.anime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val animeRepository: AnimeRepository,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val getAnimeDetailUseCase: GetAnimeDetailUseCase
 ) : ViewModel() {
 
     private val _animeDetailState: MutableStateFlow<Resource<AnimeDetail?>> =
@@ -46,7 +47,9 @@ class AnimeDetailViewModel @Inject constructor(
 
     private fun getAnimeDetail(detailUrl: String) {
         viewModelScope.launch {
-            _animeDetailState.value = animeRepository.getAnimeDetail(detailUrl)
+            getAnimeDetailUseCase(detailUrl).collect {
+                _animeDetailState.value = it
+            }
             _isFavourite.value = roomRepository.checkFavourite(detailUrl).first()
         }
     }
