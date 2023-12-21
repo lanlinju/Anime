@@ -1,6 +1,7 @@
 package com.sakura.video_player
 
 
+import android.content.res.Configuration
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.imherrera.videoplayer.icons.Fullscreen
 import com.imherrera.videoplayer.icons.FullscreenExit
@@ -55,7 +61,12 @@ fun VideoPlayerControl(
             modifier = Modifier
                 .fillMaxSize()
                 .background(background)
-                .padding(start = 8.dp, end = 28.dp, top = 20.dp)
+                .padding(start = 8.dp + if (
+                    LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+                ) {
+                    WindowInsets.displayCutout.asPaddingValues()
+                        .calculateLeftPadding(LayoutDirection.Ltr)
+                } else 0.dp, end = 28.dp, top = 20.dp)
         ) {
 
             Column(

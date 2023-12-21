@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,9 +55,9 @@ import com.sakura.anime.R
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
-import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
+import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -75,9 +75,9 @@ fun HistoryScreen(
         resource.data?.let { histories ->
             Column(
                 modifier = Modifier
-                    .systemBarsPadding()
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.background)
+                    .navigationBarsPadding()
             ) {
                 TopAppBar(
                     title = { Text(stringResource(id = R.string.play_history)) },

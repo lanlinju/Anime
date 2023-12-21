@@ -1,9 +1,11 @@
 package com.sakura.anime.presentation.screen.favourite
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -39,21 +41,25 @@ fun FavouriteScreen(
     StateHandler(state = availableDataList.value, onLoading = {
         LoadingIndicator()
     }, onFailure = {}) { resource ->
-        Scaffold(modifier = Modifier.statusBarsPadding(), topBar = {
-            TopAppBar(title = {
-                Text(
-                    text = stringResource(id = R.string.my_favourite),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }, navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back)
+        Scaffold(modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .navigationBarsPadding(),
+            topBar = {
+                TopAppBar(title = {
+                    Text(
+                        text = stringResource(id = R.string.my_favourite),
+                        style = MaterialTheme.typography.titleLarge,
                     )
-                }
-            })
-        }) { paddingValues ->
+                }, navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = stringResource(id = R.string.back)
+                        )
+                    }
+                })
+            }) { paddingValues ->
 
             LazyVerticalGrid(
                 modifier = Modifier.padding(paddingValues),

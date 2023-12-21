@@ -14,11 +14,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -105,8 +103,8 @@ fun AnimeDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
                         .verticalScroll(scrollState)
-                        .navigationBarsPadding()
                 ) {
                     AnimeBanner(
                         imageUrl = animeDetail.img,
@@ -119,11 +117,8 @@ fun AnimeDetailScreen(
 
                     Column(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(top = bannerHeight)
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(bottom = dimensionResource(Res.dimen.large_padding))
-                            .navigationBarsPadding(),
+                            .fillMaxSize()
+                            .padding(top = bannerHeight),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
@@ -148,7 +143,6 @@ fun AnimeDetailScreen(
                                             - dimensionResource(Res.dimen.banner_height)
                                             - dimensionResource(Res.dimen.medium_padding)
                                 )
-                                .fillMaxSize()
                         )
 
                         AnimeGenres(

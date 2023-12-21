@@ -88,6 +88,7 @@ fun VideoPlayScreen(
                     showSystemBars(LocalView.current)
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 }
+            
             Box(
                 modifier = Modifier
                     .fillMaxSize()

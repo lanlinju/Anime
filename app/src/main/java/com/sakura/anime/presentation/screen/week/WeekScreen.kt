@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -78,7 +77,6 @@ fun WeekScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
             .navigationBarsPadding()
-            .statusBarsPadding()
     ) {
         var expanded by remember { mutableStateOf(false) }
         val uriHandler = LocalUriHandler.current
@@ -108,7 +106,7 @@ fun WeekScreen(
                 IconButton(onClick = onSearchClick) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(id = R.string.more)
+                        contentDescription = stringResource(id = R.string.search)
                     )
                 }
 
@@ -116,7 +114,7 @@ fun WeekScreen(
                     IconButton(onClick = { expanded = true }) {
                         Icon(
                             imageVector = Icons.Rounded.MoreVert,
-                            contentDescription = stringResource(id = R.string.search)
+                            contentDescription = stringResource(id = R.string.more)
                         )
                     }
                     DropdownMenu(
