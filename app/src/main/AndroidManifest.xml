@@ -22,7 +22,7 @@
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Anime">
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
