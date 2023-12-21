@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -166,6 +167,7 @@ fun AnimeDetailScreen(
 
                         AnimeEpisodes(
                             episodes = animeDetail.episodes,
+                            lastPosition = animeDetail.lastPosition,
                             contentPadding = PaddingValues(
                                 start = dimensionResource(Res.dimen.large_padding) + if (
                                     LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -352,17 +354,21 @@ fun AnimeGenres(
 @Composable
 fun AnimeEpisodes(
     episodes: List<Episode>,
+    lastPosition: Int,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     onEpisodeClick: (episode: Episode) -> Unit
 ) {
+    val scrollState = rememberLazyListState(lastPosition)
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(
             dimensionResource(Res.dimen.medium_padding)
         ),
         contentPadding = contentPadding,
-        modifier = modifier
+        modifier = modifier,
+        state = scrollState
     ) {
         items(episodes) { episode ->
             FilledTonalButton(
