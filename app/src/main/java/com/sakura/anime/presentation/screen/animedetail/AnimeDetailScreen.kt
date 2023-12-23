@@ -26,6 +26,10 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -36,14 +40,17 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +68,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -107,6 +115,9 @@ fun AnimeDetailScreen(
                 scrollState = scrollState,
                 distanceUntilAnimated = bannerHeight
             ) {
+                var reverseList by remember { mutableStateOf(false) }
+                var showBottomSheet by remember { mutableStateOf(false) }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -167,9 +178,6 @@ fun AnimeDetailScreen(
                         )
 
                         Box {
-                            var reverseList by remember {
-                                mutableStateOf(false)
-                            }
                             AnimeEpisodes(
                                 episodes = animeDetail.episodes,
                                 lastPosition = animeDetail.lastPosition,
@@ -199,38 +207,11 @@ fun AnimeDetailScreen(
                                 }
                             )
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .offset(y = dimensionResource(id = Res.dimen.large_padding) + 4.dp)
-                                    .padding(
-                                        top = dimensionResource(id = Res.dimen.small_padding),
-                                        end = dimensionResource(id = Res.dimen.small_padding)
-                                    )
-                                    .align(Alignment.BottomEnd),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    modifier = Modifier.clickable {
-                                        reverseList = !reverseList
-                                    },
-                                    text = stringResource(id = Res.string.reverse_list),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                                Spacer(modifier = Modifier.size(12.dp))
-                                Text(
-                                    text = stringResource(id = Res.string.more_episodes),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                                Icon(
-                                    imageVector = Icons.Rounded.KeyboardArrowDown,
-                                    contentDescription = stringResource(id = Res.string.more_episodes),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                            EpisodeListControl(
+                                modifier = Modifier.align(Alignment.BottomEnd),
+                                onReverseClick = { reverseList = !reverseList },
+                                onMoreClick = { showBottomSheet = true }
+                            )
                         }
 
                         AnimeRelated(
@@ -259,6 +240,28 @@ fun AnimeDetailScreen(
                         )
 
                         FavouriteIcon(isFavourite, animeDetail, viewModel, view)
+                    }
+
+                    if (showBottomSheet) {
+                        EpisodeBottomSheet(
+                            episodes = animeDetail.episodes,
+                            reverseList = reverseList,
+                            lastPosition = animeDetail.lastPosition,
+                            onDismissRequest = { showBottomSheet = false },
+                            onEpisodeClick = { episode ->
+                                val history =
+                                    History(
+                                        title = animeDetail.title,
+                                        imgUrl = animeDetail.img,
+                                        detailUrl = viewModel.detailUrl,
+                                        episodes = listOf(episode)
+                                    )
+                                viewModel.addHistory(history)
+                                onEpisodeClick(
+                                    episode.url,
+                                    "${animeDetail.title}-${episode.name}"
+                                )
+                            })
                     }
                 }
             }
@@ -373,7 +376,7 @@ fun AnimeGenres(
             SuggestionChip(
                 label = {
                     Text(
-                        text = genre.lowercase(),
+                        text = genre.uppercase(),
                         color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(
@@ -404,12 +407,10 @@ fun AnimeEpisodes(
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     onEpisodeClick: (episode: Episode) -> Unit
 ) {
-    val scrollState = rememberLazyListState(lastPosition)
+    val scrollState = rememberLazyListState(lastPosition, -200)
 
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(
-            dimensionResource(Res.dimen.medium_padding)
-        ),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.medium_padding)),
         contentPadding = contentPadding,
         modifier = modifier,
         state = scrollState
@@ -428,6 +429,50 @@ fun AnimeEpisodes(
                     )
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun EpisodeListControl(
+    modifier: Modifier = Modifier,
+    onReverseClick: () -> Unit,
+    onMoreClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .offset(y = dimensionResource(id = Res.dimen.large_padding) + 6.dp)
+            .padding(
+                top = dimensionResource(id = Res.dimen.small_padding),
+                end = dimensionResource(id = Res.dimen.small_padding)
+            ),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.clickable(onClick = onReverseClick),
+            text = stringResource(id = Res.string.reverse_list),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelMedium
+        )
+
+        Spacer(modifier = Modifier.size(12.dp))
+
+        Row(
+            modifier = Modifier.clickable(onClick = onMoreClick),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = Res.string.more_episodes),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium
+            )
+            Icon(
+                imageVector = Icons.Rounded.KeyboardArrowDown,
+                contentDescription = stringResource(id = Res.string.more_episodes),
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -460,5 +505,47 @@ fun AnimeRelated(
                 modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
             )
         }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EpisodeBottomSheet(
+    episodes: List<Episode>,
+    reverseList: Boolean,
+    lastPosition: Int,
+    onDismissRequest: () -> Unit,
+    onEpisodeClick: (episode: Episode) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = Res.dimen.small_padding)),
+            contentPadding = PaddingValues(horizontal = dimensionResource(id = Res.dimen.small_padding)),
+            state = rememberLazyGridState(initialFirstVisibleItemIndex = lastPosition, -100)
+        ) {
+            items(if (!reverseList) episodes else episodes.reversed()) { episode ->
+                SuggestionChip(
+                    onClick = { onEpisodeClick(episode) },
+                    label = {
+                        Text(
+                            modifier = Modifier
+                                .padding(end = dimensionResource(id = Res.dimen.small_padding))
+                                .fillMaxWidth(),
+                            text = episode.name,
+                            color = if (episode.isPlayed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                )
+            }
+        }
+
     }
 }
