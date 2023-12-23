@@ -35,4 +35,6 @@
     <string name="resume_play">继续播放</string>
     <string name="play_history">播放记录</string>
     <string name="delete">删除</string>
+    <string name="reverse_list">列表倒序</string>
+    <string name="more_episodes">更多剧集</string>
 </resources>

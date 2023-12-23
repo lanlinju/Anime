@@ -6,10 +6,12 @@ import android.text.Html
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -31,6 +34,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -43,6 +47,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -159,30 +166,72 @@ fun AnimeDetailScreen(
                             color = MaterialTheme.colorScheme.inversePrimary
                         )
 
-                        AnimeEpisodes(
-                            episodes = animeDetail.episodes,
-                            lastPosition = animeDetail.lastPosition,
-                            contentPadding = PaddingValues(
-                                start = dimensionResource(Res.dimen.large_padding) + if (
-                                    LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-                                ) {
-                                    WindowInsets.displayCutout.asPaddingValues()
-                                        .calculateLeftPadding(LayoutDirection.Ltr)
-                                } else 0.dp,
-                                end = dimensionResource(Res.dimen.large_padding)
-                            ),
-                            onEpisodeClick = { episode ->
-                                val history =
-                                    History(
-                                        title = animeDetail.title,
-                                        imgUrl = animeDetail.img,
-                                        detailUrl = viewModel.detailUrl,
-                                        episodes = listOf(episode)
-                                    )
-                                viewModel.addHistory(history)
-                                onEpisodeClick(episode.url, "${animeDetail.title}-${episode.name}")
+                        Box {
+                            var reverseList by remember {
+                                mutableStateOf(false)
                             }
-                        )
+                            AnimeEpisodes(
+                                episodes = animeDetail.episodes,
+                                lastPosition = animeDetail.lastPosition,
+                                contentPadding = PaddingValues(
+                                    start = dimensionResource(Res.dimen.large_padding) + if (
+                                        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+                                    ) {
+                                        WindowInsets.displayCutout.asPaddingValues()
+                                            .calculateLeftPadding(LayoutDirection.Ltr)
+                                    } else 0.dp,
+                                    end = dimensionResource(Res.dimen.large_padding)
+                                ),
+                                reverseList = reverseList,
+                                onEpisodeClick = { episode ->
+                                    val history =
+                                        History(
+                                            title = animeDetail.title,
+                                            imgUrl = animeDetail.img,
+                                            detailUrl = viewModel.detailUrl,
+                                            episodes = listOf(episode)
+                                        )
+                                    viewModel.addHistory(history)
+                                    onEpisodeClick(
+                                        episode.url,
+                                        "${animeDetail.title}-${episode.name}"
+                                    )
+                                }
+                            )
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset(y = dimensionResource(id = Res.dimen.large_padding) + 4.dp)
+                                    .padding(
+                                        top = dimensionResource(id = Res.dimen.small_padding),
+                                        end = dimensionResource(id = Res.dimen.small_padding)
+                                    )
+                                    .align(Alignment.BottomEnd),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    modifier = Modifier.clickable {
+                                        reverseList = !reverseList
+                                    },
+                                    text = stringResource(id = Res.string.reverse_list),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Spacer(modifier = Modifier.size(12.dp))
+                                Text(
+                                    text = stringResource(id = Res.string.more_episodes),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Icon(
+                                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                                    contentDescription = stringResource(id = Res.string.more_episodes),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
 
                         AnimeRelated(
                             animes = animeDetail.relatedAnimes,
@@ -350,6 +399,7 @@ fun AnimeEpisodes(
     episodes: List<Episode>,
     lastPosition: Int,
     modifier: Modifier = Modifier,
+    reverseList: Boolean,
     contentPadding: PaddingValues,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     onEpisodeClick: (episode: Episode) -> Unit
@@ -364,7 +414,7 @@ fun AnimeEpisodes(
         modifier = modifier,
         state = scrollState
     ) {
-        items(episodes) { episode ->
+        items(if (!reverseList) episodes else episodes.reversed()) { episode ->
             FilledTonalButton(
                 onClick = { onEpisodeClick(episode) },
                 colors = ButtonDefaults.buttonColors(containerColor = color.copy(0.5f))
