@@ -15,7 +15,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,10 +46,10 @@ class AnimeDetailViewModel @Inject constructor(
 
     private fun getAnimeDetail(detailUrl: String) {
         viewModelScope.launch {
+            _isFavourite.value = roomRepository.checkFavourite(detailUrl).first()
             getAnimeDetailUseCase(detailUrl).collect {
                 _animeDetailState.value = it
             }
-            _isFavourite.value = roomRepository.checkFavourite(detailUrl).first()
         }
     }
 

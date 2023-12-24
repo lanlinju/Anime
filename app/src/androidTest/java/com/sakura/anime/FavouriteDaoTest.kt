@@ -81,6 +81,14 @@ class FavouriteDaoTest {
         assertNull(favourite)
     }
 
+    @Test
+    @kotlin.jvm.Throws(Exception::class)
+    fun daoCheckFavourite_returnsNotNullFromDB() = runBlocking {
+        addOneFavouriteToDb()
+        val favourite = favouriteDao.checkFavourite(favourite1.detailUrl).first()
+        assertNotNull(favourite)
+    }
+
     private suspend fun addOneFavouriteToDb() {
         favouriteDao.insertFavourite(favourite1)
     }
