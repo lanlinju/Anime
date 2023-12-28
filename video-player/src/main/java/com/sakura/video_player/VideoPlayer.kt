@@ -55,7 +55,7 @@ private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
         var gestureDownVolume = 0
         var gestureDownBrightness = 0f
         val maxFastForwardDuration = 100_000L // 最大快进时长为100秒
-        val threshold = (12.dp).toPx() // 水平距离超过12dp后开始计算
+        val threshold = (12.dp).toPx() // 拖动距离超过12dp后开始计算
         val audioManager = playerState.audioManager
         val layoutParams = playerState.window.attributes
         detectDragGestures(
