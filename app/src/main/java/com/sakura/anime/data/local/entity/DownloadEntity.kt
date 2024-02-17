@@ -4,18 +4,18 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.sakura.anime.util.HISTORY_TABLE
+import com.sakura.anime.util.DOWNLOAD_TABLE
 
 @Entity(
-    tableName = HISTORY_TABLE,
+    tableName = DOWNLOAD_TABLE,
     indices = [Index("detail_url", unique = true)]
 )
-data class HistoryEntity(
+data class DownloadEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "history_id") val historyId: Long = 0L,
+    @ColumnInfo(name = "download_id") val downloadId: Long = 0,
     @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "img_url") val imgUrl: String,
     @ColumnInfo(name = "detail_url") val detailUrl: String,
+    @ColumnInfo(name = "img_url") val imgUrl: String,
     @ColumnInfo(name = "source") val source: Int = 0,
-    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis()
+    @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
 )

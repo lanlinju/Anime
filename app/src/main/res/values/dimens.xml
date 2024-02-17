@@ -23,4 +23,6 @@
 
     <dimen name="history_item_height">80dp</dimen>
     <dimen name="history_cover_radius">8dp</dimen>
+
+    <dimen name="image_cover_height">80dp</dimen>
 </resources>

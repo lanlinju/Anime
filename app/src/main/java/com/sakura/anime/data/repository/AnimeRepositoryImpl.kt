@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class AnimeRepositoryImpl @Inject constructor(
     private val animeApi: AnimeApi
-): AnimeRepository,BaseRepository() {
+) : AnimeRepository, BaseRepository() {
     override suspend fun getHomeAllData(): Resource<List<Home>> {
         val response = invokeApi {
             animeApi.getHomeAllData()

@@ -1,6 +1,8 @@
 package com.sakura.anime.domain.repository
 
 import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.domain.model.Download
+import com.sakura.anime.domain.model.DownloadDetail
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import kotlinx.coroutines.flow.Flow
@@ -21,4 +23,12 @@ interface RoomRepository {
     suspend fun deleteHistory(detailUrl: String)
 
     suspend fun getEpisodes(detailUrl: String): Flow<List<Episode>>
+
+    suspend fun getDownloads(): Flow<List<Download>>
+
+    suspend fun addDownload(download: Download)
+
+    suspend fun checkDownload(detailUrl: String): Flow<Boolean>
+
+    suspend fun getDownloadDetails(detailUrl: String): Flow<List<DownloadDetail>>
 }

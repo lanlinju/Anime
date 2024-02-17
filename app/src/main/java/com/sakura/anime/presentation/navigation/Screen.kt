@@ -15,16 +15,15 @@ sealed class Screen(
             return "animeDetail/${Uri.encode(detailUrl)}"
         }
     }
-
     object VideoPlayScreen :
         Screen(route = "videoPlay/{$VIDEO_ARGUMENT_EPISODE_URL}/{$VIDEO_ARGUMENT_TITLE}") {
         fun passUrl(episodeUrl: String, title: String): String {
             return "videoPlay/${Uri.encode(episodeUrl)}/$title"
         }
     }
-
     object SearchScreen : Screen(route = "search")
     object WeekScreen : Screen(route = "week")
     object FavouriteScreen : Screen(route = "favourite")
     object HistoryScreen : Screen(route = "history")
+    object DownloadScreen : Screen(route = "download")
 }

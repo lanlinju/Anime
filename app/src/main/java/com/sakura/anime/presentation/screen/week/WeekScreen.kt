@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
@@ -40,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -52,7 +54,7 @@ import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
-import com.sakura.anime.util.GITHUB_ADDR
+import com.sakura.anime.util.GITHUB_ADDRESS
 import com.sakura.anime.util.TABS
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -63,6 +65,7 @@ fun WeekScreen(
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToDownload: () -> Unit,
     onSearchClick: () -> Unit
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
@@ -122,10 +125,25 @@ fun WeekScreen(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
+                            text = { Text(stringResource(id = R.string.download_list)) },
+                            onClick = {
+                                expanded = false
+                                onNavigateToDownload()
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.ArrowForward,
+                                    modifier = Modifier.rotate(90f),
+                                    contentDescription = stringResource(id = R.string.download_list)
+                                )
+                            }
+                        )
+
+                        DropdownMenuItem(
                             text = { Text(stringResource(id = R.string.github_repo)) },
                             onClick = {
                                 expanded = false
-                                uriHandler.openUri(GITHUB_ADDR)
+                                uriHandler.openUri(GITHUB_ADDRESS)
                             },
                             leadingIcon = {
                                 Icon(
@@ -133,7 +151,8 @@ fun WeekScreen(
                                     painter = painterResource(id = R.drawable.ic_github),
                                     contentDescription = null
                                 )
-                            })
+                            }
+                        )
                     }
                 }
             })

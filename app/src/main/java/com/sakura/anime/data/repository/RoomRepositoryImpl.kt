@@ -3,6 +3,8 @@ package com.sakura.anime.data.repository
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.EpisodeEntity
+import com.sakura.anime.domain.model.Download
+import com.sakura.anime.domain.model.DownloadDetail
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.RoomRepository
@@ -18,6 +20,8 @@ class RoomRepositoryImpl @Inject constructor(
     private val favouriteDao = database.favouriteDao()
     private val historyDao = database.historyDao()
     private val episodeDao = database.episodeDao()
+    private val downloadDao = database.downLoadDao()
+    private val downloadDetailDao = database.downloadDetailDao()
 
     override suspend fun getFavourites(): Flow<List<Favourite>> {
         return favouriteDao.getAllFavourites()
@@ -66,7 +70,7 @@ class RoomRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getHistories(): Flow<List<History>> {
-        return historyDao.getHistories().map {
+        return historyDao.getHistoryWithEpisodes().map {
             it.map { it.toHistory() }
         }
     }
@@ -82,4 +86,38 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getDownloads(): Flow<List<Download>> {
+        return downloadDao.getDownloads().map {
+            it.map { it.toDownload() }
+        }
+    }
+
+    override suspend fun addDownload(download: Download) {
+        val downloadDetail = download.downloadDetails.first()
+
+        val isStoredDownload = checkDownload(download.detailUrl).first()
+
+        var downloadId: Long
+        if (!isStoredDownload) {
+            downloadId = downloadDao.insertDownload(download.toDownloadEntity())
+        } else {
+            downloadId = downloadDao.getDownload(download.detailUrl).first().downloadId
+        }
+        downloadDetailDao.insertDownloadDetail(downloadDetail.toDownloadDetailEntity(downloadId))
+    }
+
+    override suspend fun getDownloadDetails(detailUrl: String): Flow<List<DownloadDetail>> {
+        val download = downloadDao.getDownload(detailUrl).first()
+        return downloadDetailDao.getDownloadDetails(download.downloadId).map {
+            it.map { it.toDownloadDetail() }
+        }
+    }
+
+    override suspend fun checkDownload(detailUrl: String): Flow<Boolean> {
+        return flow {
+            downloadDao.checkDownload(detailUrl).collect {
+                emit(value = it != null)
+            }
+        }
+    }
 }

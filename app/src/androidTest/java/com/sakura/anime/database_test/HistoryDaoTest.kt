@@ -1,4 +1,4 @@
-package com.sakura.anime
+package com.sakura.anime.database_test
 
 import android.content.Context
 import androidx.room.Room
@@ -43,7 +43,7 @@ class HistoryDaoTest {
     @Throws(Exception::class)
     fun daoInsert_insertsHistoryIntoDB() = runBlocking {
         addTwoHistoriesToDb()
-        val allHistories = historyDao.getHistories().first()
+        val allHistories = historyDao.getHistoryWithEpisodes().first()
         Assert.assertEquals(allHistories[0].history, history1)
     }
 
@@ -51,23 +51,23 @@ class HistoryDaoTest {
     @Throws(Exception::class)
     fun daoGetHistory_returnsHistoryFromDB() = runBlocking {
         addOneHistoryToDb()
-        val favourite = historyDao.getHistories("/video1")
-        Assert.assertEquals(favourite.first().history, history1)
+        val history = historyDao.getHistory("/video1")
+        Assert.assertEquals(history.first().historyId, history1)
     }
 
     @Test
     @Throws(Exception::class)
     fun daoCheckHistory_returnsNullFromDB() = runBlocking {
-        val favourite = historyDao.checkHistory("/video3").first()
-        Assert.assertNull(favourite)
+        val history = historyDao.checkHistory("/video3").first()
+        Assert.assertNull(history)
     }
 
     @Test
     @Throws(Exception::class)
     fun daoCheckHistory_returnsNotNullFromDB() = runBlocking {
         addOneHistoryToDb()
-        val favourite = historyDao.checkHistory("/video1").first()
-        Assert.assertNotNull(favourite)
+        val h  = historyDao.checkHistory("/video1").first()
+        Assert.assertNotNull(h)
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.sakura.anime.presentation.screen.animedetail
 
-import android.content.Context
 import android.content.res.Configuration
 import android.text.Html
 import android.widget.Toast
@@ -27,8 +26,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,10 +36,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -50,6 +55,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,6 +67,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -79,6 +87,9 @@ import coil.request.ImageRequest
 import com.example.componentsui.anime.domain.model.Anime
 import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.R
+import com.sakura.anime.domain.model.Download
+import com.sakura.anime.domain.model.DownloadDetail
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.LoadingIndicator
@@ -95,6 +106,7 @@ import com.sakura.anime.R as Res
 @Composable
 fun AnimeDetailScreen(
     viewModel: AnimeDetailViewModel = hiltViewModel(),
+    onBackClick: () -> Unit,
     onRelatedAnimeClick: (detailUrl: String) -> Unit,
     onEpisodeClick: (episodeUrl: String, title: String) -> Unit
 ) {
@@ -104,7 +116,7 @@ fun AnimeDetailScreen(
     val animeDetailState by viewModel.animeDetailState.collectAsState()
     val isFavourite by viewModel.isFavourite.collectAsState()
 
-    val view = LocalContext.current
+    val context = LocalContext.current
 
     StateHandler(
         state = animeDetailState,
@@ -118,6 +130,7 @@ fun AnimeDetailScreen(
             ) {
                 var reverseList by rememberSaveable { mutableStateOf(false) }
                 var showBottomSheet by remember { mutableStateOf(false) }
+                var showDownloadBottomSheet by remember { mutableStateOf(false) }
 
                 Box(
                     modifier = Modifier
@@ -132,6 +145,11 @@ fun AnimeDetailScreen(
                             .height(bannerHeight)
                             .fillMaxWidth()
                             .bannerParallax(scrollState)
+                    )
+
+                    TopAppBar(
+                        onBackClick = onBackClick,
+                        onDownloadClick = { showDownloadBottomSheet = true }
                     )
 
                     Column(
@@ -240,7 +258,7 @@ fun AnimeDetailScreen(
                             modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
                         )
 
-                        FavouriteIcon(isFavourite, animeDetail, viewModel, view)
+                        FavouriteIcon(isFavourite, animeDetail, viewModel)
                     }
 
                     if (showBottomSheet) {
@@ -264,10 +282,94 @@ fun AnimeDetailScreen(
                                 )
                             })
                     }
+
+                    if (showDownloadBottomSheet) {
+                        val episodes =
+                            viewModel.handleDownloadedEpisode(animeDetail.episodes)
+                                .collectAsState(emptyList())
+                        DownloadBottomSheet(
+                            episodes = episodes.value,
+                            reverseList = reverseList,
+                            lastPosition = animeDetail.lastPosition,
+                            onDismissRequest = { showDownloadBottomSheet = false },
+                            onDownloadClick = { index, episode ->
+                                val path =
+                                    context.getExternalFilesDir("download/${animeDetail.title}")!!.path + "/${episode.name}.mp4"
+                                val downloadDetail = DownloadDetail(
+                                    title = episode.name,
+                                    imgUrl = animeDetail.img,
+                                    dramaNumber = index,
+                                    path = path,
+                                    downloadUrl = episode.name + index// 在viewModel中去获取下载地址
+                                )
+                                val download = Download(
+                                    title = animeDetail.title,
+                                    detailUrl = viewModel.detailUrl,
+                                    imgUrl = animeDetail.img,
+                                    downloadDetails = listOf(downloadDetail)
+                                )
+                                viewModel.addDownload(download, episode.url)
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopAppBar(
+    onBackClick: () -> Unit,
+    onDownloadClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    TopAppBar(
+        title = { },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back),
+                    tint = Color.White.copy(alpha = 0.85f)
+                )
+            }
+        },
+        actions = {
+            Box {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = stringResource(id = R.string.more),
+                        tint = Color.White.copy(alpha = 0.85f)
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = R.string.download)) },
+                        onClick = {
+                            expanded = false
+                            onDownloadClick()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Rounded.ArrowForward,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .rotate(90f),
+                                contentDescription = stringResource(id = R.string.download)
+                            )
+                        })
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+    )
 }
 
 @Composable
@@ -275,11 +377,12 @@ private fun FavouriteIcon(
     isFavourite: Boolean,
     animeDetail: AnimeDetail,
     viewModel: AnimeDetailViewModel,
-    view: Context
 ) {
+    val context = LocalContext.current
     val msg = stringResource(
         id = if (!isFavourite) Res.string.add_favourite else Res.string.remove_favourite
     )
+
     IconButton(
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
@@ -292,7 +395,7 @@ private fun FavouriteIcon(
                 viewModel.detailUrl,
                 animeDetail.img
             )
-            Toast.makeText(view, msg, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             viewModel.favourite(favourite)
         }) {
         Icon(
@@ -516,7 +619,9 @@ private fun EpisodeBottomSheet(
     reverseList: Boolean,
     lastPosition: Int,
     onDismissRequest: () -> Unit,
-    onEpisodeClick: (episode: Episode) -> Unit
+    onEpisodeClick: (episode: Episode) -> Unit,
+    isDownload: Boolean = false,
+    onDownloadClick: (index: Int, episode: Episode) -> Unit = { _, _ -> },
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -530,23 +635,58 @@ private fun EpisodeBottomSheet(
             contentPadding = PaddingValues(horizontal = dimensionResource(id = Res.dimen.small_padding)),
             state = rememberLazyGridState(initialFirstVisibleItemIndex = lastPosition, -100)
         ) {
-            items(if (!reverseList) episodes else episodes.reversed()) { episode ->
+            if (isDownload) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(stringResource(id = R.string.download_episode))
+                }
+            }
+            itemsIndexed(
+                items = if (!reverseList) episodes else episodes.reversed(),
+                key = { _, e -> e.url }) { index, episode ->
                 SuggestionChip(
-                    onClick = { onEpisodeClick(episode) },
+                    onClick = {
+                        when {
+                            isDownload -> onDownloadClick(index, episode)
+                            else -> onEpisodeClick(episode)
+                        }
+                    },
                     label = {
+
+                        val isPrimaryColor =
+                            if (isDownload) episode.isDownloaded else episode.isPlayed
+
                         Text(
                             modifier = Modifier
                                 .padding(end = dimensionResource(id = Res.dimen.small_padding))
                                 .fillMaxWidth(),
                             text = episode.name,
-                            color = if (episode.isPlayed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                            color = if (isPrimaryColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                             style = MaterialTheme.typography.bodySmall,
                             textAlign = TextAlign.Center
                         )
+
                     }
                 )
             }
         }
-
     }
+}
+
+@Composable
+private fun DownloadBottomSheet(
+    episodes: List<Episode>,
+    reverseList: Boolean,
+    lastPosition: Int,
+    onDownloadClick: (index: Int, episode: Episode) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    EpisodeBottomSheet(
+        episodes = episodes,
+        reverseList = reverseList,
+        lastPosition = lastPosition,
+        isDownload = true,
+        onDownloadClick = onDownloadClick,
+        onDismissRequest = onDismissRequest,
+        onEpisodeClick = { }
+    )
 }

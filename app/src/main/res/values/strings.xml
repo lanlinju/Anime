@@ -24,6 +24,7 @@
     <string name="search">Search</string>
     <string name="more">more</string>
     <string name="week">WeekRank</string>
+    <string name="download">下载</string>
     <string name="rslash">r/</string>
     <string name="back">back</string>
     <string name="brightness">brightness</string>
@@ -37,4 +38,7 @@
     <string name="delete">删除</string>
     <string name="reverse_list">列表倒序</string>
     <string name="more_episodes">更多剧集</string>
+    <string name="download_episode">下载剧集</string>
+    <string name="download_list">下载列表</string>
+    <string name="space_usage">空间占用</string>
 </resources>

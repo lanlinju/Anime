@@ -58,6 +58,7 @@ android {
 
 dependencies {
     implementation(project(":video-player"))
+    implementation(project(":download"))
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -77,10 +78,6 @@ dependencies {
 
     // navigation component
     implementation("androidx.navigation:navigation-compose:2.5.3")
-
-    // retrofit + Gson
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // jsoup
     implementation("org.jsoup:jsoup:1.15.4")

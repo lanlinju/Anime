@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.Flow
 interface HistoryDao {
     @Transaction
     @Query("SELECT * FROM $HISTORY_TABLE ORDER BY updated_at DESC")
-    fun getHistories(): Flow<List<HistoryWithEpisodes>>
+    fun getHistoryWithEpisodes(): Flow<List<HistoryWithEpisodes>>
 
     @Transaction
     @Query("SELECT * FROM $HISTORY_TABLE WHERE detail_url =:detailUrl")
-    fun getHistories(detailUrl: String): Flow<HistoryWithEpisodes>
+    fun getHistoryWithEpisodes(detailUrl: String): Flow<HistoryWithEpisodes>
 
     @Query("DELETE FROM $HISTORY_TABLE")
     suspend fun deleteAll()

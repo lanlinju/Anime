@@ -1,4 +1,4 @@
-package com.sakura.anime
+package com.sakura.anime.database_test
 
 import android.content.Context
 import androidx.room.Room

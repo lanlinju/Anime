@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
+import com.sakura.anime.presentation.screen.download.DownloadScreen
 import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
@@ -23,6 +24,7 @@ fun AnimeNavHost(
     onEpisodeClick: (episodeUrl: String, title: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToDownload: () -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
@@ -38,7 +40,8 @@ fun AnimeNavHost(
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(
                 onRelatedAnimeClick = onNavigateToAnimeDetail,
-                onEpisodeClick = onEpisodeClick
+                onEpisodeClick = onEpisodeClick,
+                onBackClick = onBackClick
             )
         }
         composable(Screen.VideoPlayScreen.route) {
@@ -53,6 +56,7 @@ fun AnimeNavHost(
                 onSearchClick = onSearchClick,
                 onNavigateToFavourite = onNavigateToFavourite,
                 onNavigateToHistory = onNavigateToHistory,
+                onNavigateToDownload = onNavigateToDownload
             )
         }
         composable(Screen.FavouriteScreen.route) {
@@ -68,6 +72,8 @@ fun AnimeNavHost(
                 onPlayClick = onEpisodeClick
             )
         }
-
+        composable(Screen.DownloadScreen.route) {
+            DownloadScreen(onBackClick = onBackClick)
+        }
     }
 }

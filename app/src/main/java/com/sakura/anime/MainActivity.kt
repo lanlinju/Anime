@@ -78,6 +78,9 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToHistory = {
                 navController.navigate(Screen.HistoryScreen.route)
             },
+            onNavigateToDownload = {
+                navController.navigate(Screen.DownloadScreen.route)
+            },
             onSearchClick = {
                 navController.navigate(Screen.SearchScreen.route)
             },
