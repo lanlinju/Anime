@@ -21,10 +21,21 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Singleton
+    @Provides
     fun providesAnimeApplication(
         @ApplicationContext app: Context
     ): AnimeApplication {
         return app as AnimeApplication
+    }
+
+    @Singleton
+    @Provides
+    fun providesContext(
+        @ApplicationContext app: Context
+    ): Context {
+        return app
     }
 
     @Singleton

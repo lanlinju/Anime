@@ -22,7 +22,7 @@ data class DownloadWithDownloadDetails(
             imgUrl = download.imgUrl,
             source = download.source,
             totalSize = totalSize,
-            downloadDetails = emptyList()
+            downloadDetails = downloadDetails.map { it.toDownloadDetail() }
         )
     }
 }

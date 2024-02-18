@@ -14,13 +14,17 @@ import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetAnimeDetailUseCase
 import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
 import com.sakura.anime.util.Resource
+import com.sakura.download.download
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -72,9 +76,13 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
-    fun addDownload(download: Download, episodeUrl: String) {
+    @OptIn(DelicateCoroutinesApi::class)
+    fun addDownload(download: Download, episodeUrl: String, file: File) {
         viewModelScope.launch {
             val videoUrl = animeRepository.getVideoUrl(episodeUrl).data!!
+            // 开始下载视频
+            GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
+
             val downloadDetail = download.downloadDetails.first().copy(downloadUrl = videoUrl)
             roomRepository.addDownload(download.copy(downloadDetails = listOf(downloadDetail)))
         }

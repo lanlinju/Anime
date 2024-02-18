@@ -92,7 +92,7 @@ class DownloadDetailTest {
     fun daoUpdateDownloadDetail_updateFileSize() = runBlocking {
         addOneDownloadDetailToDB()
         downloadDetailDao.updateDownloadDetail(downloadDetail1.copy(fileSize = 11451))
-        val actual = downloadDetailDao.getDownloadDetail(downloadDetail1.downloadUrl)
+        val actual = downloadDetailDao.getDownloadDetail(downloadDetail1.downloadUrl).first()
         Assert.assertNotEquals(downloadDetail1.fileSize, actual.fileSize)
     }
 

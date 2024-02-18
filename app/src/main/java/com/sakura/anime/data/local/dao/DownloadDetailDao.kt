@@ -15,7 +15,7 @@ interface DownloadDetailDao {
     fun getDownloadDetails(downloadId: Long): Flow<List<DownloadDetailEntity>>
 
     @Query("SELECT * FROM $DOWNLOAD_DETAIL_TABLE WHERE download_url=:downloadUrl")
-    fun getDownloadDetail(downloadUrl: String): DownloadDetailEntity
+    fun getDownloadDetail(downloadUrl: String): Flow<DownloadDetailEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDownloadDetail(downloadDetailEntity: DownloadDetailEntity)

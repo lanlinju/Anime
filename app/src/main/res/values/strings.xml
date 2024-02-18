@@ -18,6 +18,7 @@
     <string name="my_favourite">我的收藏</string>
     <string name="add_favourite">添加收藏成功！</string>
     <string name="remove_favourite">移除收藏成功！</string>
+    <string name="anime_detail">动漫详情页</string>
 
     <string name="home">Home</string>
     <string name="profile">Profile</string>
@@ -41,4 +42,12 @@
     <string name="download_episode">下载剧集</string>
     <string name="download_list">下载列表</string>
     <string name="space_usage">空间占用</string>
+    <string name="play">播放</string>
+
+    <string name="complete">完成</string>
+    <string name="unstart">未开始</string>
+    <string name="waiting">等待中</string>
+    <string name="downloading">下载中</string>
+    <string name="retry">重试</string>
+    <string name="resume">继续</string>
 </resources>

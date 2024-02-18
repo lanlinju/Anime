@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
 import com.sakura.anime.presentation.screen.download.DownloadScreen
+import com.sakura.anime.presentation.screen.downloaddetail.DownloadDetailScreen
 import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
@@ -21,10 +22,11 @@ fun AnimeNavHost(
     navController: NavHostController,
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
-    onEpisodeClick: (episodeUrl: String, title: String) -> Unit,
+    onNavigateToVideoPlay: (episodeUrl: String, title: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
+    onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
@@ -40,7 +42,7 @@ fun AnimeNavHost(
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(
                 onRelatedAnimeClick = onNavigateToAnimeDetail,
-                onEpisodeClick = onEpisodeClick,
+                onEpisodeClick = onNavigateToVideoPlay,
                 onBackClick = onBackClick
             )
         }
@@ -69,11 +71,18 @@ fun AnimeNavHost(
             HistoryScreen(
                 onBackClick = onBackClick,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onPlayClick = onEpisodeClick
+                onPlayClick = onNavigateToVideoPlay
             )
         }
         composable(Screen.DownloadScreen.route) {
-            DownloadScreen(onBackClick = onBackClick)
+            DownloadScreen(
+                onBackClick = onBackClick,
+                onNavigateToDownloadDetail = onNavigateToDownloadDetail,
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail
+            )
+        }
+        composable(Screen.DownloadDetailScreen.route) {
+            DownloadDetailScreen(onBackClick = onBackClick, onNavigateToVideoPlay = onNavigateToVideoPlay)
         }
     }
 }

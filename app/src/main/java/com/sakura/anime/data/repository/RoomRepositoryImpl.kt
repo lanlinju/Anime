@@ -106,11 +106,30 @@ class RoomRepositoryImpl @Inject constructor(
         downloadDetailDao.insertDownloadDetail(downloadDetail.toDownloadDetailEntity(downloadId))
     }
 
+    override suspend fun deleteDownload(detailUrl: String) {
+        downloadDao.deleteDownload(detailUrl)
+    }
+
     override suspend fun getDownloadDetails(detailUrl: String): Flow<List<DownloadDetail>> {
         val download = downloadDao.getDownload(detailUrl).first()
         return downloadDetailDao.getDownloadDetails(download.downloadId).map {
             it.map { it.toDownloadDetail() }
         }
+    }
+
+    override suspend fun updateDownloadDetail(downloadDetail: DownloadDetail) {
+        val entity = downloadDetailDao.getDownloadDetail(downloadDetail.downloadUrl).first()
+        downloadDetailDao.updateDownloadDetail(
+            entity.copy(
+                downloadSize = downloadDetail.downloadSize,
+                totalSize = downloadDetail.totalSize,
+                fileSize = downloadDetail.fileSize
+            )
+        )
+    }
+
+    override suspend fun deleteDownloadDetail(downloadUrl: String) {
+        downloadDetailDao.deleteDownloadDetail(downloadUrl)
     }
 
     override suspend fun checkDownload(detailUrl: String): Flow<Boolean> {

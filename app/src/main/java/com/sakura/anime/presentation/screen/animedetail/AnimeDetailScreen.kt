@@ -101,6 +101,7 @@ import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.bannerParallax
+import java.io.File
 import com.sakura.anime.R as Res
 
 @Composable
@@ -300,7 +301,7 @@ fun AnimeDetailScreen(
                                     imgUrl = animeDetail.img,
                                     dramaNumber = index,
                                     path = path,
-                                    downloadUrl = episode.name + index// 在viewModel中去获取下载地址
+                                    downloadUrl = "" // 在viewModel中获取视频下载地址
                                 )
                                 val download = Download(
                                     title = animeDetail.title,
@@ -308,7 +309,7 @@ fun AnimeDetailScreen(
                                     imgUrl = animeDetail.img,
                                     downloadDetails = listOf(downloadDetail)
                                 )
-                                viewModel.addDownload(download, episode.url)
+                                viewModel.addDownload(download, episode.url, File(path))
                             }
                         )
                     }

@@ -12,19 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -36,46 +30,59 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.Download
+import com.sakura.anime.presentation.component.BackTopAppBar
 import com.sakura.anime.presentation.component.LoadingIndicator
+import com.sakura.anime.presentation.component.PopupMenuListItem
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.download.utils.formatSize
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadScreen(
+    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
+    onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel: DownloadViewModel = hiltViewModel()
     val downloadState = viewModel.downloadList.collectAsState()
+    val context = LocalContext.current
 
     StateHandler(
         state = downloadState.value,
         onLoading = { LoadingIndicator() }, onFailure = {}) { resource ->
-
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(
-                        text = stringResource(id = R.string.download_list),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }, navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back)
-                        )
-                    }
-                })
+                BackTopAppBar(
+                    title = stringResource(id = R.string.download_list),
+                    onBackClick = onBackClick
+                )
             }
         ) { paddingValues ->
             resource.data?.let { downloads ->
                 LazyColumn(modifier = Modifier.padding(paddingValues)) {
                     items(downloads, key = { item -> item.detailUrl }) { download ->
-                        DownloadItem(download = download, onClick = { })
+
+                        SideEffect {
+                            if (download.downloadDetails.isEmpty()) {
+                                viewModel.deleteDownload(
+                                    download.detailUrl, download.title, context
+                                )
+                            }
+                        }
+
+                        PopupMenuListItem(
+                            content = {
+                                DownloadItem(download = download)
+                            },
+                            menuText = stringResource(id = R.string.anime_detail),
+                            onClick = {
+                                onNavigateToDownloadDetail(download.detailUrl, download.title)
+                            },
+                            onMenuItemClick = { onNavigateToAnimeDetail(download.detailUrl) }
+                        )
+
                     }
                 }
             }
@@ -87,13 +94,8 @@ fun DownloadScreen(
 fun DownloadItem(
     modifier: Modifier = Modifier,
     download: Download,
-    onClick: () -> Unit,
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth(),
-        onClick = onClick
-    ) {
+    Surface(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
@@ -128,15 +130,26 @@ fun DownloadItem(
                     maxLines = 2,
                 )
 
-                val sizeStr =
-                    stringResource(id = R.string.space_usage) + ": " + download.totalSize.formatSize()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "共${download.downloadDetails.size}个",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
 
-                Text(
-                    text = sizeStr,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.End)
-                )
+                    val sizeStr =
+                        stringResource(id = R.string.space_usage) + ": " + download.totalSize.formatSize()
+
+                    Text(
+                        text = sizeStr,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
             }
 
         }

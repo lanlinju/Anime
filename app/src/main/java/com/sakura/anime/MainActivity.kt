@@ -66,7 +66,7 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToAnimeDetail = { detailUrl ->
                 navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl))
             },
-            onEpisodeClick = { episodeUrl, title ->
+            onNavigateToVideoPlay = { episodeUrl, title ->
                 navController.navigate(route = Screen.VideoPlayScreen.passUrl(episodeUrl, title))
             },
             onBackClick = {
@@ -80,6 +80,9 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             },
             onNavigateToDownload = {
                 navController.navigate(Screen.DownloadScreen.route)
+            },
+            onNavigateToDownloadDetail = { detailUrl, title ->
+                navController.navigate(Screen.DownloadDetailScreen.passUrl(detailUrl, title))
             },
             onSearchClick = {
                 navController.navigate(Screen.SearchScreen.route)

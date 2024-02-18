@@ -28,7 +28,13 @@ interface RoomRepository {
 
     suspend fun addDownload(download: Download)
 
+    suspend fun deleteDownload(detailUrl: String)
+
     suspend fun checkDownload(detailUrl: String): Flow<Boolean>
 
     suspend fun getDownloadDetails(detailUrl: String): Flow<List<DownloadDetail>>
+
+    suspend fun updateDownloadDetail(downloadDetail: DownloadDetail)
+
+    suspend fun deleteDownloadDetail(downloadUrl: String)
 }
