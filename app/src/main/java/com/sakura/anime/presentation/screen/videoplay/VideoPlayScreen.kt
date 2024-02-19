@@ -54,11 +54,11 @@ import com.sakura.anime.R
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
-import com.sakura.video_player.VideoPlayer
-import com.sakura.video_player.VideoPlayerControl
-import com.sakura.video_player.VideoPlayerState
-import com.sakura.video_player.prettyVideoTimestamp
-import com.sakura.video_player.rememberVideoPlayerState
+import com.sakura.videoplayer.VideoPlayer
+import com.sakura.videoplayer.VideoPlayerControl
+import com.sakura.videoplayer.VideoPlayerState
+import com.sakura.videoplayer.prettyVideoTimestamp
+import com.sakura.videoplayer.rememberVideoPlayerState
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable

@@ -1,4 +1,4 @@
-package com.sakura.video_player
+package com.sakura.videoplayer
 
 import androidx.compose.ui.unit.Constraints
 import com.google.android.exoplayer2.video.VideoSize

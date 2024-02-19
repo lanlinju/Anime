@@ -1,4 +1,4 @@
-package com.sakura.video_player
+package com.sakura.videoplayer
 
 import android.app.Activity
 import android.content.Context

@@ -1,4 +1,4 @@
-package com.sakura.video_player
+package com.sakura.videoplayer
 
 
 import android.content.res.Configuration
@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.imherrera.videoplayer.icons.Fullscreen
 import com.imherrera.videoplayer.icons.FullscreenExit
-import com.sakura.video_player.component.Slider
-import com.sakura.video_player.icons.ArrowBackIos
-import com.sakura.video_player.icons.Pause
+import com.sakura.videoplayer.component.Slider
+import com.sakura.videoplayer.icons.ArrowBackIos
+import com.sakura.videoplayer.icons.Pause
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable

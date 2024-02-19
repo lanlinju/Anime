@@ -1,4 +1,4 @@
-package com.sakura.video_player.icons
+package com.sakura.videoplayer.icons
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.materialIcon

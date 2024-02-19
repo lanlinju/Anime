@@ -1,4 +1,4 @@
-package com.sakura.video_player.component
+package com.sakura.videoplayer.component
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
