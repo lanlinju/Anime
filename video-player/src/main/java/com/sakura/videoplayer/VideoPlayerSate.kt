@@ -27,7 +27,10 @@ fun rememberVideoPlayerState(
     videoPositionPollInterval: Long = 500,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     context: Context = LocalContext.current,
-    config: ExoPlayer.Builder.() -> Unit = { }
+    config: ExoPlayer.Builder.() -> Unit = {
+        setSeekForwardIncrementMs(10 * 1000)
+        setSeekBackIncrementMs(10 * 1000)
+    }
 ): VideoPlayerState = remember {
     VideoPlayerStateImpl(
         player = ExoPlayer.Builder(context).apply(config).build(),
@@ -50,6 +53,7 @@ class VideoPlayerStateImpl(
     private val videoPositionPollInterval: Long,
 ) : VideoPlayerState, Player.Listener {
     override val videoSize = mutableStateOf(player.videoSize)
+    override val videoResizeMode = mutableStateOf(ResizeMode.Fit)
     override val videoPositionMs = mutableStateOf(0L)
     override val videoDurationMs = mutableStateOf(0L)
 
@@ -69,10 +73,12 @@ class VideoPlayerStateImpl(
     override val volumeBrightnessProgress = mutableStateOf(0F)
 
     override val speedText = mutableStateOf("倍速")
+    override val resizeText = mutableStateOf("比例")
 
     override val isOptionsUiVisible = mutableStateOf(false)
     override val isControlUiVisible = mutableStateOf(false)
     override val isSpeedUiVisible = mutableStateOf(false)
+    override val isResizeUiVisible = mutableStateOf(false)
 
     override val onSeeking: (Float) -> Unit
         get() = {
@@ -126,9 +132,24 @@ class VideoPlayerStateImpl(
             player.pause()
         }
 
+        override fun forward() {
+            controlUiLastInteractionMs = 0
+            player.seekForward()
+        }
+
+        override fun rewind() {
+            controlUiLastInteractionMs = 0
+            player.seekBack()
+        }
+
         override fun setFullscreen(value: Boolean) {
             controlUiLastInteractionMs = 0
             isFullscreen.value = value
+        }
+
+        override fun setVideoResize(mode: ResizeMode) {
+            controlUiLastInteractionMs = 0
+            videoResizeMode.value = mode
         }
 
         override fun setPlaybackSpeed(speed: Float) {
@@ -170,7 +191,10 @@ class VideoPlayerStateImpl(
 
     override fun setSpeedText(text: String) {
         speedText.value = text
+    }
 
+    override fun setResizeText(text: String) {
+        resizeText.value = text
     }
 
     override fun hideOptionsUi() {
@@ -188,6 +212,15 @@ class VideoPlayerStateImpl(
 
     override fun hideSpeedUi() {
         isSpeedUiVisible.value = false
+    }
+
+    override fun showResizeUi() {
+        hideControlUi()
+        isResizeUiVisible.value = true
+    }
+
+    override fun hideResizeUi() {
+        isResizeUiVisible.value = false
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -262,6 +295,7 @@ interface VideoPlayerState {
     val window: Window
 
     val videoSize: State<VideoSize>
+    val videoResizeMode: State<ResizeMode>
     val videoPositionMs: State<Long>
     val videoDurationMs: State<Long>
 
@@ -283,10 +317,12 @@ interface VideoPlayerState {
     val onSeeked: () -> Unit
 
     val speedText: State<String>
+    val resizeText: State<String>
 
     val isOptionsUiVisible: State<Boolean>
     val isControlUiVisible: State<Boolean>
     val isSpeedUiVisible: State<Boolean>
+    val isResizeUiVisible: State<Boolean>
     val control: VideoPlayerControl
 
     fun onChangeVolume(value: Float)
@@ -300,6 +336,7 @@ interface VideoPlayerState {
     fun abandonAudioFocus()
 
     fun setSpeedText(text: String)
+    fun setResizeText(text: String)
 
     fun hideOptionsUi()
     fun showOptionsUi()
@@ -309,13 +346,20 @@ interface VideoPlayerState {
 
     fun showSpeedUi()
     fun hideSpeedUi()
+
+    fun showResizeUi()
+    fun hideResizeUi()
 }
 
 interface VideoPlayerControl {
     fun play()
     fun pause()
 
+    fun forward()
+    fun rewind()
+
     fun setFullscreen(value: Boolean)
+    fun setVideoResize(mode: ResizeMode)
     fun setPlaybackSpeed(speed: Float)
 
 }

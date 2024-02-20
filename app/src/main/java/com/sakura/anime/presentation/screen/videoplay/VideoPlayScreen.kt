@@ -79,6 +79,7 @@ import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.presentation.theme.AnimeTheme
+import com.sakura.videoplayer.ResizeMode
 import com.sakura.videoplayer.VideoPlayer
 import com.sakura.videoplayer.VideoPlayerControl
 import com.sakura.videoplayer.VideoPlayerState
@@ -89,12 +90,20 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 private val Speeds = arrayOf(
-    0.5f to "0.5X",
-    0.75f to "0.75X",
-    1.0f to "1.0X",
-    1.25f to "1.25X",
-    1.5f to "1.5X",
-    2.0f to "2.0X"
+    "0.5X" to 0.5f,
+    "0.75X" to 0.75f,
+    "1.0X" to 1.0f,
+    "1.25X" to 1.25f,
+    "1.5X" to 1.5f,
+    "2.0X" to 2.0f
+)
+
+private val Resizes = arrayOf(
+    "适应" to ResizeMode.Fit,
+    "拉伸" to ResizeMode.Fill,
+    "填充" to ResizeMode.Full,
+    "16:9" to ResizeMode.FixedRatio_16_9,
+    "4:3" to ResizeMode.FixedRatio_4_3,
 )
 
 @Composable
@@ -158,14 +167,26 @@ fun VideoPlayScreen(
                 VolumeBrightnessIndicator(playerState)
 
                 var selectedSpeedIndex by remember { mutableStateOf(3) }
+                var selectedResizeIndex by remember { mutableStateOf(0) }
+
                 if (playerState.isSpeedUiVisible.value) {
                     SpeedSideSheet(selectedSpeedIndex,
-                        onSpeedClick = { index, (speed, speedText) ->
+                        onSpeedClick = { index, (speedText, speed) ->
                             selectedSpeedIndex = index
                             playerState.setSpeedText(if (index == 3) "倍速" else speedText)
                             playerState.control.setPlaybackSpeed(speed)
                         }, onDismissRequest = { playerState.hideSpeedUi() }
                     )
+                }
+
+                if (playerState.isResizeUiVisible.value) {
+                    ResizeSideSheet(
+                        selectedResizeIndex = selectedResizeIndex,
+                        onResizeClick = { index, (resizeText, resizeMode) ->
+                            selectedResizeIndex = index
+                            playerState.setResizeText(resizeText)
+                            playerState.control.setVideoResize(resizeMode)
+                        }, onDismissRequest = { playerState.hideResizeUi() })
                 }
 
                 DisposableEffect(localView) {
@@ -366,24 +387,52 @@ private fun ShowVideoMessage(text: String) {
 @Composable
 private fun SpeedSideSheet(
     selectedSpeedIndex: Int,
-    onSpeedClick: (Int, Pair<Float, String>) -> Unit,
+    onSpeedClick: (Int, Pair<String, Float>) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val speeds = remember { Speeds.reversedArray() }
+
+    SideSheet(onDismissRequest = onDismissRequest, widthRatio = 0.2f) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                speeds.forEachIndexed { index, speed ->
+                    Text(
+                        text = speed.first,
+                        modifier = Modifier.clickable {
+                            onSpeedClick(index, speed)
+                        },
+                        color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResizeSideSheet(
+    selectedResizeIndex: Int,
+    onResizeClick: (Int, Pair<String, ResizeMode>) -> Unit,
     onDismissRequest: () -> Unit
 ) {
 
-    val speeds = remember { Speeds.reversedArray() }
     SideSheet(onDismissRequest = onDismissRequest, widthRatio = 0.2f) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
-            speeds.forEachIndexed { index, s ->
+            Resizes.forEachIndexed { index, resize ->
                 Text(
-                    text = speeds[index].second,
+                    text = resize.first,
                     modifier = Modifier.clickable {
-                        onSpeedClick(index, speeds[index])
+                        onResizeClick(index, resize)
                     },
-                    color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.White,
+                    color = if (selectedResizeIndex == index) MaterialTheme.colorScheme.primary else Color.White,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -487,7 +536,7 @@ fun SideSheetPreview() {
                         items(150) { num ->
                             val isSelected = num % 2 == 0
                             OutlinedButton(
-                                onClick = { /*TODO*/ },
+                                onClick = { },
                                 contentPadding = PaddingValues(8.dp),
                                 border = if (isSelected) BorderStroke(
                                     1.dp,

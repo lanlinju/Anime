@@ -100,13 +100,15 @@ fun VideoPlayerControl(
                     videoPositionMs = state.videoPositionMs.value,
                     videoProgress = state.videoProgress.value,
                     control = state.control,
-                    speedText = state.speedText.value,
                     isSeeking = state.isSeeking.value,
                     isPlaying = state.isPlaying.value,
                     onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
                     onDragSlider = { state.onSeeking(it) },
                     onDragSliderFinished = { state.onSeeked() },
-                    onSpeedClick = { state.showSpeedUi() }
+                    speedText = state.speedText.value,
+                    resizeText = state.resizeText.value,
+                    onSpeedClick = { state.showSpeedUi() },
+                    onResizeClick = { state.showResizeUi() }
                 )
             }
         }
@@ -175,14 +177,16 @@ private fun TimelineControl(
     videoDurationMs: Long,
     videoPositionMs: Long,
     videoProgress: Float,
-    speedText: String,
     isSeeking: Boolean,
     isPlaying: Boolean,
     control: VideoPlayerControl,
     onDragSlider: (Float) -> Unit,
     onDragSliderFinished: () -> Unit,
     onFullScreenToggle: () -> Unit,
+    speedText: String,
+    resizeText: String,
     onSpeedClick: () -> Unit,
+    onResizeClick: () -> Unit,
 ) {
     val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
@@ -241,7 +245,7 @@ private fun TimelineControl(
                     )
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     Text(
                         text = "选集",
                         color = LocalContentColor.current,
@@ -254,8 +258,10 @@ private fun TimelineControl(
                         color = LocalContentColor.current,
                         style = MaterialTheme.typography.bodyMedium,
                     )
+
                     Text(
-                        text = "比例",
+                        text = resizeText,
+                        modifier = Modifier.clickable { onResizeClick() },
                         color = LocalContentColor.current,
                         style = MaterialTheme.typography.bodyMedium,
                     )

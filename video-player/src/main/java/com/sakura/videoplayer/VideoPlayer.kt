@@ -30,10 +30,25 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.exoplayer2.MediaItem
 import kotlin.math.abs
 
+@JvmInline
+value class ResizeMode private constructor(val value: Int) {
+    companion object {
+        val Fit = ResizeMode(0) /* 自适应 */
+        val FixedWidth = ResizeMode(1)
+        val FixedHeight = ResizeMode(2)
+        val Fill = ResizeMode(3) /* 以改变视频纵横比的形式填充屏幕 */
+        val Full = ResizeMode(4) /* 不改变视频纵横比的形式充满屏幕 */
+        val Zoom = ResizeMode(5)
+        val FixedRatio_16_9 = ResizeMode(6)
+        val FixedRatio_4_3 = ResizeMode(7)
+    }
+}
+
 private fun Modifier.adaptiveLayout(
     aspectRatio: Float,
+    resizeMode: ResizeMode = ResizeMode.Fit
 ) = layout { measurable, constraints ->
-    val resizedConstraint = constraints.resizeForVideo(aspectRatio)
+    val resizedConstraint = constraints.resizeForVideo(resizeMode, aspectRatio)
     val placeable = measurable.measure(resizedConstraint)
     layout(constraints.maxWidth, constraints.maxHeight) {
         // Center x and y axis relative to the layout
@@ -180,6 +195,7 @@ private fun VideoPlayer(
             modifier = Modifier
                 .adaptiveLayout(
                     aspectRatio = playerState.videoSize.value.aspectRatio(),
+                    resizeMode = playerState.videoResizeMode.value
                 ),
             factory = { context ->
                 SurfaceView(context).also {
