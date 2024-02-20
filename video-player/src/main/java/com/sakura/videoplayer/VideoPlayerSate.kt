@@ -68,6 +68,12 @@ class VideoPlayerStateImpl(
     override val videoProgress = mutableStateOf(0F)
     override val volumeBrightnessProgress = mutableStateOf(0F)
 
+    override val speedText = mutableStateOf("倍速")
+
+    override val isOptionsUiVisible = mutableStateOf(false)
+    override val isControlUiVisible = mutableStateOf(false)
+    override val isSpeedUiVisible = mutableStateOf(false)
+
     override val onSeeking: (Float) -> Unit
         get() = {
             controlUiLastInteractionMs = 0
@@ -99,15 +105,16 @@ class VideoPlayerStateImpl(
 
     override fun onLongPress() {
         isLongPress.value = true
-        control.setPlaybackSpeed(2.0f)
+        val currentSpeed = player.playbackParameters.speed
+        control.setPlaybackSpeed(currentSpeed * 2)
     }
 
     override fun onDisLongPress() {
         isLongPress.value = false
-        control.setPlaybackSpeed(1.0f)
+        val currentSpeed = player.playbackParameters.speed
+        control.setPlaybackSpeed(currentSpeed.div(2))
     }
 
-    override val isControlUiVisible = mutableStateOf(false)
     override val control = object : VideoPlayerControl {
         override fun play() {
             controlUiLastInteractionMs = 0
@@ -159,6 +166,28 @@ class VideoPlayerStateImpl(
                 }
             }
         }
+    }
+
+    override fun setSpeedText(text: String) {
+        speedText.value = text
+
+    }
+
+    override fun hideOptionsUi() {
+        isOptionsUiVisible.value = true
+    }
+
+    override fun showOptionsUi() {
+        isOptionsUiVisible.value = false
+    }
+
+    override fun showSpeedUi() {
+        hideControlUi()
+        isSpeedUiVisible.value = true
+    }
+
+    override fun hideSpeedUi() {
+        isSpeedUiVisible.value = false
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -223,6 +252,7 @@ class VideoPlayerStateImpl(
     override fun abandonAudioFocus() {
         audioManager.abandonAudioFocusRequest(focusRequest)
     }
+
 }
 
 
@@ -252,6 +282,13 @@ interface VideoPlayerState {
     val onSeeking: (dragProcess: Float) -> Unit
     val onSeeked: () -> Unit
 
+    val speedText: State<String>
+
+    val isOptionsUiVisible: State<Boolean>
+    val isControlUiVisible: State<Boolean>
+    val isSpeedUiVisible: State<Boolean>
+    val control: VideoPlayerControl
+
     fun onChangeVolume(value: Float)
     fun onChangeBrightness(value: Float)
     fun onChanged()
@@ -262,11 +299,16 @@ interface VideoPlayerState {
     fun requestAudioFocus()
     fun abandonAudioFocus()
 
-    val isControlUiVisible: State<Boolean>
-    val control: VideoPlayerControl
+    fun setSpeedText(text: String)
+
+    fun hideOptionsUi()
+    fun showOptionsUi()
 
     fun hideControlUi()
     fun showControlUi()
+
+    fun showSpeedUi()
+    fun hideSpeedUi()
 }
 
 interface VideoPlayerControl {

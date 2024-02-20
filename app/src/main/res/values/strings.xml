@@ -43,6 +43,7 @@
     <string name="download_list">下载列表</string>
     <string name="space_usage">空间占用</string>
     <string name="play">播放</string>
+    <string name="speed">倍速</string>
 
     <string name="complete">完成</string>
     <string name="unstart">未开始</string>

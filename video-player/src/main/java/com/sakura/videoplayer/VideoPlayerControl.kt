@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,19 +55,22 @@ fun VideoPlayerControl(
     contentColor: Color = Color.White,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
-    onOptionsContent: (@Composable () -> Unit)? = null,
+    onOptionsClick: (() -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(background)
-                .padding(start = 8.dp + if (
-                    LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-                ) {
-                    WindowInsets.displayCutout.asPaddingValues()
-                        .calculateLeftPadding(LayoutDirection.Ltr)
-                } else 0.dp, end = 28.dp, top = 20.dp)
+                .padding(
+                    start = 8.dp + if (
+                        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+                    ) {
+                        WindowInsets.displayCutout
+                            .asPaddingValues()
+                            .calculateLeftPadding(LayoutDirection.Ltr)
+                    } else 0.dp, end = 28.dp, top = 20.dp
+                )
         ) {
 
             Column(
@@ -76,16 +80,17 @@ fun VideoPlayerControl(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                if (!state.isSeeking.value)
+                if (!state.isSeeking.value) {
                     ControlHeader(
                         modifier = Modifier.fillMaxWidth(),
                         title = title,
                         subtitle = subtitle,
-                        onOptionsContent = onOptionsContent,
+                        onOptionsClick = onOptionsClick,
                         onBackClick = onBackClick
                     )
+                }
 
-                Spacer(Modifier.size(2.dp))
+                Spacer(Modifier.size(1.dp))
 
                 TimelineControl(
                     modifier = Modifier.fillMaxWidth(),
@@ -95,11 +100,13 @@ fun VideoPlayerControl(
                     videoPositionMs = state.videoPositionMs.value,
                     videoProgress = state.videoProgress.value,
                     control = state.control,
+                    speedText = state.speedText.value,
                     isSeeking = state.isSeeking.value,
+                    isPlaying = state.isPlaying.value,
                     onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
                     onDragSlider = { state.onSeeking(it) },
                     onDragSliderFinished = { state.onSeeked() },
-                    isPlaying = state.isPlaying.value
+                    onSpeedClick = { state.showSpeedUi() }
                 )
             }
         }
@@ -113,7 +120,7 @@ private fun ControlHeader(
     title: String,
     subtitle: String?,
     onBackClick: (() -> Unit)?,
-    onOptionsContent: (@Composable () -> Unit)? = null,
+    onOptionsClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier,
@@ -146,7 +153,17 @@ private fun ControlHeader(
                 )
             }
         }
-        onOptionsContent?.invoke()
+        if (onOptionsClick != null) {
+            AdaptiveIconButton(
+                modifier = Modifier.size(MediumIconButtonSize),
+                onClick = onOptionsClick
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.MoreVert,
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 
@@ -158,12 +175,14 @@ private fun TimelineControl(
     videoDurationMs: Long,
     videoPositionMs: Long,
     videoProgress: Float,
+    speedText: String,
     isSeeking: Boolean,
     isPlaying: Boolean,
     control: VideoPlayerControl,
     onDragSlider: (Float) -> Unit,
     onDragSliderFinished: () -> Unit,
     onFullScreenToggle: () -> Unit,
+    onSpeedClick: () -> Unit,
 ) {
     val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
@@ -202,19 +221,49 @@ private fun TimelineControl(
             color = progressLineColor,
             trackColor = Color.LightGray
         )
-        if (isSeeking)
-            Spacer(modifier = Modifier.size(42.dp))
-        else
-            AdaptiveIconButton(
-                modifier = Modifier.size(42.dp),
-                onClick = { if (isPlaying) control.pause() else control.play() }
+
+        if (isSeeking) {
+            Spacer(modifier = Modifier.size(MediumIconButtonSize))
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    modifier = Modifier.fillMaxSize(),
-                    imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                    contentDescription = null
-                )
+                AdaptiveIconButton(
+                    modifier = Modifier.size(MediumIconButtonSize),
+                    onClick = { if (isPlaying) control.pause() else control.play() }
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(),
+                        imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                        contentDescription = null
+                    )
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = "选集",
+                        color = LocalContentColor.current,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+
+                    Text(
+                        text = speedText,
+                        modifier = Modifier.clickable { onSpeedClick() },
+                        color = LocalContentColor.current,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = "比例",
+                        color = LocalContentColor.current,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
             }
+
+        }
     }
 }
 
@@ -242,5 +291,6 @@ private fun AdaptiveIconButton(
 }
 
 private val BigIconButtonSize = 52.dp
+private val MediumIconButtonSize = 42.dp
 private val SmallIconButtonSize = 32.dp
 

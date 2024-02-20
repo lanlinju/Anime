@@ -153,7 +153,7 @@ private fun Modifier.defaultPlayerTapGestures(
             }
         },
         onPress = {
-            tryAwaitRelease()
+            tryAwaitRelease() /* 等待按压结束 */
             if (playerState.isLongPress.value) {
                 playerState.onDisLongPress()
             }
