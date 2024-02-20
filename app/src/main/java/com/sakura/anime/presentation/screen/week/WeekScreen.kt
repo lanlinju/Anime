@@ -47,7 +47,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
@@ -162,7 +161,7 @@ fun WeekScreen(
         ) {
             TABS.forEachIndexed { index, title ->
                 Tab(
-                    text = { Text(title, fontSize = 12.sp) },
+                    text = { Text(title, style = MaterialTheme.typography.labelSmall) },
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.scrollToPage(index) } },
                 )
