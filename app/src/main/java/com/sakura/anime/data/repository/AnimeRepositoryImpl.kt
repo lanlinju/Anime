@@ -5,6 +5,7 @@ import com.example.componentsui.anime.domain.model.AnimeDetail
 import com.example.componentsui.anime.domain.model.Home
 import com.sakura.anime.data.remote.api.AnimeApi
 import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.Resource
 import javax.inject.Inject
@@ -38,15 +39,15 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getVideoUrl(episodeUrl: String): Resource<String> {
+    override suspend fun getVideo(episodeUrl: String): Resource<Video?> {
         val response = invokeApi {
-            animeApi.getVideoUrl(episodeUrl)
+            animeApi.getVideo(episodeUrl)
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
             is Resource.Loading -> Resource.Loading()
             is Resource.Success -> Resource.Success(
-                data = response.data.orEmpty()
+                data = response.data?.toVideo()
             )
         }
     }

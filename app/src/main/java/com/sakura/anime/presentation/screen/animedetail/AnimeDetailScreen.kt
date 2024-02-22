@@ -109,7 +109,7 @@ fun AnimeDetailScreen(
     viewModel: AnimeDetailViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     onRelatedAnimeClick: (detailUrl: String) -> Unit,
-    onEpisodeClick: (episodeUrl: String, title: String) -> Unit
+    onNavigateToVideoPlay: (episodeUrl: String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
@@ -220,10 +220,7 @@ fun AnimeDetailScreen(
                                             episodes = listOf(episode)
                                         )
                                     viewModel.addHistory(history)
-                                    onEpisodeClick(
-                                        episode.url,
-                                        "${animeDetail.title}-${episode.name}"
-                                    )
+                                    onNavigateToVideoPlay(episode.url)
                                 }
                             )
 
@@ -277,10 +274,7 @@ fun AnimeDetailScreen(
                                         episodes = listOf(episode)
                                     )
                                 viewModel.addHistory(history)
-                                onEpisodeClick(
-                                    episode.url,
-                                    "${animeDetail.title}-${episode.name}"
-                                )
+                                onNavigateToVideoPlay(episode.url)
                             })
                     }
 

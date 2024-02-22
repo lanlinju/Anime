@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.downloaddetail
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -44,6 +45,7 @@ import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.PopupMenuListItem
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
+import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.download.Progress
@@ -61,7 +63,7 @@ import com.sakura.download.State as DownloadSate
 
 @Composable
 fun DownloadDetailScreen(
-    onNavigateToVideoPlay: (episodeUrl: String, title: String) -> Unit,
+    onNavigateToVideoPlay: (params: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel: DownloadDetailViewModel = hiltViewModel()
@@ -114,10 +116,13 @@ fun DownloadDetailScreen(
                             onClick = {
                                 when {
                                     state.isSucceed.value -> {
-                                        onNavigateToVideoPlay(
-                                            downloadDetail.path,
-                                            "${titleState.value}-${downloadDetail.title}"
-                                        )
+                                        val detailUrl = viewModel.detailUrl
+                                        val title = titleState.value
+                                        val episodeName = downloadDetail.title
+                                        val params =
+                                            "$KEY_FROM_LOCAL_VIDEO:${detailUrl}:${title}:${episodeName}"
+
+                                        onNavigateToVideoPlay(Uri.encode(params))
                                     }
 
                                     state.isStarted() -> state.stop()

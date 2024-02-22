@@ -4,6 +4,7 @@ import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
+import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.TABS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -52,7 +53,7 @@ object YhdmJsoupParser : AnimeJsoupParser {
             }
             val tags = mutableListOf<String>()
             tagElements.forEach { tags.add(it.text().uppercase()) }
-            val episodes = getAnimeEpisodes(this)
+            val episodes = getAnimeEpisodes(this.select("div.movurl"))
             val relatedAnimes = getRelatedAnimes(this)
             AnimeDetailBean(
                 AnimeBean(title, img, url = ""),
@@ -66,7 +67,17 @@ object YhdmJsoupParser : AnimeJsoupParser {
         }
     }
 
-    override suspend fun getVideoUrl(source: String): String {
+    override suspend fun getVideo(source: String): VideoBean {
+        val document = Jsoup.parse(source)
+        val head = document.select("h1").text().split("：")
+        val title = head[0]
+        val episodeName = head[1]
+        val videoUrl = getVideoUrl(source)
+        val episodes = getAnimeEpisodes(document.select("div.movurls"))
+        return VideoBean(title, videoUrl, episodeName, episodes)
+    }
+
+    private fun getVideoUrl(source: String): String {
         val document = Jsoup.parse(source)
         val elements = document.select("div.playbo > a")
         val re = """changeplay\('(.*)\$""".toRegex()
@@ -103,11 +114,11 @@ object YhdmJsoupParser : AnimeJsoupParser {
             }
             weekMap.put(TABS[i], dayList)
         }
-        return weekMap;
+        return weekMap
     }
 
-    private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {
-        val dramaElements = document.select("div.movurl > ul > li") //剧集列表
+    private fun getAnimeEpisodes(elements: Elements): List<EpisodeBean> {
+        val dramaElements = elements.select("ul > li") //剧集列表
         val episodes = mutableListOf<EpisodeBean>()
         dramaElements.forEach { el ->
             val name = el.select("a").text()

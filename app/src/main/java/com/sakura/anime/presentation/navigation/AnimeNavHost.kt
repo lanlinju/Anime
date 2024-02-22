@@ -22,7 +22,7 @@ fun AnimeNavHost(
     navController: NavHostController,
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String, title: String) -> Unit,
+    onNavigateToVideoPlay: (episodeUrl: String) -> Unit,
     onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
@@ -42,7 +42,7 @@ fun AnimeNavHost(
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(
                 onRelatedAnimeClick = onNavigateToAnimeDetail,
-                onEpisodeClick = onNavigateToVideoPlay,
+                onNavigateToVideoPlay = onNavigateToVideoPlay,
                 onBackClick = onBackClick
             )
         }
@@ -71,7 +71,7 @@ fun AnimeNavHost(
             HistoryScreen(
                 onBackClick = onBackClick,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onPlayClick = onNavigateToVideoPlay
+                onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
         composable(Screen.DownloadScreen.route) {

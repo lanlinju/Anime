@@ -79,7 +79,7 @@ class AnimeDetailViewModel @Inject constructor(
     @OptIn(DelicateCoroutinesApi::class)
     fun addDownload(download: Download, episodeUrl: String, file: File) {
         viewModelScope.launch {
-            val videoUrl = animeRepository.getVideoUrl(episodeUrl).data!!
+            val videoUrl = animeRepository.getVideo(episodeUrl).data!!.url
             // 开始下载视频
             GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
 

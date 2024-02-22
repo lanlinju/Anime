@@ -73,12 +73,13 @@ class VideoPlayerStateImpl(
     override val volumeBrightnessProgress = mutableStateOf(0F)
 
     override val speedText = mutableStateOf("倍速")
-    override val resizeText = mutableStateOf("比例")
+    override val resizeText = mutableStateOf("适应")
 
     override val isOptionsUiVisible = mutableStateOf(false)
     override val isControlUiVisible = mutableStateOf(false)
     override val isSpeedUiVisible = mutableStateOf(false)
     override val isResizeUiVisible = mutableStateOf(false)
+    override val isEpisodeUiVisible = mutableStateOf(false)
 
     override val onSeeking: (Float) -> Unit
         get() = {
@@ -223,6 +224,15 @@ class VideoPlayerStateImpl(
         isResizeUiVisible.value = false
     }
 
+    override fun showEpisodeUi() {
+        hideControlUi()
+        isEpisodeUiVisible.value = true
+    }
+
+    override fun hideEpisodeUi() {
+        isEpisodeUiVisible.value = false
+    }
+
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         this.isPlaying.value = isPlaying
     }
@@ -323,6 +333,7 @@ interface VideoPlayerState {
     val isControlUiVisible: State<Boolean>
     val isSpeedUiVisible: State<Boolean>
     val isResizeUiVisible: State<Boolean>
+    val isEpisodeUiVisible: State<Boolean>
     val control: VideoPlayerControl
 
     fun onChangeVolume(value: Float)
@@ -349,6 +360,9 @@ interface VideoPlayerState {
 
     fun showResizeUi()
     fun hideResizeUi()
+
+    fun showEpisodeUi()
+    fun hideEpisodeUi()
 }
 
 interface VideoPlayerControl {

@@ -1,6 +1,7 @@
 package com.sakura.videoplayer
 
 
+import android.annotation.SuppressLint
 import android.media.AudioManager
 import android.provider.Settings
 import android.view.SurfaceView
@@ -11,7 +12,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +60,7 @@ private fun Modifier.adaptiveLayout(
     }
 }
 
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
     pointerInput(Unit) {
         var downX = 0f
@@ -142,6 +144,7 @@ private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
         }
     }
 
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.defaultPlayerTapGestures(
     playerState: VideoPlayerState,
     haptics: HapticFeedback,
@@ -186,7 +189,7 @@ private fun VideoPlayer(
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .defaultPlayerTapGestures(playerState, haptics)
             .defaultPlayerDragGestures(playerState)
     ) {

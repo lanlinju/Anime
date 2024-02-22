@@ -1,5 +1,6 @@
 package com.sakura.anime.presentation.screen.history
 
+import android.net.Uri
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,7 +50,7 @@ import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 fun HistoryScreen(
     onBackClick: () -> Unit,
     onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
-    onPlayClick: (episodeUrl: String, title: String) -> Unit
+    onNavigateToVideoPlay: (episodeUrl: String) -> Unit
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyListState by viewModel.historyList.collectAsState()
@@ -78,7 +79,7 @@ fun HistoryScreen(
                             content = {
                                 HistoryItem(
                                     history = history,
-                                    onPlayClick = onPlayClick
+                                    onPlayClick = onNavigateToVideoPlay
                                 )
                             },
                             menuText = stringResource(id = R.string.delete),
@@ -98,7 +99,7 @@ fun HistoryScreen(
 fun HistoryItem(
     modifier: Modifier = Modifier,
     history: History,
-    onPlayClick: (episodeUrl: String, title: String) -> Unit,
+    onPlayClick: (episodeUrl: String) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -151,10 +152,7 @@ fun HistoryItem(
                             interactionSource = interactionSource,
                             indication = LocalIndication.current
                         ) {
-                            onPlayClick(
-                                history.lastEpisodeUrl,
-                                "${history.title}-${history.lastEpisodeName}"
-                            )
+                            onPlayClick(Uri.encode(history.lastEpisodeUrl))
                         }
                     )
                 }
@@ -183,7 +181,7 @@ fun HistoryItemPreview() {
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
     ) {
         items(histories) { history ->
-            HistoryItem(history = history, onPlayClick = { _, _ -> })
+            HistoryItem(history = history, onPlayClick = {  })
         }
     }
 

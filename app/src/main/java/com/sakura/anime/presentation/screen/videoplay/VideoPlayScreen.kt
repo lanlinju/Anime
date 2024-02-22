@@ -1,5 +1,6 @@
 package com.sakura.anime.presentation.screen.videoplay
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
@@ -35,6 +36,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -53,6 +56,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,11 +74,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
+import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
@@ -106,59 +112,61 @@ private val Resizes = arrayOf(
     "4:3" to ResizeMode.FixedRatio_4_3,
 )
 
+/* 屏幕方向改变会导致丢失状态 */
 @Composable
 fun VideoPlayScreen(
     viewModel: VideoPlayViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     activity: Activity
 ) {
-    val animeVideoUrlState by viewModel.videoUrlState.collectAsState()
+    val animeVideoState by viewModel.videoState.collectAsState()
+
+    val view = LocalView.current
 
     StateHandler(
-        state = animeVideoUrlState,
-        onLoading = { LoadingIndicator() },
-        onFailure = { WarningMessage(textId = R.string.txt_empty_result) }
+        state = animeVideoState,
+        onLoading = {
+            LoadingIndicator(Modifier.background(Color.Black)) {
+                view.keepScreenOn = true
+                requestLandscapeOrientation(view, activity)
+            }
+        },
+        onFailure = {
+            WarningMessage(
+                textId = R.string.txt_empty_result,
+                contentColor = Color.White,
+                containerColor = Color.Black
+            )
+        }
     ) { resource ->
-        resource.data?.let { videoUrl ->
+        resource.data?.let { video ->
             val playerState = rememberVideoPlayerState()
 
-            val localView = LocalView.current
-            localView.keepScreenOn = true
-
-            activity.requestedOrientation =
-                if (playerState.isFullscreen.value) {
-                    hideSystemBars(LocalView.current)
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                } else {
-                    showSystemBars(LocalView.current)
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            val onBackHandle: () -> Unit = remember {
+                {
+                    playerState.control.setFullscreen(false)
+                    requestPortraitOrientation(view, activity)
+                    onBackClick()
                 }
+            }
 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black),
+                    .background(Color.Black)
+                    .adaptiveSize(playerState.isFullscreen.value, view, activity),
                 contentAlignment = Alignment.Center
             ) {
+
                 VideoPlayer(
-                    url = videoUrl,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .adaptiveSize(playerState.isFullscreen.value, localView),
+                    url = video.url,
                     playerState = playerState,
-                    onBackPress = {
-                        playerState.control.setFullscreen(false)
-                        onBackClick()
-                    }
+                    onBackPress = onBackHandle
                 ) {
                     VideoPlayerControl(
                         state = playerState,
-                        title = viewModel.animeTitle,
-                        onBackClick = {
-                            playerState.control.setFullscreen(false)
-                            onBackClick()
-                        }
+                        title = "${video.title}-${video.episodeName}",
+                        onBackClick = onBackHandle
                     )
                 }
 
@@ -166,40 +174,29 @@ fun VideoPlayScreen(
 
                 VolumeBrightnessIndicator(playerState)
 
-                var selectedSpeedIndex by remember { mutableStateOf(3) }
-                var selectedResizeIndex by remember { mutableStateOf(0) }
-
-                if (playerState.isSpeedUiVisible.value) {
-                    SpeedSideSheet(selectedSpeedIndex,
-                        onSpeedClick = { index, (speedText, speed) ->
-                            selectedSpeedIndex = index
-                            playerState.setSpeedText(if (index == 3) "倍速" else speedText)
-                            playerState.control.setPlaybackSpeed(speed)
-                        }, onDismissRequest = { playerState.hideSpeedUi() }
-                    )
-                }
-
-                if (playerState.isResizeUiVisible.value) {
-                    ResizeSideSheet(
-                        selectedResizeIndex = selectedResizeIndex,
-                        onResizeClick = { index, (resizeText, resizeMode) ->
-                            selectedResizeIndex = index
-                            playerState.setResizeText(resizeText)
-                            playerState.control.setVideoResize(resizeMode)
-                        }, onDismissRequest = { playerState.hideResizeUi() })
-                }
-
-                DisposableEffect(localView) {
-                    onDispose {
-                        localView.keepScreenOn = false
-                    }
-                }
+                VideoSideSheet(video, playerState, viewModel)
             }
 
         }
-
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            view.keepScreenOn = false
+            requestPortraitOrientation(view, activity)
+        }
+    }
+}
+
+@SuppressLint("SourceLockedOrientationActivity")
+private fun requestPortraitOrientation(view: View, activity: Activity) {
+    showSystemBars(view, activity)
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+}
+
+private fun requestLandscapeOrientation(view: View, activity: Activity) {
+    hideSystemBars(view, activity)
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 }
 
 @Composable
@@ -385,6 +382,49 @@ private fun ShowVideoMessage(text: String) {
 }
 
 @Composable
+private fun VideoSideSheet(
+    video: Video,
+    playerState: VideoPlayerState,
+    viewModel: VideoPlayViewModel
+) {
+    var selectedSpeedIndex by remember { mutableIntStateOf(3) }
+    var selectedResizeIndex by remember { mutableIntStateOf(0) }
+    var selectedEpisodeIndex by remember { mutableIntStateOf(video.currentEpisodeIndex) }
+
+    if (playerState.isSpeedUiVisible.value) {
+        SpeedSideSheet(selectedSpeedIndex,
+            onSpeedClick = { index, (speedText, speed) ->
+                selectedSpeedIndex = index
+                playerState.setSpeedText(if (index == 3) "倍速" else speedText)
+                playerState.control.setPlaybackSpeed(speed)
+            }, onDismissRequest = { playerState.hideSpeedUi() }
+        )
+    }
+
+    if (playerState.isResizeUiVisible.value) {
+        ResizeSideSheet(
+            selectedResizeIndex = selectedResizeIndex,
+            onResizeClick = { index, (resizeText, resizeMode) ->
+                selectedResizeIndex = index
+                playerState.setResizeText(resizeText)
+                playerState.control.setVideoResize(resizeMode)
+            }, onDismissRequest = { playerState.hideResizeUi() })
+    }
+
+    if (playerState.isEpisodeUiVisible.value) {
+        EpisodeSideSheet(
+            episodes = video.episodes,
+            selectedEpisodeIndex = selectedEpisodeIndex,
+            onEpisodeClick = { index, episode ->
+                selectedEpisodeIndex = index
+                viewModel.getVideo(episode.url, episode.name)
+            },
+            onDismissRequest = { playerState.hideEpisodeUi() }
+        )
+    }
+}
+
+@Composable
 private fun SpeedSideSheet(
     selectedSpeedIndex: Int,
     onSpeedClick: (Int, Pair<String, Float>) -> Unit,
@@ -441,9 +481,38 @@ private fun ResizeSideSheet(
 }
 
 @Composable
+private fun EpisodeSideSheet(
+    episodes: List<Episode>,
+    selectedEpisodeIndex: Int,
+    onEpisodeClick: (Int, Episode) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    SideSheet(onDismissRequest = onDismissRequest) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
+            state = rememberLazyGridState(initialFirstVisibleItemIndex = selectedEpisodeIndex, -200)
+        ) {
+            itemsIndexed(episodes) { index, episode ->
+                OutlinedButton(
+                    onClick = { onEpisodeClick(index, episode) },
+                    contentPadding = PaddingValues(8.dp),
+                ) {
+                    Text(
+                        text = episode.name,
+                        color = if (index == selectedEpisodeIndex) MaterialTheme.colorScheme.primary else Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SideSheet(
     onDismissRequest: () -> Unit,
-    widthRatio: Float = 0.45f,
+    widthRatio: Float = 0.4f,
     content: @Composable ColumnScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -465,7 +534,7 @@ private fun SideSheet(
                     if (position.x < fullWidth - sideSheetWidthDp.toPx()) {
                         isVisible = false
                         scope
-                            .launch { delay(400) }
+                            .launch { delay(300) }
                             .invokeOnCompletion { onDismissRequest() }
                     }
                 })
@@ -490,18 +559,18 @@ private fun SideSheet(
     }
 }
 
-private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View): Modifier {
+private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View, activity: Activity): Modifier {
     return if (fullscreen) {
-        hideSystemBars(view)
+        requestLandscapeOrientation(view, activity)
         fillMaxSize()
     } else {
-        showSystemBars(view)
+        requestPortraitOrientation(view, activity)
         fillMaxWidth().aspectRatio(1.778f)
     }
 }
 
-private fun hideSystemBars(view: View) {
-    val windowInsetsController = ViewCompat.getWindowInsetsController(view) ?: return
+private fun hideSystemBars(view: View, activity: Activity) {
+    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
     // Configure the behavior of the hidden system bars
     windowInsetsController.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -509,8 +578,8 @@ private fun hideSystemBars(view: View) {
     windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 }
 
-private fun showSystemBars(view: View) {
-    val windowInsetsController = ViewCompat.getWindowInsetsController(view) ?: return
+private fun showSystemBars(view: View, activity: Activity) {
+    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
     // Show both the status bar and the navigation bar
     windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 }
@@ -520,7 +589,6 @@ private fun showSystemBars(view: View) {
 fun SideSheetPreview() {
     AnimeTheme {
         Box(modifier = Modifier.fillMaxSize()) {
-
             var isSideSheetVisible by remember { mutableStateOf(false) }
 
             Button(onClick = { isSideSheetVisible = !isSideSheetVisible }) {

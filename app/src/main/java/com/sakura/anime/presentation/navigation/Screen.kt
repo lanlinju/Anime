@@ -4,7 +4,6 @@ import android.net.Uri
 
 const val DETAIL_ARGUMENT_URL = "detailUrl"
 const val VIDEO_ARGUMENT_EPISODE_URL = "episodeUrl"
-const val VIDEO_ARGUMENT_TITLE_URL = "episodeTitleUrl"
 const val ANIME_ARGUMENT_TITLE = "animeTitle"
 
 sealed class Screen(
@@ -18,9 +17,9 @@ sealed class Screen(
     }
 
     object VideoPlayScreen :
-        Screen(route = "videoPlay/{$VIDEO_ARGUMENT_EPISODE_URL}/{$VIDEO_ARGUMENT_TITLE_URL}") {
-        fun passUrl(episodeUrl: String, title: String): String {
-            return "videoPlay/${Uri.encode(episodeUrl)}/$title"
+        Screen(route = "videoPlay/{$VIDEO_ARGUMENT_EPISODE_URL}") {
+        fun passUrl(episodeUrl: String): String {
+            return "videoPlay/${Uri.encode(episodeUrl)}"
         }
     }
 

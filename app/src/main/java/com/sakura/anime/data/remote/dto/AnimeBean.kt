@@ -5,7 +5,7 @@ import com.example.componentsui.anime.domain.model.Anime
 /**
  * @param title 动漫名称
  * @param img 图片url
- * @param url 动漫详情url
+ * @param url 动漫详情url，在解析动漫详情时可为空: ""
  * @param episode 集数
  */
 data class AnimeBean(

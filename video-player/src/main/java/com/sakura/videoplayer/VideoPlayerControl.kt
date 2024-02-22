@@ -108,7 +108,8 @@ fun VideoPlayerControl(
                     speedText = state.speedText.value,
                     resizeText = state.resizeText.value,
                     onSpeedClick = { state.showSpeedUi() },
-                    onResizeClick = { state.showResizeUi() }
+                    onResizeClick = { state.showResizeUi() },
+                    onEpisodeClick = { state.showEpisodeUi() }
                 )
             }
         }
@@ -187,6 +188,7 @@ private fun TimelineControl(
     resizeText: String,
     onSpeedClick: () -> Unit,
     onResizeClick: () -> Unit,
+    onEpisodeClick: () -> Unit,
 ) {
     val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
@@ -248,6 +250,7 @@ private fun TimelineControl(
                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     Text(
                         text = "选集",
+                        modifier = Modifier.clickable { onEpisodeClick() },
                         color = LocalContentColor.current,
                         style = MaterialTheme.typography.bodyMedium,
                     )

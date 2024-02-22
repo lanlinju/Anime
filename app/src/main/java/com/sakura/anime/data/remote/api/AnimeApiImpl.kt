@@ -3,6 +3,7 @@ package com.sakura.anime.data.remote.api
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.HomeBean
+import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.AnimeJsoupParser
 import com.sakura.anime.util.BASE_URL
 import com.sakura.anime.util.DownloadManager
@@ -22,9 +23,9 @@ class AnimeApiImpl @Inject constructor(
         return animeJsoupParser.getAnimeDetail(source)
     }
 
-    override suspend fun getVideoUrl(episodeUrl: String): String {
+    override suspend fun getVideo(episodeUrl: String): VideoBean {
         val source = downloadManager.getHtml("$BASE_URL/$episodeUrl")
-        return animeJsoupParser.getVideoUrl(source)
+        return animeJsoupParser.getVideo(source)
     }
 
     override suspend fun getSearchData(query: String): List<AnimeBean> {

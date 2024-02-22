@@ -32,12 +32,15 @@ class DownloadDetailViewModel @Inject constructor(
     val title: StateFlow<String>
         get() = _title
 
+    lateinit var detailUrl: String
+
     init {
         savedStateHandle.get<String>(key = ANIME_ARGUMENT_TITLE)?.let { title ->
             _title.value = title
         }
 
         savedStateHandle.get<String>(key = DETAIL_ARGUMENT_URL)?.let { detailUrl ->
+            this.detailUrl = detailUrl
             getDownloadDetails(Uri.decode(detailUrl))
         }
     }

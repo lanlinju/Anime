@@ -66,8 +66,8 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToAnimeDetail = { detailUrl ->
                 navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl))
             },
-            onNavigateToVideoPlay = { episodeUrl, title ->
-                navController.navigate(route = Screen.VideoPlayScreen.passUrl(episodeUrl, title))
+            onNavigateToVideoPlay = { episodeUrl ->
+                navController.navigate(route = Screen.VideoPlayScreen.passUrl(episodeUrl))
             },
             onBackClick = {
                 navController.popBackStack()
