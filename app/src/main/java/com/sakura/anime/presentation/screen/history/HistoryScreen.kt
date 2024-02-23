@@ -1,6 +1,5 @@
 package com.sakura.anime.presentation.screen.history
 
-import android.net.Uri
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -152,7 +151,7 @@ fun HistoryItem(
                             interactionSource = interactionSource,
                             indication = LocalIndication.current
                         ) {
-                            onPlayClick(Uri.encode(history.lastEpisodeUrl))
+                            onPlayClick(history.lastEpisodeUrl)
                         }
                     )
                 }

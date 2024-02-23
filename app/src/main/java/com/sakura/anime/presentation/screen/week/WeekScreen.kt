@@ -65,7 +65,7 @@ fun WeekScreen(
     onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
-    onSearchClick: () -> Unit
+    onNavigateToSearch: () -> Unit
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
     val weekDataState by viewModel.weeKDataMap.collectAsState()
@@ -105,7 +105,7 @@ fun WeekScreen(
                 }
 
 
-                IconButton(onClick = onSearchClick) {
+                IconButton(onClick = onNavigateToSearch) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
                         contentDescription = stringResource(id = R.string.search)

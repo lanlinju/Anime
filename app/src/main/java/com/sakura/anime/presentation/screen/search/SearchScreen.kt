@@ -1,49 +1,54 @@
 package com.sakura.anime.presentation.screen.search
 
-import androidx.activity.compose.BackHandler
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.sakura.anime.R
-import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
-import com.sakura.anime.presentation.navigation.Screen
+import com.sakura.anime.presentation.component.PaginationStateHandler
+import com.sakura.anime.presentation.component.WarningMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    navController: NavHostController,
+    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
     onBackClick: () -> Unit
 ) {
 
     val viewModel = hiltViewModel<SearchViewModel>()
-    val animeList by viewModel.animes.collectAsState()
-
-    val isLoading by viewModel.isLoading
-        .collectAsState(initial = false)
-
-    val searchQuery by viewModel.query
-        .collectAsState()
+    val animesState = viewModel.animesState.collectAsLazyPagingItems()
+    val searchQuery by viewModel.query.collectAsState()
 
     SearchBar(
         query = searchQuery,
@@ -69,27 +74,58 @@ fun SearchScreen(
         },
         modifier = Modifier.navigationBarsPadding()
     ) {
-        if (isLoading) {
-            LoadingIndicator()
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(6.dp)
-            ) {
-                items(animeList) { anime ->
-                    MediaSmall(image = anime.img, label = anime.title, onClick = {
-                        navController.navigate(route = Screen.AnimeDetailScreen.passUrl(anime.detailUrl))
-                    })
-                }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(6.dp)
+        ) {
+            items(count = animesState.itemCount) { index ->
+                val item = animesState[index]!!
+                MediaSmall(image = item.img, label = item.title, onClick = {
+                    onNavigateToAnimeDetail(item.detailUrl)
+                })
+            }
+
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                PaginationStateHandler(
+                    paginationState = animesState,
+                    loadingComponent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = dimensionResource(
+                                        id = R.dimen.medium_padding
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    },
+                    errorComponent = {
+                        WarningMessage(
+                            textId = R.string.txt_empty_result,
+                            trailingContent = {
+                                Text(
+                                    text = stringResource(id = R.string.lbl_retry),
+                                    modifier = Modifier
+                                        .padding(start = 3.dp)
+                                        .clickable(role = Role.Button) { animesState.retry() },
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                        )
+                    }
+                )
             }
 
         }
-    }
 
-    BackHandler {
-        navController.popBackStack()
     }
 
 }

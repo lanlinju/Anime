@@ -4,6 +4,7 @@
     <string name="lbl_anime">Anime</string>
     <string name="lbl_related_anime">相关推荐</string>
     <string name="lbl_anime_img">动漫封面</string>
+    <string name="lbl_retry">重试</string>
     <string name="video_error_msg">视频加载失败</string>
     <string name="video_ended_msg">视频播放完毕</string>
 

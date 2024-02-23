@@ -19,3 +19,5 @@ const val HISTORY_TABLE = "history_table"
 const val EPISODE_TABLE = "episode_table"
 const val DOWNLOAD_TABLE = "download_table"
 const val DOWNLOAD_DETAIL_TABLE = "download_detail_table"
+
+const val SEARCH_PAGE_SIZE = 10

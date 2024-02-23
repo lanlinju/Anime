@@ -27,7 +27,7 @@ fun AnimeNavHost(
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
-    onSearchClick: () -> Unit,
+    onNavigateToSearch: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
 ) {
@@ -50,12 +50,15 @@ fun AnimeNavHost(
             VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
         composable(Screen.SearchScreen.route) {
-            SearchScreen(navController = navController, onBackClick = onBackClick)
+            SearchScreen(
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
+                onBackClick = onBackClick
+            )
         }
         composable(Screen.WeekScreen.route) {
             WeekScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onSearchClick = onSearchClick,
+                onNavigateToSearch = onNavigateToSearch,
                 onNavigateToFavourite = onNavigateToFavourite,
                 onNavigateToHistory = onNavigateToHistory,
                 onNavigateToDownload = onNavigateToDownload
@@ -82,7 +85,10 @@ fun AnimeNavHost(
             )
         }
         composable(Screen.DownloadDetailScreen.route) {
-            DownloadDetailScreen(onBackClick = onBackClick, onNavigateToVideoPlay = onNavigateToVideoPlay)
+            DownloadDetailScreen(
+                onBackClick = onBackClick,
+                onNavigateToVideoPlay = onNavigateToVideoPlay
+            )
         }
     }
 }

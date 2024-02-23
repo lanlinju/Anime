@@ -84,7 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToDownloadDetail = { detailUrl, title ->
                 navController.navigate(Screen.DownloadDetailScreen.passUrl(detailUrl, title))
             },
-            onSearchClick = {
+            onNavigateToSearch = {
                 navController.navigate(Screen.SearchScreen.route)
             },
             activity = activity

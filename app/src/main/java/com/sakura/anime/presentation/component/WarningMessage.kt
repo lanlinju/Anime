@@ -23,8 +23,9 @@ import androidx.compose.ui.unit.dp
 fun WarningMessage(
     @StringRes textId: Int,
     extraText: String = "",
-    containerColor: Color =MaterialTheme.colorScheme.surface,
-    contentColor: Color = MaterialTheme.colorScheme.onSurface
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    trailingContent: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxSize().background(containerColor),
@@ -37,18 +38,26 @@ fun WarningMessage(
             contentDescription = ""
         )
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
-        Text(
-            text = buildAnnotatedString {
-                append(text = stringResource(id = textId))
-                withStyle(
-                    SpanStyle(fontWeight = FontWeight.Bold)
-                ) {
-                    append(extraText)
-                }
-            },
-            color = contentColor,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    append(text = stringResource(id = textId))
+                    withStyle(
+                        SpanStyle(fontWeight = FontWeight.Bold)
+                    ) {
+                        append(extraText)
+                    }
+                },
+                color = contentColor,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            trailingContent?.invoke()
+        }
+
     }
 
 }

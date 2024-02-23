@@ -12,7 +12,7 @@ interface AnimeApi {
 
     suspend fun getVideo(episodeUrl: String): VideoBean
 
-    suspend fun getSearchData(query: String): List<AnimeBean>
+    suspend fun getSearchData(query: String, page: Int): List<AnimeBean>
 
     suspend fun getWeekDate(): Map<String, List<AnimeBean>>
 }

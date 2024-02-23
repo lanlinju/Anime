@@ -28,8 +28,8 @@ class AnimeApiImpl @Inject constructor(
         return animeJsoupParser.getVideo(source)
     }
 
-    override suspend fun getSearchData(query: String): List<AnimeBean> {
-        val source = downloadManager.getHtml("$BASE_URL/search/$query/")
+    override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
+        val source = downloadManager.getHtml("$BASE_URL/search/$query/?page=${page}")
         return animeJsoupParser.getSearchData(source)
     }
 
