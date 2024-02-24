@@ -55,7 +55,7 @@ fun SearchScreen(
         onQueryChange = viewModel::onQuery,
         onSearch = viewModel::onSearch,
         active = true,
-        onActiveChange = {},
+        onActiveChange = { if (!it) onBackClick() },
         leadingIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(

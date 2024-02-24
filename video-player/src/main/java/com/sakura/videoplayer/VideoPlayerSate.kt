@@ -288,6 +288,11 @@ class VideoPlayerStateImpl(
         isError.value = true
     }
 
+    override fun onRenderedFirstFrame() {
+        isError.value = false
+        isEnded.value = false
+    }
+
     override fun requestAudioFocus() {
         audioManager.requestAudioFocus(focusRequest)
     }
