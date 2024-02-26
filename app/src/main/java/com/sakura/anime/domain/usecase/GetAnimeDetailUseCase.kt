@@ -5,6 +5,7 @@ import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.util.Resource
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -13,9 +14,9 @@ class GetAnimeDetailUseCase @Inject constructor(
     private val animeRepository: AnimeRepository,
     private val roomRepository: RoomRepository
 ) {
-    suspend operator fun invoke(detailUrl: String): Flow<Resource<AnimeDetail?>> {
+    suspend operator fun invoke(detailUrl: String, mode: SourceMode): Flow<Resource<AnimeDetail?>> {
         return flow {
-            val resource = animeRepository.getAnimeDetail(detailUrl)
+            val resource = animeRepository.getAnimeDetail(detailUrl, mode)
             when (resource) {
                 is Resource.Error -> emit(Resource.Error(error = resource.error))
                 is Resource.Loading -> emit(Resource.Loading())

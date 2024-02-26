@@ -9,6 +9,7 @@ import com.sakura.anime.data.local.dao.HistoryDao
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.data.local.entity.HistoryEntity
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -24,7 +25,7 @@ class EpisodeDaoTest {
     private lateinit var historyDao: HistoryDao
     private lateinit var animeDatabase: AnimeDatabase
 
-    private var history1 = HistoryEntity(1, "海贼王1", "img1", "/video1")
+    private var history1 = HistoryEntity(1, "海贼王1", "img1", "/video1", SourceMode.Yhdm.name)
 
     @Before
     fun createDb() {

@@ -1,30 +1,24 @@
-package com.sakura.anime
+package com.sakura.anime.source
 
 import com.sakura.anime.data.remote.api.AnimeApiImpl
-import com.sakura.anime.data.remote.parse.AnimeJsoupParser
-import com.sakura.anime.data.remote.parse.YhdmJsoupParser
-import com.sakura.anime.data.repository.AnimeRepositoryImpl
-import com.sakura.anime.util.BASE_URL
+import com.sakura.anime.data.remote.parse.YhdmSource.BASE_URL
 import com.sakura.anime.util.DownloadManager
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.util.Calendar
 
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class YhdmSourceTest {
 
-    val api = AnimeApiImpl(
-        animeJsoupParser = YhdmJsoupParser,
-        downloadManager = DownloadManager
-    )
+    val api = AnimeApiImpl()
+
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
@@ -41,27 +35,16 @@ class ExampleUnitTest {
     @Test
     fun test_detail() {
         runBlocking {
-            val api = AnimeApiImpl(
-                animeJsoupParser = YhdmJsoupParser,
-                downloadManager = DownloadManager
-            )
-            println(api.getAnimeDetail("5042.html"))
+            println(api.getAnimeDetail("5042.html", SourceMode.Yhdm))
         }
     }
 
-    @Test
-    fun test_get_video_url() {
-        runBlocking {
-            val videoHtmlUrl = "/2-1085.html"
-            println(api.getVideoUrl(videoHtmlUrl))
-        }
-    }
 
     @Test
     fun test_search() {
         runBlocking {
             val query = "海贼王"
-            println(api.getSearchData(query))
+            println(api.getSearchData(query, 1))
         }
     }
 
@@ -73,7 +56,7 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun  test_dayOfWeek(){
+    fun test_dayOfWeek() {
         // 获取当前日期
         val currentDate = LocalDate.now()
 

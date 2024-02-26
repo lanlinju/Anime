@@ -5,12 +5,9 @@ import android.content.Context
 import androidx.room.Room
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.local.database.AnimeDatabase
-import com.sakura.anime.data.remote.parse.AnimeJsoupParser
-import com.sakura.anime.data.remote.parse.YhdmJsoupParser
 import com.sakura.anime.data.repository.RoomRepositoryImpl
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.util.ANIME_DATABASE
-import com.sakura.anime.util.DownloadManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,18 +33,6 @@ object AppModule {
         @ApplicationContext app: Context
     ): Context {
         return app
-    }
-
-    @Singleton
-    @Provides
-    fun providesAnimeJsoupParser(): AnimeJsoupParser {
-        return YhdmJsoupParser
-    }
-
-    @Singleton
-    @Provides
-    fun providesDownloadManager(): DownloadManager {
-        return DownloadManager
     }
 
     @Singleton

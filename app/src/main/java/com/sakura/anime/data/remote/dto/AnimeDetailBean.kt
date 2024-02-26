@@ -3,9 +3,10 @@ package com.sakura.anime.data.remote.dto
 import com.example.componentsui.anime.domain.model.AnimeDetail
 
 data class AnimeDetailBean(
-    val anime: AnimeBean,
+    val title: String,
+    val imgUrl: String,
     val desc: String,
-    val score: String,
+    val score: String = "", /* 可为空 */
     val tags: List<String>,
     val updateTime: String,
     val episodes: List<EpisodeBean>,
@@ -13,8 +14,8 @@ data class AnimeDetailBean(
 ) {
     fun toAnimeDetail(): AnimeDetail {
         return AnimeDetail(
-            title = anime.title,
-            img = anime.img,
+            title = title,
+            img = imgUrl,
             desc = desc,
             score = score,
             tags = tags.map { it.uppercase() },

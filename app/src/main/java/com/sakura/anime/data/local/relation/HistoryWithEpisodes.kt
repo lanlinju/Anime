@@ -5,6 +5,7 @@ import androidx.room.Relation
 import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.data.local.entity.HistoryEntity
 import com.sakura.anime.domain.model.History
+import com.sakura.anime.util.SourceMode
 
 data class HistoryWithEpisodes(
     @Embedded val history: HistoryEntity,
@@ -22,6 +23,7 @@ data class HistoryWithEpisodes(
             detailUrl = history.detailUrl,
             lastEpisodeName = sortedEpisodes.first().name,
             lastEpisodeUrl = sortedEpisodes.first().episodeUrl,
+            sourceMode = SourceMode.valueOf(history.source),
             episodes = emptyList()
         )
     }

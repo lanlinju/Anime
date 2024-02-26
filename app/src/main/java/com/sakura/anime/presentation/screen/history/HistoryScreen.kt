@@ -30,7 +30,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -43,13 +42,14 @@ import com.sakura.anime.presentation.component.PopupMenuListItem
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
+import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 
 @Composable
 fun HistoryScreen(
     onBackClick: () -> Unit,
-    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String) -> Unit
+    onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
+    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyListState by viewModel.historyList.collectAsState()
@@ -82,7 +82,12 @@ fun HistoryScreen(
                                 )
                             },
                             menuText = stringResource(id = R.string.delete),
-                            onClick = { onNavigateToAnimeDetail(history.detailUrl) },
+                            onClick = {
+                                onNavigateToAnimeDetail(
+                                    history.detailUrl,
+                                    history.sourceMode
+                                )
+                            },
                             onMenuItemClick = { viewModel.deleteHistory(history.detailUrl) }
                         )
 
@@ -98,7 +103,7 @@ fun HistoryScreen(
 fun HistoryItem(
     modifier: Modifier = Modifier,
     history: History,
-    onPlayClick: (episodeUrl: String) -> Unit,
+    onPlayClick: (episodeUrl: String, mode: SourceMode) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -151,36 +156,12 @@ fun HistoryItem(
                             interactionSource = interactionSource,
                             indication = LocalIndication.current
                         ) {
-                            onPlayClick(history.lastEpisodeUrl)
+                            onPlayClick(history.lastEpisodeUrl, history.sourceMode)
                         }
                     )
                 }
             }
 
-        }
-    }
-
-}
-
-@Preview
-@Composable
-fun HistoryItemPreview() {
-    val histories = MutableList(16) {
-        History(
-            title = "16bit的感动 ANOTHER LAYER:$it",
-            imgUrl = "http://css.yhdmtu.xyz/news/2023/09/27/20230927085556487.jpg",
-            lastEpisodeName = "第六集:$it",
-            lastEpisodeUrl = "",
-            detailUrl = "",
-            episodes = emptyList()
-        )
-    }
-    LazyColumn(
-        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.small_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
-    ) {
-        items(histories) { history ->
-            HistoryItem(history = history, onPlayClick = {  })
         }
     }
 

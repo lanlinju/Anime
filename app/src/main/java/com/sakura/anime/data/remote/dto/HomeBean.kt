@@ -6,15 +6,15 @@ import com.sakura.anime.domain.model.HomeItem
 data class HomeBean(
     val title: String,
     val moreUrl: String,
-    val data: List<AnimeBean>
+    val animes: List<AnimeBean>
 ) {
     fun toHome(): Home {
-        val homeItems = data.map { anime ->
+        val homeItems = animes.map { anime ->
             HomeItem(
                 animTitle = anime.title,
                 img = anime.img,
                 detailUrl = anime.url,
-                episode = anime.episode
+                episode = anime.episodeName
             )
         }
         return Home(title = title, animList = homeItems)

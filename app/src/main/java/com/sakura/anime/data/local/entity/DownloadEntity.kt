@@ -16,6 +16,6 @@ data class DownloadEntity(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "detail_url") val detailUrl: String,
     @ColumnInfo(name = "img_url") val imgUrl: String,
-    @ColumnInfo(name = "source") val source: Int = 0,
+    @ColumnInfo(name = "source") val source: String,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
 )

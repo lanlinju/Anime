@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -81,9 +83,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
-import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
-import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.videoplayer.ResizeMode
 import com.sakura.videoplayer.VideoPlayer
@@ -126,17 +126,41 @@ fun VideoPlayScreen(
     StateHandler(
         state = animeVideoState,
         onLoading = {
-            LoadingIndicator(Modifier.background(Color.Black)) {
-                view.keepScreenOn = true
-                requestLandscapeOrientation(view, activity)
+            view.keepScreenOn = true
+            requestLandscapeOrientation(view, activity)
+            Box(
+                modifier = Modifier
+                    .background(Color.Black)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         },
         onFailure = {
-            WarningMessage(
-                textId = R.string.txt_empty_result,
-                contentColor = Color.White,
-                containerColor = Color.Black
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Info,
+                    tint = Color.White,
+                    contentDescription = ""
+                )
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = stringResource(id = R.string.txt_empty_result),
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                OutlinedButton(onClick = onBackClick) {
+                    Text(text = stringResource(id = R.string.back), color = Color.White)
+                }
+            }
         }
     ) { resource ->
         resource.data?.let { video ->

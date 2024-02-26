@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sakura.anime.data.local.dao.DownloadDao
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.DownloadEntity
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -22,9 +23,9 @@ class DownloadDaoTest {
     private lateinit var animeDatabase: AnimeDatabase
 
     private var download1 =
-        DownloadEntity(1, "海贼王1", "/detailUrl1", "/imgUrl1", 0, System.currentTimeMillis())
+        DownloadEntity(1, "海贼王1", "/detailUrl1", "/imgUrl1", SourceMode.Yhdm.name, System.currentTimeMillis())
     private var download2 =
-        DownloadEntity(2, "海贼王2", "/detailUrl2", "/imgUrl2", 0, System.currentTimeMillis())
+        DownloadEntity(2, "海贼王2", "/detailUrl2", "/imgUrl2", SourceMode.Yhdm.name, System.currentTimeMillis())
 
     @Before
     fun createDb() {

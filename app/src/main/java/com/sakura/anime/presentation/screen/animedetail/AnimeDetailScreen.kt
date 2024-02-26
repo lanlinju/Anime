@@ -100,6 +100,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.CROSSFADE_DURATION
+import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
 import java.io.File
 import com.sakura.anime.R as Res
@@ -108,8 +109,8 @@ import com.sakura.anime.R as Res
 fun AnimeDetailScreen(
     viewModel: AnimeDetailViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
-    onRelatedAnimeClick: (detailUrl: String) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String) -> Unit
+    onRelatedAnimeClick: (detailUrl: String, mode: SourceMode) -> Unit,
+    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
@@ -217,10 +218,11 @@ fun AnimeDetailScreen(
                                             title = animeDetail.title,
                                             imgUrl = animeDetail.img,
                                             detailUrl = viewModel.detailUrl,
-                                            episodes = listOf(episode)
+                                            episodes = listOf(episode),
+                                            sourceMode = viewModel.mode
                                         )
                                     viewModel.addHistory(history)
-                                    onNavigateToVideoPlay(episode.url)
+                                    onNavigateToVideoPlay(episode.url, viewModel.mode)
                                 }
                             )
 
@@ -234,7 +236,7 @@ fun AnimeDetailScreen(
                         AnimeRelated(
                             animes = animeDetail.relatedAnimes,
                             contentPadding = PaddingValues(horizontal = dimensionResource(Res.dimen.large_padding)),
-                            onRelatedAnimeClick = onRelatedAnimeClick
+                            onRelatedAnimeClick = { onRelatedAnimeClick(it, viewModel.mode) }
                         )
 
                     }
@@ -271,10 +273,11 @@ fun AnimeDetailScreen(
                                         title = animeDetail.title,
                                         imgUrl = animeDetail.img,
                                         detailUrl = viewModel.detailUrl,
-                                        episodes = listOf(episode)
+                                        episodes = listOf(episode),
+                                        sourceMode = viewModel.mode
                                     )
                                 viewModel.addHistory(history)
-                                onNavigateToVideoPlay(episode.url)
+                                onNavigateToVideoPlay(episode.url, viewModel.mode)
                             })
                     }
 
@@ -289,7 +292,7 @@ fun AnimeDetailScreen(
                             onDismissRequest = { showDownloadBottomSheet = false },
                             onDownloadClick = { index, episode ->
                                 val path =
-                                    context.getExternalFilesDir("download/${animeDetail.title}")!!.path + "/${episode.name}.mp4"
+                                    context.getExternalFilesDir("download/${viewModel.mode}/${animeDetail.title}")!!.path + "/${episode.name}.mp4"
                                 val downloadDetail = DownloadDetail(
                                     title = episode.name,
                                     imgUrl = animeDetail.img,
@@ -301,7 +304,8 @@ fun AnimeDetailScreen(
                                     title = animeDetail.title,
                                     detailUrl = viewModel.detailUrl,
                                     imgUrl = animeDetail.img,
-                                    downloadDetails = listOf(downloadDetail)
+                                    downloadDetails = listOf(downloadDetail),
+                                    sourceMode = viewModel.mode
                                 )
                                 viewModel.addDownload(download, episode.url, File(path))
                             }
@@ -388,7 +392,8 @@ private fun FavouriteIcon(
             val favourite = Favourite(
                 animeDetail.title,
                 viewModel.detailUrl,
-                animeDetail.img
+                animeDetail.img,
+                sourceMode = viewModel.mode
             )
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             viewModel.favourite(favourite)

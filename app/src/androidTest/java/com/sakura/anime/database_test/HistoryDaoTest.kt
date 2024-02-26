@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sakura.anime.data.local.dao.HistoryDao
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.HistoryEntity
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -21,8 +22,8 @@ class HistoryDaoTest {
     private lateinit var historyDao: HistoryDao
     private lateinit var animeDatabase: AnimeDatabase
 
-    private var history1 = HistoryEntity(1, "海贼王1", "img1", "/video1")
-    private var history2 = HistoryEntity(2, "海贼王2", "img2", "/video2")
+    private var history1 = HistoryEntity(1, "海贼王1", "img1", "/video1", SourceMode.Yhdm.name)
+    private var history2 = HistoryEntity(2, "海贼王2", "img2", "/video2", SourceMode.Yhdm.name)
 
     @Before
     fun createDb() {
@@ -52,7 +53,7 @@ class HistoryDaoTest {
     fun daoGetHistory_returnsHistoryFromDB() = runBlocking {
         addOneHistoryToDb()
         val history = historyDao.getHistory("/video1")
-        Assert.assertEquals(history.first().historyId, history1)
+        Assert.assertEquals(history.first().historyId, history1.historyId)
     }
 
     @Test
@@ -66,7 +67,7 @@ class HistoryDaoTest {
     @Throws(Exception::class)
     fun daoCheckHistory_returnsNotNullFromDB() = runBlocking {
         addOneHistoryToDb()
-        val h  = historyDao.checkHistory("/video1").first()
+        val h = historyDao.checkHistory("/video1").first()
         Assert.assertNotNull(h)
     }
 

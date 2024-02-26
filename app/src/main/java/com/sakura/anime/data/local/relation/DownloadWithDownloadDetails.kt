@@ -5,6 +5,7 @@ import androidx.room.Relation
 import com.sakura.anime.data.local.entity.DownloadDetailEntity
 import com.sakura.anime.data.local.entity.DownloadEntity
 import com.sakura.anime.domain.model.Download
+import com.sakura.anime.util.SourceMode
 
 data class DownloadWithDownloadDetails(
     @Embedded val download: DownloadEntity,
@@ -20,7 +21,7 @@ data class DownloadWithDownloadDetails(
             title = download.title,
             detailUrl = download.detailUrl,
             imgUrl = download.imgUrl,
-            source = download.source,
+            sourceMode = SourceMode.valueOf(download.source),
             totalSize = totalSize,
             downloadDetails = downloadDetails.map { it.toDownloadDetail() }
         )

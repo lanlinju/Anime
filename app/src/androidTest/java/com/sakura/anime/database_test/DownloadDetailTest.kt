@@ -9,6 +9,7 @@ import com.sakura.anime.data.local.dao.DownloadDetailDao
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.DownloadDetailEntity
 import com.sakura.anime.data.local.entity.DownloadEntity
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -25,7 +26,7 @@ class DownloadDetailTest {
     private lateinit var animeDatabase: AnimeDatabase
 
     private var download =
-        DownloadEntity(1, "海贼王1", "/detailUrl1", "/imgUrl1", 0, System.currentTimeMillis())
+        DownloadEntity(1, "海贼王1", "/detailUrl1", "/imgUrl1", SourceMode.Yhdm.name, System.currentTimeMillis())
     private val downloadDetail1 = DownloadDetailEntity(
         1, download.downloadId, "第01集", "/imgUrl1",
         1, "/downloadUrl1", "/filePath")

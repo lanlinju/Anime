@@ -13,7 +13,9 @@ import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetAnimeDetailUseCase
 import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
+import com.sakura.anime.presentation.navigation.SOURCE_MODE_ARGUMENT
 import com.sakura.anime.util.Resource
+import com.sakura.anime.util.SourceMode
 import com.sakura.download.download
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -46,8 +48,12 @@ class AnimeDetailViewModel @Inject constructor(
         get() = _isFavourite
 
     lateinit var detailUrl: String
+    lateinit var mode: SourceMode
 
     init {
+        savedStateHandle.get<String>(key = SOURCE_MODE_ARGUMENT)?.let { mode ->
+            this.mode = enumValueOf(mode)
+        }
         savedStateHandle.get<String>(key = DETAIL_ARGUMENT_URL)?.let { detailUrl ->
             this.detailUrl = Uri.decode(detailUrl)
             getAnimeDetail(this.detailUrl)
@@ -57,7 +63,7 @@ class AnimeDetailViewModel @Inject constructor(
     private fun getAnimeDetail(detailUrl: String) {
         viewModelScope.launch {
             _isFavourite.value = roomRepository.checkFavourite(detailUrl).first()
-            getAnimeDetailUseCase(detailUrl).collect {
+            getAnimeDetailUseCase(detailUrl, mode).collect {
                 _animeDetailState.value = it
             }
         }
@@ -79,7 +85,7 @@ class AnimeDetailViewModel @Inject constructor(
     @OptIn(DelicateCoroutinesApi::class)
     fun addDownload(download: Download, episodeUrl: String, file: File) {
         viewModelScope.launch {
-            val videoUrl = animeRepository.getVideo(episodeUrl).data!!.url
+            val videoUrl = animeRepository.getVideoData(episodeUrl, mode).data!!.url
             // 开始下载视频
             GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
 

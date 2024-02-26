@@ -16,6 +16,6 @@ data class HistoryEntity(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "img_url") val imgUrl: String,
     @ColumnInfo(name = "detail_url") val detailUrl: String,
-    @ColumnInfo(name = "source") val source: Int = 0,
+    @ColumnInfo(name = "source") val source: String,
     @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis()
 )

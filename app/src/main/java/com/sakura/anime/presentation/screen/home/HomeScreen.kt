@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.sakura.anime.presentation.component.MediaSmallRow
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
+import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.bannerParallax
 
 @Composable
@@ -43,6 +45,13 @@ fun HomeScreen(
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (SourceHolder.isSourceChange) {
+            SourceHolder.isSourceChange = false
+            homeViewModel.getHomeData()
+        }
+    }
 
     Column(
         Modifier
@@ -118,7 +127,9 @@ fun HomeScreen(
                                 HomeRow(
                                     list = home.animList,
                                     title = home.title,
-                                    onItemClicked = { onNavigateToAnimeDetail(it.detailUrl) }
+                                    onItemClicked = {
+                                        onNavigateToAnimeDetail(it.detailUrl)
+                                    }
                                 )
                             }
 

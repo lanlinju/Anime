@@ -13,13 +13,14 @@ import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.Resource
 import com.sakura.anime.util.SEARCH_PAGE_SIZE
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AnimeRepositoryImpl @Inject constructor(
     private val animeApi: AnimeApi
 ) : AnimeRepository, BaseRepository() {
-    override suspend fun getHomeAllData(): Resource<List<Home>> {
+    override suspend fun getHomeData(): Resource<List<Home>> {
         val response = invokeApi {
             animeApi.getHomeAllData()
         }
@@ -32,9 +33,9 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAnimeDetail(detailUrl: String): Resource<AnimeDetail?> {
+    override suspend fun getAnimeDetail(detailUrl: String, mode: SourceMode): Resource<AnimeDetail?> {
         val response = invokeApi {
-            animeApi.getAnimeDetail(detailUrl)
+            animeApi.getAnimeDetail(detailUrl, mode)
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
@@ -45,9 +46,9 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getVideo(episodeUrl: String): Resource<Video?> {
+    override suspend fun getVideoData(episodeUrl: String, mode: SourceMode): Resource<Video?> {
         val response = invokeApi {
-            animeApi.getVideo(episodeUrl)
+            animeApi.getVideoData(episodeUrl, mode)
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
@@ -65,7 +66,7 @@ class AnimeRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun getWeekData(): Resource<Map<String, List<AnimeBean>>> {
+    override suspend fun getWeekData(): Resource<Map<Int, List<AnimeBean>>> {
         val response = invokeApi {
             animeApi.getWeekDate()
         }

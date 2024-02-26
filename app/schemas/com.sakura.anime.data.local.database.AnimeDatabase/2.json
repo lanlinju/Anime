@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "3acefeb741a86548478f313b8b5f283b",
+    "identityHash": "6cecce55b34460a9d4a52620da6e13c7",
     "entities": [
       {
         "tableName": "favourite_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`favourite_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`favourite_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "favouriteId",
@@ -35,7 +35,7 @@
           {
             "fieldPath": "source",
             "columnName": "source",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -66,7 +66,7 @@
       },
       {
         "tableName": "history_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`history_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `img_url` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `source` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`history_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `img_url` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `source` TEXT NOT NULL, `updated_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "historyId",
@@ -95,7 +95,7 @@
           {
             "fieldPath": "source",
             "columnName": "source",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -207,7 +207,7 @@
       },
       {
         "tableName": "download_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`download_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`download_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "downloadId",
@@ -236,7 +236,7 @@
           {
             "fieldPath": "source",
             "columnName": "source",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -371,7 +371,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3acefeb741a86548478f313b8b5f283b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6cecce55b34460a9d4a52620da6e13c7')"
     ]
   }
 }

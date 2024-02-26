@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.util.FAVOURITE_TABLE
+import com.sakura.anime.util.SourceMode
 
 @Entity(
     tableName = FAVOURITE_TABLE,
@@ -17,14 +18,15 @@ data class FavouriteEntity(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "detail_url") val detailUrl: String,
     @ColumnInfo(name = "img_url") val imgUrl: String,
-    @ColumnInfo(name = "source") val source: Int = 0,
+    @ColumnInfo(name = "source") val source: String, /* SourceMode */
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
 ) {
     fun toFavourite(): Favourite {
         return Favourite(
             title = title,
             detailUrl = detailUrl,
-            imgUrl = imgUrl
+            imgUrl = imgUrl,
+            sourceMode = SourceMode.valueOf(source)
         )
     }
 }

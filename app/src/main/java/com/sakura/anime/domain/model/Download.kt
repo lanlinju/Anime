@@ -1,12 +1,13 @@
 package com.sakura.anime.domain.model
 
 import com.sakura.anime.data.local.entity.DownloadEntity
+import com.sakura.anime.util.SourceMode
 
 data class Download(
     val title: String,
     val detailUrl: String,
     val imgUrl: String,
-    val source: Int = 0,
+    val sourceMode: SourceMode,
     val totalSize: Long = 0, /* 已下载完成的全部剧集大小，单位字节 */
     val downloadDetails: List<DownloadDetail>
 ) {
@@ -15,7 +16,7 @@ data class Download(
             title = title,
             detailUrl = detailUrl,
             imgUrl = imgUrl,
-            source = source,
+            source = sourceMode.name,
         )
     }
 

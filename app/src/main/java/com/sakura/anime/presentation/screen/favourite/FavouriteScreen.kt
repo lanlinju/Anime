@@ -21,10 +21,11 @@ import com.sakura.anime.presentation.component.BackTopAppBar
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.StateHandler
+import com.sakura.anime.util.SourceMode
 
 @Composable
 fun FavouriteScreen(
-    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
+    onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onBackClick: () -> Unit
 ) {
     val favouriteViewModel: FavouriteViewModel = hiltViewModel()
@@ -53,7 +54,7 @@ fun FavouriteScreen(
                 resource.data?.let { favouriteList ->
                     items(favouriteList) { anime ->
                         MediaSmall(image = anime.imgUrl, label = anime.title, onClick = {
-                            onNavigateToAnimeDetail(anime.detailUrl)
+                            onNavigateToAnimeDetail(anime.detailUrl, anime.sourceMode)
                         })
                     }
                 }

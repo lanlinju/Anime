@@ -1,7 +1,5 @@
 package com.sakura.anime.util
 
-const val BASE_URL = "http://www.iyinghua.io"
-
 const val CROSSFADE_DURATION = 500
 const val VIDEO_ASPECT_RATIO = 1.778f
 

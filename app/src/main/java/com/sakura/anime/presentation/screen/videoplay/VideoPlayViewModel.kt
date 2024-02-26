@@ -10,9 +10,11 @@ import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
+import com.sakura.anime.presentation.navigation.SOURCE_MODE_ARGUMENT
 import com.sakura.anime.presentation.navigation.VIDEO_ARGUMENT_EPISODE_URL
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.Resource
+import com.sakura.anime.util.SourceMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,10 +33,13 @@ class VideoPlayViewModel @Inject constructor(
     val videoState: StateFlow<Resource<Video?>>
         get() = _videoState
 
-
     private var isLocalVideo = false
+    lateinit var mode: SourceMode
 
     init {
+        savedStateHandle.get<String>(key = SOURCE_MODE_ARGUMENT)?.let { mode ->
+            this.mode = SourceMode.valueOf(mode)
+        }
         savedStateHandle.get<String>(key = VIDEO_ARGUMENT_EPISODE_URL)?.let { episodeUrl ->
             val url = Uri.decode(episodeUrl)
             if (!url.contains(KEY_FROM_LOCAL_VIDEO)) {
@@ -76,7 +81,7 @@ class VideoPlayViewModel @Inject constructor(
 
     private fun getVideoFromRemote(episodeUrl: String) {
         viewModelScope.launch {
-            _videoState.value = repository.getVideo(episodeUrl)
+            _videoState.value = repository.getVideoData(episodeUrl, mode)
         }
     }
 

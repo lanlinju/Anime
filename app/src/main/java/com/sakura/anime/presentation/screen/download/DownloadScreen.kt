@@ -36,12 +36,13 @@ import com.sakura.anime.presentation.component.PopupMenuListItem
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
+import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.download.utils.formatSize
 
 @Composable
 fun DownloadScreen(
-    onNavigateToAnimeDetail: (detailUrl: String) -> Unit,
+    onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -80,7 +81,12 @@ fun DownloadScreen(
                             onClick = {
                                 onNavigateToDownloadDetail(download.detailUrl, download.title)
                             },
-                            onMenuItemClick = { onNavigateToAnimeDetail(download.detailUrl) }
+                            onMenuItemClick = {
+                                onNavigateToAnimeDetail(
+                                    download.detailUrl,
+                                    download.sourceMode
+                                )
+                            }
                         )
 
                     }

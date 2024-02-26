@@ -1,7 +1,6 @@
 package com.sakura.anime.presentation.component
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
@@ -11,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,18 +21,16 @@ import androidx.compose.ui.unit.dp
 fun WarningMessage(
     @StringRes textId: Int,
     extraText: String = "",
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     trailingContent: (@Composable () -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().background(containerColor),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Rounded.Info,
-            tint = contentColor,
+            tint = MaterialTheme.colorScheme.onSurface,
             contentDescription = ""
         )
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -52,7 +48,7 @@ fun WarningMessage(
                         append(extraText)
                     }
                 },
-                color = contentColor,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium
             )
             trailingContent?.invoke()

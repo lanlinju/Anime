@@ -28,7 +28,7 @@
     <string name="week">WeekRank</string>
     <string name="download">下载</string>
     <string name="rslash">r/</string>
-    <string name="back">back</string>
+    <string name="back">返回</string>
     <string name="brightness">brightness</string>
     <string name="volume_mute">volume mute</string>
     <string name="volume_up">volume up</string>
@@ -52,4 +52,6 @@
     <string name="downloading">下载中</string>
     <string name="retry">重试</string>
     <string name="resume">继续</string>
+
+    <string name="switch_source">切换动漫源</string>
 </resources>

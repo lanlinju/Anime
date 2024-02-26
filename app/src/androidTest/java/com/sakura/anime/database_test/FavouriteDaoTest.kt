@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sakura.anime.data.local.dao.FavouriteDao
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.FavouriteEntity
+import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -21,8 +22,8 @@ class FavouriteDaoTest {
     private lateinit var favouriteDao: FavouriteDao
     private lateinit var animeDatabase: AnimeDatabase
 
-    private var favourite1 = FavouriteEntity(1, "海贼王1", "/video1", "img1")
-    private var favourite2 = FavouriteEntity(2, "海贼王2", "/video2", "img2")
+    private var favourite1 = FavouriteEntity(1, "海贼王1", "/video1", "img1", SourceMode.Yhdm.name)
+    private var favourite2 = FavouriteEntity(2, "海贼王2", "/video2", "img2", SourceMode.Yhdm.name)
 
     @Before
     fun createDb() {
