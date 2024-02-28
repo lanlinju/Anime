@@ -24,9 +24,14 @@ class HomeViewModel @Inject constructor(
         getHomeData()
     }
 
-    fun getHomeData() {
+    private fun getHomeData() {
         viewModelScope.launch {
             _homeDataList.value = repository.getHomeData()
         }
+    }
+
+    fun refresh() {
+        _homeDataList.value = Resource.Loading()
+        getHomeData()
     }
 }

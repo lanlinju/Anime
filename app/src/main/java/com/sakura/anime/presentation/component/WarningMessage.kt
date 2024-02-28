@@ -6,22 +6,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.sakura.anime.R
 
 @Composable
 fun WarningMessage(
     @StringRes textId: Int,
     extraText: String = "",
-    trailingContent: (@Composable () -> Unit)? = null
+    onRetryClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -34,24 +32,20 @@ fun WarningMessage(
             contentDescription = ""
         )
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = buildAnnotatedString {
-                    append(text = stringResource(id = textId))
-                    withStyle(
-                        SpanStyle(fontWeight = FontWeight.Bold)
-                    ) {
-                        append(extraText)
-                    }
-                },
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            trailingContent?.invoke()
+        Text(
+            text = stringResource(id = textId),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = extraText,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        if (onRetryClick != null) {
+            OutlinedButton(onClick = onRetryClick) {
+                Text(text = stringResource(id = R.string.lbl_retry))
+            }
         }
 
     }

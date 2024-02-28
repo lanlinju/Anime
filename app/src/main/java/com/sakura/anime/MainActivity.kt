@@ -29,7 +29,6 @@ import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
-import com.sakura.anime.util.preferences
 import com.sakura.anime.util.rememberPreference
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,10 +57,6 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
     var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Yhdm)
     SourceHolder.updateSource(currentSourceMode)
 
-    activity.preferences.registerOnSharedPreferenceChangeListener { _, key ->
-        if (key == KEY_SOURCE_MODE) SourceHolder.isSourceChange = true
-    }
-
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -79,6 +74,7 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             currentSourceMode = currentSourceMode,
             onSourceChange = { mode ->
                 currentSourceMode = mode
+                SourceHolder.isSourceChange = true
                 SourceHolder.updateSource(mode)
             },
             onNavigateToAnimeDetail = { detailUrl, mode ->

@@ -48,7 +48,7 @@ fun HomeScreen(
 
     LaunchedEffect(SourceHolder.isSourceChange) {
         if (SourceHolder.isSourceChange) {
-            homeViewModel.getHomeData()
+            homeViewModel.refresh()
             SourceHolder.isSourceChange = false
         }
     }
@@ -61,7 +61,10 @@ fun HomeScreen(
         StateHandler(state = availableDataList.value, onLoading = {
             LoadingIndicator()
         }, onFailure = {
-            WarningMessage(textId = Res.string.txt_empty_result)
+            WarningMessage(
+                textId = Res.string.txt_empty_result,
+                onRetryClick = { homeViewModel.refresh() }
+            )
         }) { resource ->
 
             val scrollState = rememberScrollState()

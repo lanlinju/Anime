@@ -126,7 +126,8 @@ fun AnimeDetailScreen(
         onFailure = {
             WarningMessage(
                 textId = Res.string.txt_empty_result,
-                extraText = it.error?.message ?: ""
+                extraText = it.error?.message ?: "",
+                onRetryClick = { viewModel.retry() }
             )
         }
     ) { resource ->

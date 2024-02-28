@@ -216,7 +216,12 @@ fun WeekScreen(
                 StateHandler(
                     state = weekDataState,
                     onLoading = { LoadingIndicator() },
-                    onFailure = { WarningMessage(textId = R.string.txt_empty_result) }
+                    onFailure = {
+                        WarningMessage(
+                            textId = R.string.txt_empty_result,
+                            onRetryClick = { viewModel.refresh() }
+                        )
+                    }
                 ) { resource ->
                     resource.data?.let { weekDataMap ->
                         weekDataMap[page]?.let { list ->
@@ -236,8 +241,10 @@ fun WeekScreen(
             val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
             Dialog(onDismissRequest = {
                 openDialog.value = false
-                onSourceChange(SourceMode.valueOf(selectedOption))
-                viewModel.getWeekData()
+                if (selectedOption != currentSourceMode.name) {
+                    onSourceChange(SourceMode.valueOf(selectedOption))
+                    viewModel.refresh()
+                }
             }) {
                 Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
                     Column(

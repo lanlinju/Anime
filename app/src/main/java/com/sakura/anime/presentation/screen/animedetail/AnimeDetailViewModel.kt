@@ -114,4 +114,9 @@ class AnimeDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun retry() {
+        _animeDetailState.value = Resource.Loading()
+        getAnimeDetail(this.detailUrl)
+    }
 }

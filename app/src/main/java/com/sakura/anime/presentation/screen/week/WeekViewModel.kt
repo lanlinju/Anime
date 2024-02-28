@@ -24,10 +24,15 @@ class WeekViewModel @Inject constructor(
         getWeekData()
     }
 
-    fun getWeekData() {
+    private fun getWeekData() {
         viewModelScope.launch {
             _weekDataMap.value = repository.getWeekData()
         }
+    }
+
+    fun refresh() {
+        _weekDataMap.value = Resource.Loading()
+        getWeekData()
     }
 
 }
