@@ -2,6 +2,8 @@ package com.sakura.videoplayer
 
 import android.widget.FrameLayout
 import androidx.compose.ui.unit.Constraints
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.video.VideoSize
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -128,4 +130,12 @@ private fun StringBuilder.appendDoubleDigit(value: Long) {
     } else {
         append(value)
     }
+}
+
+internal fun mediaItemCreator(uri: String): MediaItem {
+    val builder = MediaItem.Builder().setUri(uri)
+    if (uri.contains(".m3u8")) {
+        builder.setMimeType(MimeTypes.APPLICATION_M3U8)
+    }
+    return builder.build()
 }

@@ -92,7 +92,7 @@ fun AnimeNavHost(
         composable(Screen.DownloadDetailScreen.route) {
             DownloadDetailScreen(
                 onBackClick = onBackClick,
-                onNavigateToVideoPlay = { onNavigateToVideoPlay(it, SourceMode.Mxdm) }
+                onNavigateToVideoPlay = { onNavigateToVideoPlay(it, SourceMode.Yhdm) }
             )
         }
     }

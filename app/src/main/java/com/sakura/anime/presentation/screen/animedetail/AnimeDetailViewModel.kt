@@ -86,11 +86,10 @@ class AnimeDetailViewModel @Inject constructor(
     fun addDownload(download: Download, episodeUrl: String, file: File) {
         viewModelScope.launch {
             val videoUrl = animeRepository.getVideoData(episodeUrl, mode).data!!.url
-            // 开始下载视频
-            GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
-
             val downloadDetail = download.downloadDetails.first().copy(downloadUrl = videoUrl)
             roomRepository.addDownload(download.copy(downloadDetails = listOf(downloadDetail)))
+            // 开始下载视频
+            GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
         }
     }
 

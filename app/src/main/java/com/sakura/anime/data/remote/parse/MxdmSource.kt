@@ -6,11 +6,10 @@ import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
-import com.sakura.download.utils.decrypt
+import com.sakura.anime.util.decryptData
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
-import java.util.Base64
 
 object MxdmSource : AnimeSource {
 
@@ -140,12 +139,7 @@ object MxdmSource : AnimeSource {
         val videoUrlTarget = doc.select("body > script")[0].data()
         val videoUrlRegex = """getVideoInfo\("(.*?)"""".toRegex()
         val encryptedVideoUrl = videoUrlRegex.find(videoUrlTarget)!!.groupValues[1]
-        return decryptVideoUrl(encryptedVideoUrl, key = AES_KEY, iv = iv)
+        return decryptData(encryptedVideoUrl, key = AES_KEY, iv = iv)
     }
 
-    private fun decryptVideoUrl(data: String, key: String, iv: String): String {
-        val bytes = Base64.getDecoder().decode(data.toByteArray())
-        val debytes = bytes.decrypt(key, iv)
-        return debytes.decodeToString()
-    }
 }

@@ -28,7 +28,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.exoplayer2.MediaItem
 import kotlin.math.abs
 
 @JvmInline
@@ -254,7 +253,7 @@ fun VideoPlayer(
     }
 
     LaunchedEffect(url) {
-        playerState.player.setMediaItem(MediaItem.fromUri(url))
+        playerState.player.setMediaItem(mediaItemCreator(url))
         playerState.player.prepare()
         playerState.player.playWhenReady = true
         playerState.requestAudioFocus()

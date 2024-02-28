@@ -123,7 +123,12 @@ fun AnimeDetailScreen(
     StateHandler(
         state = animeDetailState,
         onLoading = { LoadingIndicator() },
-        onFailure = { WarningMessage(textId = Res.string.txt_empty_result) }
+        onFailure = {
+            WarningMessage(
+                textId = Res.string.txt_empty_result,
+                extraText = it.error?.message ?: ""
+            )
+        }
     ) { resource ->
         resource.data?.let { animeDetail ->
             TranslucentStatusBarLayout(

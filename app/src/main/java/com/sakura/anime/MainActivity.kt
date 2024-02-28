@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
-    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Mxdm)
+    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Yhdm)
     SourceHolder.updateSource(currentSourceMode)
 
     activity.preferences.registerOnSharedPreferenceChangeListener { _, key ->

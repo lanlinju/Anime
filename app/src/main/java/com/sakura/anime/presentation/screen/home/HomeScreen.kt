@@ -46,10 +46,10 @@ fun HomeScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(SourceHolder.isSourceChange) {
         if (SourceHolder.isSourceChange) {
-            SourceHolder.isSourceChange = false
             homeViewModel.getHomeData()
+            SourceHolder.isSourceChange = false
         }
     }
 
