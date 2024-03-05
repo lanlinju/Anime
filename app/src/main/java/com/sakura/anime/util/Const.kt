@@ -10,6 +10,7 @@ const val KEY_FROM_LOCAL_VIDEO = "fromLocalVideo"
 val TABS = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 
 const val GITHUB_ADDRESS = "https://github.com/Lanlinju/Anime"
+const val CHECK_UPDATE_ADDRESS = "https://api.github.com/repos/Lanlinju/Anime/releases/latest"
 
 const val ANIME_DATABASE = "anime_database.db"
 const val FAVOURITE_TABLE = "favourite_table"
@@ -19,3 +20,5 @@ const val DOWNLOAD_TABLE = "download_table"
 const val DOWNLOAD_DETAIL_TABLE = "download_detail_table"
 
 const val SEARCH_PAGE_SIZE = 10
+
+const val KEY_DOWNLOAD_UPDATE_URL = "downloadUpdateUrl"

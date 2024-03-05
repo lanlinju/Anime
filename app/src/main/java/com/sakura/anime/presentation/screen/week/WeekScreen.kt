@@ -27,7 +27,9 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -39,6 +41,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -82,7 +86,10 @@ fun WeekScreen(
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
     val weekDataState by viewModel.weeKDataMap.collectAsState()
+    val isUpdateVersion by viewModel.isUpdateVersion.collectAsState()
+    val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
 
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
@@ -174,6 +181,21 @@ fun WeekScreen(
                                         imageVector = Icons.Rounded.Refresh,
                                         modifier = Modifier.rotate(90f),
                                         contentDescription = stringResource(id = R.string.switch_source)
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.check_update)) },
+                                onClick = {
+                                    expanded = false
+                                    viewModel.checkUpdate(context)
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.ArrowForward,
+                                        modifier = Modifier.rotate(-90f),
+                                        contentDescription = stringResource(id = R.string.check_update)
                                     )
                                 }
                             )
@@ -284,6 +306,48 @@ fun WeekScreen(
                     }
                 }
             }
+        }
+
+        if (isUpdateVersion) {
+            AlertDialog(
+                onDismissRequest = { viewModel.closeUpdateDialog() },
+                title = {
+                    Text(text = stringResource(id = R.string.software_updates))
+                },
+                text = {
+                    Text(text = viewModel.updateMessage)
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.downloadUpdate(context) }) {
+                        Text(text = stringResource(id = R.string.download_software))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.closeUpdateDialog() }) {
+                        Text(text = stringResource(id = R.string.cancel))
+                    }
+                }
+            )
+        }
+
+        if (isCheckingUpdate) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = {
+                    Text(text = stringResource(id = R.string.checking_update))
+                },
+                text = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensionResource(id = R.dimen.small_padding)),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                },
+                confirmButton = {},
+            )
         }
     }
 
