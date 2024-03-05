@@ -1,7 +1,12 @@
 package com.sakura.anime.presentation.screen.home
 
-import androidx.compose.foundation.Image
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +24,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.sakura.anime.domain.model.HomeItem
 import com.sakura.anime.R as Res
 import com.sakura.anime.presentation.component.LoadingIndicator
@@ -36,8 +45,10 @@ import com.sakura.anime.presentation.component.MediaSmallRow
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
+import com.sakura.anime.util.KEY_HOME_BACKGROUND_URI
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.bannerParallax
+import com.sakura.anime.util.rememberPreference
 
 @Composable
 fun HomeScreen(
@@ -68,6 +79,7 @@ fun HomeScreen(
         }) { resource ->
 
             val scrollState = rememberScrollState()
+
             TranslucentStatusBarLayout(
                 scrollState = scrollState,
                 distanceUntilAnimated = dimensionResource(Res.dimen.banner_height)
@@ -76,46 +88,8 @@ fun HomeScreen(
                     modifier = Modifier
                         .verticalScroll(scrollState)
                 ) {
-                    Box {
-                        Image(
-                            painter = painterResource(Res.drawable.background),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(dimensionResource(Res.dimen.banner_height))
-                                .bannerParallax(scrollState),
-                            contentScale = ContentScale.Crop,
-                            alignment = Alignment.TopCenter
-                        )
 
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    Brush.verticalGradient(
-                                        listOf(
-                                            Color.Transparent,
-                                            MaterialTheme.colorScheme.secondaryContainer.copy(
-                                                alpha = 0.5f
-                                            )
-                                        )
-                                    )
-                                )
-                                .fillMaxWidth()
-                                .height(dimensionResource(Res.dimen.banner_height))
-                        )
-
-                        Text(
-                            text = stringResource(Res.string.lbl_anime),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.displayMedium,
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(
-                                    start = dimensionResource(Res.dimen.large_padding),
-                                    bottom = dimensionResource(Res.dimen.medium_padding)
-                                )
-                        )
-                    }
+                    HomeBackground(scrollState = scrollState)
 
                     Column {
                         Spacer(Modifier.size(dimensionResource(Res.dimen.banner_height)))
@@ -145,6 +119,66 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun HomeBackground(scrollState: ScrollState) {
+    Box {
+        val context = LocalContext.current
+        var imageUri by rememberPreference(key = KEY_HOME_BACKGROUND_URI, defaultValue = "")
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) {
+            it?.let { uri ->
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                imageUri = uri.toString()
+            }
+        }
+
+        AsyncImage(
+            model = Uri.parse(imageUri),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dimensionResource(Res.dimen.banner_height))
+                .bannerParallax(scrollState),
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.TopCenter,
+            error = painterResource(Res.drawable.background)
+        )
+
+        Box(
+            modifier = Modifier
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        )
+                    )
+                )
+                .fillMaxWidth()
+                .height(dimensionResource(Res.dimen.banner_height))
+        )
+
+        Text(
+            text = stringResource(Res.string.lbl_anime),
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            style = MaterialTheme.typography.displayMedium,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(
+                    start = dimensionResource(Res.dimen.large_padding),
+                    bottom = dimensionResource(Res.dimen.medium_padding)
+                )
+                .clickable {
+                    launcher.launch(arrayOf("image/*"))
+                }
+        )
+    }
+}
 
 @Composable
 fun HomeRow(
