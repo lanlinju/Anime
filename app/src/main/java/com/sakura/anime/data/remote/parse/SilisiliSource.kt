@@ -17,7 +17,7 @@ import java.security.MessageDigest
 
 object SilisiliSource : AnimeSource {
 
-    const val BASE_URL = "https://www.silisilifun.com/"
+    const val BASE_URL = "https://www.silisili.link/"
 
     override suspend fun getHomeData(): List<HomeBean> {
         val source = DownloadManager.getHtml(BASE_URL)
