@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,7 @@ fun VideoPlayerControl(
     title: String,
     subtitle: String? = null,
     background: Color = Color.Black.copy(0.25f),
-    contentColor: Color = Color.White,
+    contentColor: Color = Color.LightGray,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
     onOptionsClick: (() -> Unit)? = null,
@@ -247,27 +248,26 @@ private fun TimelineControl(
                     )
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Text(
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                    AdaptiveTextButton(
                         text = "选集",
-                        modifier = Modifier.clickable { onEpisodeClick() },
-                        color = LocalContentColor.current,
-                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.size(MediumIconButtonSize),
+                        onClick = onEpisodeClick
                     )
 
-                    Text(
+                    AdaptiveTextButton(
                         text = speedText,
-                        modifier = Modifier.clickable { onSpeedClick() },
-                        color = LocalContentColor.current,
-                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.size(MediumIconButtonSize),
+                        onClick = onSpeedClick
                     )
 
-                    Text(
+                    AdaptiveTextButton(
                         text = resizeText,
-                        modifier = Modifier.clickable { onResizeClick() },
-                        color = LocalContentColor.current,
-                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.size(MediumIconButtonSize),
+                        onClick = onResizeClick
                     )
+
                 }
 
             }
@@ -277,13 +277,37 @@ private fun TimelineControl(
 }
 
 @Composable
+fun AdaptiveTextButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    color: Color = LocalContentColor.current,
+    style: TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    AdaptiveIconButton(
+        modifier = modifier,
+        enabledIndication = false,
+        onClick = onClick
+    ) {
+        Text(
+            text = text,
+            color = color,
+            style = style,
+        )
+    }
+}
+
+@Composable
 private fun AdaptiveIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    enabledIndication: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val indication = LocalIndication.current
+
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -291,7 +315,7 @@ private fun AdaptiveIconButton(
                 onClick = onClick,
                 enabled = enabled,
                 interactionSource = interactionSource,
-                indication = LocalIndication.current
+                indication = if (enabledIndication) indication else null
             ),
         contentAlignment = Alignment.Center
     ) {

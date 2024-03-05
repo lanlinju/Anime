@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
@@ -16,7 +17,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,6 +85,7 @@ import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
+import com.sakura.videoplayer.AdaptiveTextButton
 import com.sakura.videoplayer.ResizeMode
 import com.sakura.videoplayer.VideoPlayer
 import com.sakura.videoplayer.VideoPlayerControl
@@ -221,6 +222,31 @@ private fun requestPortraitOrientation(view: View, activity: Activity) {
 private fun requestLandscapeOrientation(view: View, activity: Activity) {
     hideSystemBars(view, activity)
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+}
+
+private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View, activity: Activity): Modifier {
+    return if (fullscreen) {
+        requestLandscapeOrientation(view, activity)
+        fillMaxSize()
+    } else {
+        requestPortraitOrientation(view, activity)
+        fillMaxWidth().aspectRatio(1.778f)
+    }
+}
+
+private fun hideSystemBars(view: View, activity: Activity) {
+    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
+    // Configure the behavior of the hidden system bars
+    windowInsetsController.systemBarsBehavior =
+        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    // Hide both the status bar and the navigation bar
+    windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+}
+
+private fun showSystemBars(view: View, activity: Activity) {
+    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
+    // Show both the status bar and the navigation bar
+    windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 }
 
 @Composable
@@ -463,13 +489,11 @@ private fun SpeedSideSheet(
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 speeds.forEachIndexed { index, speed ->
-                    Text(
+                    AdaptiveTextButton(
                         text = speed.first,
-                        modifier = Modifier.clickable {
-                            onSpeedClick(index, speed)
-                        },
-                        color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.White,
-                        style = MaterialTheme.typography.bodyMedium
+                        modifier = Modifier.size(MediumTextButtonSize),
+                        onClick = { onSpeedClick(index, speed) },
+                        color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.LightGray,
                     )
                 }
             }
@@ -491,13 +515,11 @@ private fun ResizeSideSheet(
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
             Resizes.forEachIndexed { index, resize ->
-                Text(
+                AdaptiveTextButton(
                     text = resize.first,
-                    modifier = Modifier.clickable {
-                        onResizeClick(index, resize)
-                    },
-                    color = if (selectedResizeIndex == index) MaterialTheme.colorScheme.primary else Color.White,
-                    style = MaterialTheme.typography.bodyMedium
+                    modifier = Modifier.size(MediumTextButtonSize),
+                    onClick = { onResizeClick(index, resize) },
+                    color = if (selectedResizeIndex == index) MaterialTheme.colorScheme.primary else Color.LightGray,
                 )
             }
         }
@@ -524,8 +546,9 @@ private fun EpisodeSideSheet(
                 ) {
                     Text(
                         text = episode.name,
-                        color = if (index == selectedEpisodeIndex) MaterialTheme.colorScheme.primary else Color.White,
-                        style = MaterialTheme.typography.bodySmall
+                        color = if (index == selectedEpisodeIndex) MaterialTheme.colorScheme.primary else Color.LightGray,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1
                     )
                 }
             }
@@ -551,15 +574,17 @@ private fun SideSheet(
         }
 
         val scope = rememberCoroutineScope()
+        val dismissRequestHandle: () -> Unit = {
+            isVisible = false
+            scope.launch { delay(300) }.invokeOnCompletion { onDismissRequest() }
+        }
+
         Box(modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { position ->
                     if (position.x < fullWidth - sideSheetWidthDp.toPx()) {
-                        isVisible = false
-                        scope
-                            .launch { delay(300) }
-                            .invokeOnCompletion { onDismissRequest() }
+                        dismissRequestHandle()
                     }
                 })
             }) {
@@ -580,33 +605,14 @@ private fun SideSheet(
                 }
             }
         }
+
+        BackHandler {
+            dismissRequestHandle()
+        }
     }
 }
 
-private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View, activity: Activity): Modifier {
-    return if (fullscreen) {
-        requestLandscapeOrientation(view, activity)
-        fillMaxSize()
-    } else {
-        requestPortraitOrientation(view, activity)
-        fillMaxWidth().aspectRatio(1.778f)
-    }
-}
-
-private fun hideSystemBars(view: View, activity: Activity) {
-    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
-    // Configure the behavior of the hidden system bars
-    windowInsetsController.systemBarsBehavior =
-        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    // Hide both the status bar and the navigation bar
-    windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-}
-
-private fun showSystemBars(view: View, activity: Activity) {
-    val windowInsetsController = WindowCompat.getInsetsController(activity.window, view)
-    // Show both the status bar and the navigation bar
-    windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
-}
+private val MediumTextButtonSize = 42.dp
 
 @Preview(device = Devices.TV_720p)
 @Composable
