@@ -100,6 +100,7 @@ fun VideoPlayerControl(
                     videoDurationMs = state.videoDurationMs.value,
                     videoPositionMs = state.videoPositionMs.value,
                     videoProgress = state.videoProgress.value,
+                    videoBufferedProgress = state.videoBufferedProgress.value,
                     control = state.control,
                     isSeeking = state.isSeeking.value,
                     isPlaying = state.isPlaying.value,
@@ -180,6 +181,7 @@ private fun TimelineControl(
     videoDurationMs: Long,
     videoPositionMs: Long,
     videoProgress: Float,
+    videoBufferedProgress: Float,
     isSeeking: Boolean,
     isPlaying: Boolean,
     control: VideoPlayerControl,
@@ -221,6 +223,7 @@ private fun TimelineControl(
 
         Slider(
             value = if (videoProgress.isNaN()) 0f else videoProgress,
+            secondValue = if (videoBufferedProgress.isNaN()) 0f else videoBufferedProgress,
             onClick = onClickSlider,
             onValueChange = onDragSlider,
             onValueChangeFinished = onDragSliderFinished,
@@ -229,7 +232,6 @@ private fun TimelineControl(
                 .height(30.dp),
             isSeeking = isSeeking,
             color = progressLineColor,
-            trackColor = Color.LightGray
         )
 
         if (isSeeking) {

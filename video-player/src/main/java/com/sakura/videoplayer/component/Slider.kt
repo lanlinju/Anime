@@ -28,12 +28,14 @@ import kotlinx.coroutines.delay
 @Composable
 fun Slider(
     value: Float,
+    secondValue: Float,
     modifier: Modifier = Modifier,
     onClick: (Float) -> Unit,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit = {},
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+    trackColor: Color = Color.LightGray.copy(alpha = 0.38f),
+    secondTrackColor: Color =Color.LightGray.copy(alpha = 0.78f),
     isSeeking: Boolean = false
 ) {
     val isAnimHeight = remember(isSeeking) { mutableStateOf(isSeeking) }
@@ -65,21 +67,8 @@ fun Slider(
             },
         contentAlignment = Alignment.CenterStart
     ) {
-        // track
-        Box(
-            modifier = Modifier
-                .clip(
-                    FractionClip(fraction = value, start = true)
-                )
-                .fillMaxWidth()
-                .height(animHeight.value)
-                .background(
-                    color = color,
-                    shape = RoundedCornerShape(2.dp)
-                )
-        )
 
-        // 播放进度
+        // track
         Box(
             modifier = Modifier
                 .clip(
@@ -93,18 +82,43 @@ fun Slider(
                 )
         )
 
+        // 视频缓冲进度
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(secondValue)
+                .height(animHeight.value)
+                .background(
+                    color = secondTrackColor,
+                    shape = RoundedCornerShape(topStart = 2.dp, bottomStart = 2.dp)
+                )
+        )
+
+        // 视频播放进度
+        Box(
+            modifier = Modifier
+                .clip(
+                    FractionClip(fraction = value, start = true)
+                )
+                .fillMaxWidth()
+                .height(animHeight.value)
+                .background(
+                    color = color,
+                    shape = RoundedCornerShape(2.dp)
+                )
+        )
+
         // thumb
         Box(
             modifier = Modifier
                 .clip(CircleShape)
                 .align(
                     BiasAlignment(
-                        horizontalBias = (value * 2) - 1f,
+                        horizontalBias = (value * 2) - 1f, // -1 start | 0 center | 1 end
                         verticalBias = 0f
                     )
                 )
                 .size(15.dp)
-                .background(color = color, shape = CircleShape)
+                .background(color)
         )
     }
 }

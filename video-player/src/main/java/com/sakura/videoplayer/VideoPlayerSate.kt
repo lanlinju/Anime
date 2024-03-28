@@ -70,6 +70,7 @@ class VideoPlayerStateImpl(
     override val isChangingBrightness = mutableStateOf(false)
 
     override val videoProgress = mutableStateOf(0F)
+    override val videoBufferedProgress = mutableStateOf(0F)
     override val volumeBrightnessProgress = mutableStateOf(0F)
 
     override val speedText = mutableStateOf("倍速")
@@ -193,9 +194,14 @@ class VideoPlayerStateImpl(
             while (true) {
                 if (videoDurationMs.value > 0) {
                     videoPositionMs.value = player.currentPosition
-                    if (!isSeeking.value)
+                    if (!isSeeking.value) {
+                        // 播放进度
                         videoProgress.value =
                             videoPositionMs.value / videoDurationMs.value.toFloat()
+                        // 缓冲进度
+                        videoBufferedProgress.value =
+                            player.bufferedPosition / videoDurationMs.value.toFloat()
+                    }
                 }
                 controlUiLastInteractionMs += videoPositionPollInterval
 
@@ -344,6 +350,7 @@ interface VideoPlayerState {
     val isChangingVolume: State<Boolean>
     val isChangingBrightness: State<Boolean>
     val videoProgress: State<Float> /*进度条百分比 0f - 1f*/
+    val videoBufferedProgress: State<Float>
     val volumeBrightnessProgress: State<Float>
 
     val onSeeking: (dragProcess: Float) -> Unit     // 当拖动进度条时调用
