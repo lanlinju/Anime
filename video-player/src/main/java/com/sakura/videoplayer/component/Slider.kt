@@ -4,10 +4,11 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -22,34 +23,49 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 @Composable
 fun Slider(
     value: Float,
-    onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
+    onClick: (Float) -> Unit,
+    onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit = {},
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
     isSeeking: Boolean = false
 ) {
+    val isAnimHeight = remember(isSeeking) { mutableStateOf(isSeeking) }
     val animHeight = animateDpAsState(
-        targetValue = if (isSeeking) 4.dp else 2.dp,
+        targetValue = if (isAnimHeight.value) 4.dp else 2.dp,
         animationSpec = tween()
     )
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
+                detectTapGestures(onTap = { offset ->
+                    isAnimHeight.value = true
+                    onClick(offset.x / size.width)
+                }, onPress = {
+                    tryAwaitRelease()
+                    delay(150)
+                    isAnimHeight.value = false
+                })
+            }
+            .pointerInput(Unit) {
                 detectDragGestures(
+                    onDrag = { change, _ ->
+                        onValueChange((change.position.x / size.width).coerceIn(0f, 1f))
+                        change.consume()
+                    },
                     onDragEnd = onValueChangeFinished
-                ) { change, _ ->
-                    onValueChange((change.position.x / size.width).coerceIn(0f, 1f))
-                    change.consume()
-                }
-
+                )
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.CenterStart
     ) {
+        // track
         Box(
             modifier = Modifier
                 .clip(
@@ -62,6 +78,8 @@ fun Slider(
                     shape = RoundedCornerShape(2.dp)
                 )
         )
+
+        // 播放进度
         Box(
             modifier = Modifier
                 .clip(
@@ -74,6 +92,8 @@ fun Slider(
                     shape = RoundedCornerShape(2.dp)
                 )
         )
+
+        // thumb
         Box(
             modifier = Modifier
                 .clip(CircleShape)

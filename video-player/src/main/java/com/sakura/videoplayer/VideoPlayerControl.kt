@@ -104,6 +104,7 @@ fun VideoPlayerControl(
                     isSeeking = state.isSeeking.value,
                     isPlaying = state.isPlaying.value,
                     onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
+                    onClickSlider = { state.onClickSlider(it)},
                     onDragSlider = { state.onSeeking(it) },
                     onDragSliderFinished = { state.onSeeked() },
                     speedText = state.speedText.value,
@@ -182,6 +183,7 @@ private fun TimelineControl(
     isSeeking: Boolean,
     isPlaying: Boolean,
     control: VideoPlayerControl,
+    onClickSlider: (Float) -> Unit,
     onDragSlider: (Float) -> Unit,
     onDragSliderFinished: () -> Unit,
     onFullScreenToggle: () -> Unit,
@@ -219,6 +221,7 @@ private fun TimelineControl(
 
         Slider(
             value = if (videoProgress.isNaN()) 0f else videoProgress,
+            onClick = onClickSlider,
             onValueChange = onDragSlider,
             onValueChangeFinished = onDragSliderFinished,
             modifier = Modifier

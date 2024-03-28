@@ -81,6 +81,9 @@ class VideoPlayerStateImpl(
     override val isResizeUiVisible = mutableStateOf(false)
     override val isEpisodeUiVisible = mutableStateOf(false)
 
+    /**
+     * 当拖动Slider或屏幕时，更新Slider进度条位置
+     */
     override val onSeeking: (Float) -> Unit
         get() = {
             controlUiLastInteractionMs = 0
@@ -89,9 +92,24 @@ class VideoPlayerStateImpl(
             if (!isControlUiVisible.value) showControlUi()
             this.videoProgress.value = it
         }
+
+    /**
+     * 当拖动Slider或屏幕结束时，更新视频播放位置
+     */
     override val onSeeked: () -> Unit
         get() = {
             isSeeking.value = false
+            player.seekTo((player.duration * videoProgress.value).toLong())
+        }
+
+    /**
+     * 当点Slider时，更改进度条的值和视频播放进度
+     */
+    override val onClickSlider: (progress: Float) -> Unit
+        get() = { progress ->
+            controlUiLastInteractionMs = 0
+            isEnded.value = false
+            this.videoProgress.value = progress
             player.seekTo((player.duration * videoProgress.value).toLong())
         }
 
@@ -311,8 +329,8 @@ interface VideoPlayerState {
 
     val videoSize: State<VideoSize>
     val videoResizeMode: State<ResizeMode>
-    val videoPositionMs: State<Long>
-    val videoDurationMs: State<Long>
+    val videoPositionMs: State<Long>    /*当控制组件显示时才会更新这个值，获取视频当前进度用player.currentPosition*/
+    val videoDurationMs: State<Long>    /*视频时长*/
 
     val isFullscreen: State<Boolean>
     val isPlaying: State<Boolean>
@@ -325,11 +343,12 @@ interface VideoPlayerState {
     val isLongPress: State<Boolean>
     val isChangingVolume: State<Boolean>
     val isChangingBrightness: State<Boolean>
-    val videoProgress: State<Float> /*0f - 1f*/
+    val videoProgress: State<Float> /*进度条百分比 0f - 1f*/
     val volumeBrightnessProgress: State<Float>
 
-    val onSeeking: (dragProcess: Float) -> Unit
-    val onSeeked: () -> Unit
+    val onSeeking: (dragProcess: Float) -> Unit     // 当拖动进度条时调用
+    val onSeeked: () -> Unit                        // 当拖动进度条结束时调用
+    val onClickSlider: (progress: Float) -> Unit // 当点击进度条时调用
 
     val speedText: State<String>
     val resizeText: State<String>

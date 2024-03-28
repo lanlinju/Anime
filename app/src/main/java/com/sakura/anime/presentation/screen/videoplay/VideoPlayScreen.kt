@@ -483,19 +483,18 @@ private fun SpeedSideSheet(
     val speeds = remember { Speeds.reversedArray() }
 
     SideSheet(onDismissRequest = onDismissRequest, widthRatio = 0.2f) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-            ) {
-                speeds.forEachIndexed { index, speed ->
-                    AdaptiveTextButton(
-                        text = speed.first,
-                        modifier = Modifier.size(MediumTextButtonSize),
-                        onClick = { onSpeedClick(index, speed) },
-                        color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.LightGray,
-                    )
-                }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            speeds.forEachIndexed { index, speed ->
+                AdaptiveTextButton(
+                    text = speed.first,
+                    modifier = Modifier.size(MediumTextButtonSize),
+                    onClick = { onSpeedClick(index, speed) },
+                    color = if (selectedSpeedIndex == index) MaterialTheme.colorScheme.primary else Color.LightGray,
+                )
             }
         }
     }
