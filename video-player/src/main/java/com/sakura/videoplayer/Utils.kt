@@ -2,6 +2,8 @@ package com.sakura.videoplayer
 
 import android.widget.FrameLayout
 import androidx.compose.ui.unit.Constraints
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.LoadControl
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.video.VideoSize
@@ -54,6 +56,7 @@ internal inline fun Constraints.resizeForVideo(
                 width = (height * aspectRatio).toInt()
             }
         }
+
         ResizeMode.Zoom -> {
             if (difference > 0) {
                 width = (height * aspectRatio).toInt()
@@ -61,12 +64,15 @@ internal inline fun Constraints.resizeForVideo(
                 height = (width / aspectRatio).toInt()
             }
         }
+
         ResizeMode.FixedWidth -> {
             height = (width / aspectRatio).toInt()
         }
+
         ResizeMode.FixedHeight -> {
             width = (height * aspectRatio).toInt()
         }
+
         ResizeMode.FixedRatio_16_9 -> {
             if (difference > 0) {
                 height = (width / VIDEO_ASPECT_RATIO_16_9).toInt()
@@ -74,6 +80,7 @@ internal inline fun Constraints.resizeForVideo(
                 width = (height * VIDEO_ASPECT_RATIO_16_9).toInt()
             }
         }
+
         ResizeMode.FixedRatio_4_3 -> {
             if (difference > 0) {
                 height = (width / VIDEO_ASPECT_RATIO_4_3).toInt()
@@ -81,6 +88,7 @@ internal inline fun Constraints.resizeForVideo(
                 width = (height * VIDEO_ASPECT_RATIO_4_3).toInt()
             }
         }
+
         ResizeMode.Full -> {
             if (difference > 0) {
                 width = (height * aspectRatio).toInt()
@@ -88,6 +96,7 @@ internal inline fun Constraints.resizeForVideo(
                 height = (width / aspectRatio).toInt()
             }
         }
+
         ResizeMode.Fill -> Unit
     }
 
@@ -138,4 +147,11 @@ internal fun mediaItemCreator(uri: String): MediaItem {
         builder.setMimeType(MimeTypes.APPLICATION_M3U8)
     }
     return builder.build()
+}
+
+internal fun loadControlCreator(): LoadControl {
+    return DefaultLoadControl.Builder()
+        .setBufferDurationsMs(360000, 600000, 1000, 5000)
+        .setBackBuffer(50000, true)
+        .build()
 }

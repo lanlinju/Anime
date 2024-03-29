@@ -21,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun rememberVideoPlayerState(
     hideControllerAfterMs: Long = 6000,
@@ -28,6 +29,7 @@ fun rememberVideoPlayerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     context: Context = LocalContext.current,
     config: ExoPlayer.Builder.() -> Unit = {
+        setLoadControl(loadControlCreator())
         setSeekForwardIncrementMs(10 * 1000)
         setSeekBackIncrementMs(10 * 1000)
     }
