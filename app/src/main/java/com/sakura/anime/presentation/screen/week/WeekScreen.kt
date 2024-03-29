@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -90,6 +91,7 @@ fun WeekScreen(
     val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
 
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
@@ -318,7 +320,7 @@ fun WeekScreen(
                     Text(text = viewModel.updateMessage)
                 },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.downloadUpdate(context) }) {
+                    TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
                         Text(text = stringResource(id = R.string.download_software))
                     }
                 },

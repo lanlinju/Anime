@@ -59,6 +59,7 @@
     <string name="check_updates_failed">连接Github超时，检测更新失败</string>
     <string name="cancel">取消</string>
     <string name="download_software">下载更新</string>
+    <string name="download_software_failed">下载更新失败</string>
     <string name="software_updates">软件更新</string>
     <string name="checking_update">检测更新中</string>
     <string name="downloading_updates">后台下载更新中</string>

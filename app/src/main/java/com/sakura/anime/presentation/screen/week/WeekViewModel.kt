@@ -2,11 +2,13 @@ package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.sakura.anime.R
@@ -94,15 +96,33 @@ class WeekViewModel @Inject constructor(
 
     }
 
-    fun downloadUpdate(context: Context) {
+    fun downloadUpdate(context: Context, lifecycleOwner: LifecycleOwner) {
         closeUpdateDialog()
 
         val updateWorkRequest = OneTimeWorkRequestBuilder<UpdateWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setInputData(workDataOf(KEY_DOWNLOAD_UPDATE_URL to downloadUpdateUrl))
             .build()
-        WorkManager.getInstance(context)
-            .enqueueUniqueWork("updateWork", ExistingWorkPolicy.REPLACE, updateWorkRequest)
+
+        val workManager = WorkManager.getInstance(context)
+        workManager.enqueueUniqueWork("updateWork", ExistingWorkPolicy.REPLACE, updateWorkRequest)
+
+        workManager.getWorkInfosForUniqueWorkLiveData("updateWork")
+            .observe(lifecycleOwner) { listOfWorkInfo ->
+                // If there are no matching work info, do nothing
+                if (listOfWorkInfo == null || listOfWorkInfo.isEmpty()) {
+                    return@observe
+                }
+
+                for (workInfo in listOfWorkInfo) {
+                    if (workInfo.state.isFinished) {
+                        if (workInfo.state == WorkInfo.State.FAILED) {
+                            val errorMsg = context.getString(R.string.download_software_failed)
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
 
         val msg = context.getString(R.string.downloading_updates)
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
