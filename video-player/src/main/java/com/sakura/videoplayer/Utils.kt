@@ -152,6 +152,6 @@ internal fun mediaItemCreator(uri: String): MediaItem {
 internal fun loadControlCreator(): LoadControl {
     return DefaultLoadControl.Builder()
         .setBufferDurationsMs(360000, 600000, 1000, 5000)
-        .setBackBuffer(50000, true)
+        .setBackBuffer(120000, true)
         .build()
 }
