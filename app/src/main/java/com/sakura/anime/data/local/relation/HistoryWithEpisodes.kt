@@ -21,8 +21,8 @@ data class HistoryWithEpisodes(
             title = history.title,
             imgUrl = history.imgUrl,
             detailUrl = history.detailUrl,
-            lastEpisodeName = sortedEpisodes.first().name,
-            lastEpisodeUrl = sortedEpisodes.first().episodeUrl,
+            lastEpisodeName = if (sortedEpisodes.isEmpty()) "" else sortedEpisodes.first().name,
+            lastEpisodeUrl = if (sortedEpisodes.isEmpty()) "" else sortedEpisodes.first().episodeUrl,
             sourceMode = SourceMode.valueOf(history.source),
             episodes = emptyList()
         )

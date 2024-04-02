@@ -6,7 +6,9 @@ import com.sakura.download.utils.decrypt
 import java.util.Base64
 import android.content.Intent
 import android.content.Intent.*
+import android.util.Log
 import androidx.core.content.FileProvider.getUriForFile
+import com.sakura.anime.BuildConfig
 import java.io.File
 
 /**
@@ -30,4 +32,16 @@ fun Context.installApk(file: File) {
     intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
     intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION)
     startActivity(intent)
+}
+
+fun <T> T.log(tag: String, prefix: String = ""): T {
+    val prefixStr = if (prefix.isEmpty()) "" else "[$prefix] "
+    if (BuildConfig.DEBUG) {
+        if (this is Throwable) {
+            Log.w(tag, prefixStr + this.message, this)
+        } else {
+            Log.d(tag, prefixStr + toString())
+        }
+    }
+    return this
 }

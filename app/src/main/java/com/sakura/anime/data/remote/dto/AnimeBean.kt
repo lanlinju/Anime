@@ -4,7 +4,7 @@ import com.example.componentsui.anime.domain.model.Anime
 
 /**
  * @param title 动漫名称
- * @param img 图片url
+ * @param img 图片url         /* 获取时间表时可为空 */
  * @param url 动漫详情url
  * @param episodeName 集数
  */

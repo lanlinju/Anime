@@ -40,13 +40,13 @@ object MxdmSource : AnimeSource {
         val main = document.select("main")
         val title = main.select("h1").text()
         val desc = main.select("div.video-info-content").text()
-        val imaUrl = main.select("div.module-item-pic > img").attr("data-src")
+        val imgUrl = main.select("div.module-item-pic > img").attr("data-src")
         val updateTime = main.select("div.video-info-item")[4].text()
         val tags = main.select("div.tag-link > a").map { it.text() }
         val episodes = getAnimeEpisodes(main)
         val relatedAnimes =
             getAnimeList(main.select("div.module-items")[0].select("div.module-item"))
-        return AnimeDetailBean(title, imaUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {

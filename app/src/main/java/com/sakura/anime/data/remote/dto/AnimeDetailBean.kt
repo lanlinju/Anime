@@ -8,7 +8,7 @@ data class AnimeDetailBean(
     val desc: String,
     val score: String = "", /* 可为空 */
     val tags: List<String>,
-    val updateTime: String,
+    val updateTime: String = "", /* 可为空 */
     val episodes: List<EpisodeBean>,
     val relatedAnimes: List<AnimeBean>
 ) {

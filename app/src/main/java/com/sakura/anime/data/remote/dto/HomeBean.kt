@@ -5,7 +5,7 @@ import com.sakura.anime.domain.model.HomeItem
 
 data class HomeBean(
     val title: String,
-    val moreUrl: String,
+    val moreUrl: String,        // 可为空
     val animes: List<AnimeBean>
 ) {
     fun toHome(): Home {

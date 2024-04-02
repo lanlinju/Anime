@@ -4,8 +4,8 @@ import com.sakura.anime.domain.model.Video
 
 data class VideoBean(
     val title: String,
-    val url: String,
-    val episodeName: String,
+    val url: String,            /* 视频播放地址 */
+    val episodeName: String,    /* 当前播放的剧集数名 */
     val episodes: List<EpisodeBean>
 ) {
     fun toVideo(): Video {

@@ -5,14 +5,37 @@ import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.ResponseBody
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.http.GET
+import retrofit2.http.HeaderMap
+import retrofit2.http.Streaming
+import retrofit2.http.Url
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 object DownloadManager {
+    private const val FAKE_BASE_URL = "http://www.example.com"
+
     private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .readTimeout(1L, TimeUnit.MINUTES)
         .build()
+
+    private fun apiCreator(): Api {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(FAKE_BASE_URL)
+            .client(client)
+            .build()
+        return retrofit.create(Api::class.java)
+    }
+
+    private val api = apiCreator()
+
+    suspend fun request(url: String, header: Map<String, String> = emptyMap()): Response<ResponseBody> {
+        return api.get(url, header)
+    }
 
     suspend fun getHtml(url: String): String {
         return withContext(Dispatchers.IO) {
@@ -42,3 +65,14 @@ val interceptor = Interceptor { chain: Interceptor.Chain ->
 
     chain.proceed(request)
 }
+
+interface Api {
+
+    @GET
+    @Streaming
+    suspend fun get(
+        @Url url: String,
+        @HeaderMap headers: Map<String, String>
+    ): Response<ResponseBody>
+}
+
