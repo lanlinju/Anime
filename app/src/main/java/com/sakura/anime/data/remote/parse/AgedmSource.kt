@@ -1,23 +1,15 @@
 package com.sakura.anime.data.remote.parse
 
 import android.annotation.SuppressLint
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
+import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
@@ -25,28 +17,18 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import retrofit2.Response
 import java.io.Closeable
-import java.net.SocketTimeoutException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 @SuppressLint("StaticFieldLeak", "SetJavaScriptEnabled")
 object AgedmSource : AnimeSource {
 
     private const val LOG_TAG = "AgedmSource"
 
-    const val BASE_URL = "https://www.agedm.org"
-    const val REPLACE_DOMAIN_URL = "http://www.agedm.org"
-
-    private var webView: WebView? = null
-    private val blockRes: Array<String> = arrayOf(
-        ".css", ".js", ".jpeg", ".svg", ".php", ".ico", "age",
-        ".gif", ".jpg", ".png", ".webp", ".wasm", ".ts"
-    )
+    private const val BASE_URL = "https://www.agedm.org"
+    private const val REPLACE_DOMAIN_URL = "http://www.agedm.org"
+    private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
 
     override fun onExit() {
-        createWebView()
-        webView?.clear()
-        destroyWebView()
+        webViewUtil.clearWeb()
     }
 
     override suspend fun getWeekData(): MutableMap<Int, List<AnimeBean>> {
@@ -121,7 +103,6 @@ object AgedmSource : AnimeSource {
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
         val source = DownloadManager.getHtml("$BASE_URL/$episodeUrl")
         val document = Jsoup.parse(source)
-
         val elements = document.select("div.cata_video_item")
         val title = elements.select("h5").text()
         var episodeName = ""
@@ -164,97 +145,34 @@ object AgedmSource : AnimeSource {
         return episodes
     }
 
-    private suspend fun getVideoUrl(document: Document) = withContext(Dispatchers.Main) {
-        createWebView()
+    private suspend fun getVideoUrl(document: Document): String {
 
         val videoUrl = document.select("#iframeForVideo").attr("src")
 
-        var hasResume = false
-
-        suspendCancellableCoroutine { continuation ->
-
-            continuation.invokeOnCancellation {
-                destroyWebView()
-            }
-
-            webView?.webViewClient = object : WebViewClient() {
-                override fun shouldInterceptRequest(
-                    view: WebView, request: WebResourceRequest
-                ): WebResourceResponse? {
-                    val url = request.url.toString()
-
-                    if (url.containStrs(*blockRes) || hasResume)
-                        return super.shouldInterceptRequest(view, request)
-
-                    launch(Dispatchers.Default) {
-                        if (url.contains(".mp4|.m3u8|video|playurl|hsl|obj|bili".toRegex())) {
-                            continuation.resume(url)
-                            hasResume = true
-                            url.log(LOG_TAG, "getVideoUrl: regex resume")
-                        } else {
-                            var response: Response<ResponseBody>? = null
-                            try {
-                                response = DownloadManager.request(url)
-                                if (response.isSuccessful && response.isVideoType()) {
-                                    continuation.resume(url)
-                                    hasResume = true
-                                    url.log(LOG_TAG, "getVideoUrl: response resume")
-                                }
-                            } catch (_: Exception) {
-                            } finally {
-                                response?.closeQuietly()
-                            }
-                        }
-                        url.log(LOG_TAG, "getVideoUrl")
-                    }
-
-                    return super.shouldInterceptRequest(view, request)
-                }
-            }
-
-            webView?.loadUrl(videoUrl)
-
-            launch(Dispatchers.Main) {
-                var elapsedTime = 0
-                while (elapsedTime < 10_000 && !hasResume && isActive) {
-                    delay(200)
-                    elapsedTime += 200
-                }
-
-                destroyWebView()
-
-                if (!hasResume) {
-                    "resumeWithException".log(LOG_TAG)
-                    continuation.resumeWithException(SocketTimeoutException("webView connection timeout exception"))
+        val predicate: suspend (requestUrl: String) -> Boolean = { requestUrl ->
+            withContext(Dispatchers.IO) {
+                var response: Response<ResponseBody>? = null
+                try {
+                    "predicate $requestUrl".log(LOG_TAG)
+                    response = DownloadManager.request(requestUrl)
+                    response.isSuccessful && response.isVideoType()
+                } catch (_: Exception) {
+                    false
+                } finally {
+                    response?.closeQuietly()
                 }
             }
         }
-    }
 
-    private fun createWebView() {
-        destroyWebView()
-        webView = WebView(AnimeApplication.getInstance()).apply {
-            settings.javaScriptEnabled = true
-        }
-    }
-
-    private fun destroyWebView() {
-        webView?.destroy()
-        webView = null
-        "destroyWebView".log(LOG_TAG)
-    }
-
-    private fun WebView.clear() {
-        clearCache(true)
-        clearHistory()
-        clearFormData()
-        clearMatches()
+        return webViewUtil.interceptRequest(
+            url = videoUrl,
+            regex = ".mp4|.m3u8|video|playurl|hsl|obj|bili",
+            blockRes = listOf("age", ".php"),
+            predicate = predicate
+        )
     }
 
     private fun String.trimDomain() = replace(REPLACE_DOMAIN_URL, "")
-
-    private fun CharSequence.containStrs(vararg strs: CharSequence) =
-        strs.find { contains(it) } != null
 
     private fun Response<*>.header(key: String): String {
         val header = headers()[key]
