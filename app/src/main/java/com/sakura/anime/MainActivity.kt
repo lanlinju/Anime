@@ -73,7 +73,7 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             currentSourceMode = currentSourceMode,
             onSourceChange = { mode ->
                 currentSourceMode = mode
-                SourceHolder.isSourceChange = true
+                SourceHolder.isSourceChanged = true
                 SourceHolder.switchSource(mode)
             },
             onNavigateToAnimeDetail = { detailUrl, mode ->

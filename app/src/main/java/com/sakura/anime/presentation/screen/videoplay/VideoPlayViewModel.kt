@@ -10,8 +10,8 @@ import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
-import com.sakura.anime.presentation.navigation.SOURCE_MODE_ARGUMENT
-import com.sakura.anime.presentation.navigation.VIDEO_ARGUMENT_EPISODE_URL
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_VIDEO_EPISODE_URL
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.Resource
 import com.sakura.anime.util.SourceMode
@@ -37,10 +37,10 @@ class VideoPlayViewModel @Inject constructor(
     lateinit var mode: SourceMode
 
     init {
-        savedStateHandle.get<String>(key = SOURCE_MODE_ARGUMENT)?.let { mode ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_SOURCE_MODE)?.let { mode ->
             this.mode = SourceMode.valueOf(mode)
         }
-        savedStateHandle.get<String>(key = VIDEO_ARGUMENT_EPISODE_URL)?.let { episodeUrl ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_VIDEO_EPISODE_URL)?.let { episodeUrl ->
             val url = Uri.decode(episodeUrl)
             if (!url.contains(KEY_FROM_LOCAL_VIDEO)) {
                 getVideoFromRemote(url)

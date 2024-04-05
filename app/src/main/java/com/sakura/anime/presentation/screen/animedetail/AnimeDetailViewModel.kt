@@ -12,8 +12,8 @@ import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetAnimeDetailUseCase
-import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
-import com.sakura.anime.presentation.navigation.SOURCE_MODE_ARGUMENT
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_DETAIL_URL
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
 import com.sakura.anime.util.Resource
 import com.sakura.anime.util.SourceMode
 import com.sakura.download.download
@@ -51,10 +51,10 @@ class AnimeDetailViewModel @Inject constructor(
     lateinit var mode: SourceMode
 
     init {
-        savedStateHandle.get<String>(key = SOURCE_MODE_ARGUMENT)?.let { mode ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_SOURCE_MODE)?.let { mode ->
             this.mode = enumValueOf(mode)
         }
-        savedStateHandle.get<String>(key = DETAIL_ARGUMENT_URL)?.let { detailUrl ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_DETAIL_URL)?.let { detailUrl ->
             this.detailUrl = Uri.decode(detailUrl)
             getAnimeDetail(this.detailUrl)
         }

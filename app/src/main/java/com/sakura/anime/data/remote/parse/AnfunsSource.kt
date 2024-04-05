@@ -129,12 +129,12 @@ object AnfunsSource : AnimeSource {
     private suspend fun getVideoUrl(url: String): String {
         val regex = "https://www.anfuns.cc/vapi/AIRA/mui.php.*"
         val videoUrlRegex = "url=(.*?)&".toRegex()
-        val videoUrl = webViewUtil.interceptRequest(
+        val videoUrlTarget = webViewUtil.interceptRequest(
             url = url,
             regex = regex,
             blockRes = listOf("file")
         )
-        return videoUrlRegex.find(videoUrl)?.groupValues?.get(1)
+        return videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
             ?: throw IllegalStateException("video url is empty")
     }
 

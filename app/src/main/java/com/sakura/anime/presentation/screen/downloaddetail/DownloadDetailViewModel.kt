@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sakura.anime.domain.model.DownloadDetail
 import com.sakura.anime.domain.repository.RoomRepository
-import com.sakura.anime.presentation.navigation.ANIME_ARGUMENT_TITLE
-import com.sakura.anime.presentation.navigation.DETAIL_ARGUMENT_URL
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_ANIME_TITLE
+import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_DETAIL_URL
 import com.sakura.anime.util.Resource
 import com.sakura.download.core.DownloadTask
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,11 +35,11 @@ class DownloadDetailViewModel @Inject constructor(
     lateinit var detailUrl: String
 
     init {
-        savedStateHandle.get<String>(key = ANIME_ARGUMENT_TITLE)?.let { title ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_ANIME_TITLE)?.let { title ->
             _title.value = title
         }
 
-        savedStateHandle.get<String>(key = DETAIL_ARGUMENT_URL)?.let { detailUrl ->
+        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_DETAIL_URL)?.let { detailUrl ->
             this.detailUrl = detailUrl
             getDownloadDetails(Uri.decode(detailUrl))
         }

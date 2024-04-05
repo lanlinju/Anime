@@ -12,7 +12,7 @@ object SourceHolder {
     val currentSource: AnimeSource
         get() = _currentSource
 
-    var isSourceChange = false
+    var isSourceChanged = false
 
     /**
      *当启动应用时调用，设置默认的数据源，切换数据源请用方法[SourceHolder].switchSource()
