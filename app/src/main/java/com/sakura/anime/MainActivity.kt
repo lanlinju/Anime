@@ -10,8 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -64,7 +66,7 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
 
     val navController = rememberNavController()
 
-    Box(modifier) {
+    Box(modifier.background(MaterialTheme.colorScheme.background)) {
         AnimeNavHost(
             modifier = Modifier
                 .align(Alignment.TopCenter)
