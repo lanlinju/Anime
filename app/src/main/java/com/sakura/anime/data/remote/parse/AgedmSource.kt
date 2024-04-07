@@ -26,6 +26,10 @@ object AgedmSource : AnimeSource {
     private const val BASE_URL = "https://www.agedm.org"
     private const val REPLACE_DOMAIN_URL = "http://www.agedm.org"
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+    private val filterReqUrl: Array<String> = arrayOf(
+        ".css", ".js", ".jpeg", ".svg", ".ico", ".ts",
+        ".gif", ".jpg", ".png", ".webp", ".wasm", "age", ".php"
+    )
 
     override fun onExit() {
         webViewUtil.clearWeb()
@@ -149,6 +153,7 @@ object AgedmSource : AnimeSource {
 
         val videoUrl = document.select("#iframeForVideo").attr("src")
 
+        // 用于判断url的返回类型是否是 video/mp4
         val predicate: suspend (requestUrl: String) -> Boolean = { requestUrl ->
             withContext(Dispatchers.IO) {
                 var response: Response<ResponseBody>? = null
@@ -167,8 +172,8 @@ object AgedmSource : AnimeSource {
         return webViewUtil.interceptRequest(
             url = videoUrl,
             regex = ".mp4|.m3u8|video|playurl|hsl|obj|bili",
-            blockRes = listOf("age", ".php"),
-            predicate = predicate
+            predicate = predicate,
+            filterRequestUrl = filterReqUrl
         )
     }
 

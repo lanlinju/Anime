@@ -132,7 +132,6 @@ object AnfunsSource : AnimeSource {
         val videoUrlTarget = webViewUtil.interceptRequest(
             url = url,
             regex = regex,
-            blockRes = listOf("file")
         )
         return videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
             ?: throw IllegalStateException("video url is empty")

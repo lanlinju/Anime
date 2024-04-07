@@ -1,18 +1,23 @@
 package com.sakura.anime.data.remote.parse.util
 
 import android.annotation.SuppressLint
+import android.net.http.SslError
+import android.webkit.SslErrorHandler
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.annotation.CallSuper
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.util.log
+import com.sakura.download.utils.LOG_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -21,10 +26,6 @@ import kotlin.coroutines.resumeWithException
 class WebViewUtil {
     private val LOG_TAG = "WebViewUtil"
     private var webView: WebView? = null
-    private val _blockRes: MutableList<String> = mutableListOf(
-        ".css", ".js", ".jpeg", ".svg", ".ico", ".ts",
-        ".gif", ".jpg", ".png", ".webp", ".wasm"
-    )
 
     /**
      * 根据正则表达式regex获取视频链接，通过过滤拦截[WebView]所有发送的http url请求
@@ -32,7 +33,7 @@ class WebViewUtil {
      * @param url 要访问的视频所在网页的url
      * @param regex 通过regex匹配拦截对应视频链接
      * @param predicate 自定义额外的判断条件,当regex不能满足匹配要求时会执行
-     * @param blockRes 过滤掉的资源文件
+     * @param filterRequestUrl 过滤不需要匹配的请求url
      * @param timeoutMs 请求超时的时间,单位毫秒
      *
      * @return 返回匹配到的视频链接url，匹配不到结果会报一个[SocketTimeoutException]超时异常
@@ -41,13 +42,11 @@ class WebViewUtil {
         url: String,
         regex: String,
         predicate: suspend (requestUrl: String) -> Boolean = { false },
-        blockRes: List<String> = emptyList(),
+        filterRequestUrl: Array<String> = arrayOf(),
         timeoutMs: Long = 10_000L
     ): String = withContext(Dispatchers.Main) {
 
         createWebView()
-
-        _blockRes.addAll(blockRes)
 
         var hasResume = false
 
@@ -58,16 +57,10 @@ class WebViewUtil {
                 destroyWebView()
             }
 
-            webView?.webViewClient = object : WebViewClient() {
-                override fun shouldInterceptRequest(
-                    view: WebView,
-                    request: WebResourceRequest
-                ): WebResourceResponse? {
-                    val requestUrl = request.url.toString()
+            webView?.webViewClient = object : BlockedResWebViewClient() {
+                override fun onLoadResource(view: WebView?, requestUrl: String) {
 
-                    // 过滤不需要匹配的资源请求url
-                    if (hasResume || requestUrl.containStrs(_blockRes))
-                        return super.shouldInterceptRequest(view, request)
+                    if (hasResume || requestUrl.containStrs(*filterRequestUrl)) return
 
                     requestUrl.log(LOG_TAG, "interceptRequest")
                     launch(Dispatchers.Default) {
@@ -77,9 +70,8 @@ class WebViewUtil {
                             continuation.resume(requestUrl)
                         }
                     }
-
-                    return super.shouldInterceptRequest(view, request)
                 }
+
             }
 
             webView?.loadUrl(url) // 加载视频播放所在的Web网页
@@ -102,6 +94,47 @@ class WebViewUtil {
         }
     }
 
+    abstract class BlockedResWebViewClient(
+        private val blockRes: Array<String> = arrayOf(
+            ".css",
+            ".mp4", ".ts",
+            ".mp3", ".m4a",
+            ".gif", ",jpg", ".png", ".webp"
+        )
+    ) : WebViewClient() {
+
+        private val blockWebResourceRequest =
+            WebResourceResponse("text/html", "utf-8", ByteArrayInputStream("".toByteArray()))
+
+        @SuppressLint("WebViewClientOnReceivedSslError")
+        override fun onReceivedSslError(
+            view: WebView?,
+            handler: SslErrorHandler?,
+            error: SslError?
+        ) {
+            handler?.proceed()
+        }
+
+        // Reference code: https://github.com/RyensX/MediaBox/blob/1aefca13656eada4da2ff515cc9f893f407c53e0/app/src/main/java/com/su/mediabox/plugin/WebUtilImpl.kt#L138
+        /**
+         * 拦截无关资源文件
+         *
+         * 注意，该方法运行在线程池内
+         */
+        @CallSuper
+        override fun shouldInterceptRequest(
+            view: WebView,
+            request: WebResourceRequest?
+        ) = run {
+            val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
+            if (blockRes.any { url.contains(it) }) {
+                "intercept load".log(LOG_TAG)
+                view.post { view.webViewClient.onLoadResource(view, url) }
+                blockWebResourceRequest
+            }
+            super.shouldInterceptRequest(view, request)
+        }
+    }
 
     private fun createWebView() {
         destroyWebView()
@@ -122,8 +155,7 @@ class WebViewUtil {
         destroyWebView()
     }
 
-    private fun CharSequence.containStrs(strs: List<String>) =
-        strs.find { contains(it) } != null
+   private fun CharSequence.containStrs(vararg strs: CharSequence) = strs.find { contains(it) } != null
 
     private fun WebView.clear() {
         clearCache(true)

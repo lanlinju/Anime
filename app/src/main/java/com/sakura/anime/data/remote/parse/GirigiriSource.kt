@@ -17,6 +17,11 @@ object GirigiriSource : AnimeSource {
     private const val BASE_URL = "https://anime.girigirilove.com"
 
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+
+    override fun onExit() {
+        webViewUtil.clearWeb()
+    }
+
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
         val source = DownloadManager.getHtml("${BASE_URL}/search/${query}----------${page}---/")
         val document = Jsoup.parse(source)
