@@ -1,6 +1,7 @@
 package com.sakura.anime.data.remote.parse
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.EpisodeBean
@@ -9,7 +10,10 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @SuppressLint("StaticFieldLeak", "SetJavaScriptEnabled")
 object AnfunsSource : AnimeSource {
@@ -69,7 +73,7 @@ object AnfunsSource : AnimeSource {
         val episodeName = elements.text().split(" ")[1]
         val episodes =
             getAnimeEpisodes(document.select("div.hl-tabs-box"))
-        val videoUrl = getVideoUrl(url)
+        val videoUrl = getVideoUrl(document)
         return VideoBean(title, videoUrl, episodeName, episodes)
     }
 
@@ -126,7 +130,24 @@ object AnfunsSource : AnimeSource {
         return animeList
     }
 
-    private suspend fun getVideoUrl(url: String): String {
+    // Reference code: https://github.com/670848654/MoviesBox/blob/32276dd39cfe531ae21687737df1a564b639d57c/app/src/main/java/my/project/moviesbox/parser/parserImpl/AnFunsImpl.java#L662
+    /**
+     * 1. 先Base64解码
+     * 2. 再URL解码
+     */
+    @OptIn(ExperimentalEncodingApi::class)
+    private suspend fun getVideoUrl(document: Document): String {
+        // 获取<script>标签里的内容使用方法data()获取
+        val videoUrlTarget = document.select("div.hl-player-wrap > script")[1].data()
+        val videoUrlRegex = """"url":"(.*?)","url_next"""".toRegex()
+        val rawVideoUrl = videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
+            ?: throw IllegalStateException("video url is empty")
+
+        val encodedVideoUrl = String(Base64.decode(rawVideoUrl), Charsets.UTF_8)
+        return Uri.decode(encodedVideoUrl)
+    }
+
+    /*private suspend fun getVideoUrl(url: String): String {
         val regex = "https://www.anfuns.cc/vapi/AIRA/mui.php.*"
         val videoUrlRegex = "url=(.*?)&".toRegex()
         val videoUrlTarget = webViewUtil.interceptRequest(
@@ -135,6 +156,6 @@ object AnfunsSource : AnimeSource {
         )
         return videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
             ?: throw IllegalStateException("video url is empty")
-    }
+    }*/
 
 }
