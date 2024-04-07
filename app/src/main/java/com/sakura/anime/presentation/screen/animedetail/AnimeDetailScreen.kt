@@ -517,7 +517,10 @@ fun AnimeEpisodes(
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     onEpisodeClick: (episode: Episode) -> Unit
 ) {
-    val scrollState = rememberLazyListState(lastPosition, -200)
+    val scrollState = rememberLazyListState(
+        if (lastPosition < 3) 0 else lastPosition,
+        if (lastPosition < 3) 0 else -200
+    )
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.medium_padding)),

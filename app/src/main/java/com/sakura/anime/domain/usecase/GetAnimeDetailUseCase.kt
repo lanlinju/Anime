@@ -47,7 +47,7 @@ class GetAnimeDetailUseCase @Inject constructor(
                                     emit(
                                         Resource.Success(
                                             data = resource.data.copy(
-                                                lastPosition = lastPosition,
+                                                lastPosition = lastPosition.coerceAtLeast(0),
                                                 episodes = episodeList
                                             )
                                         )
