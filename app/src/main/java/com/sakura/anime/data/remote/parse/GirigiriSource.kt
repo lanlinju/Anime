@@ -1,0 +1,152 @@
+package com.sakura.anime.data.remote.parse
+
+import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.data.remote.dto.AnimeDetailBean
+import com.sakura.anime.data.remote.dto.EpisodeBean
+import com.sakura.anime.data.remote.dto.HomeBean
+import com.sakura.anime.data.remote.dto.VideoBean
+import com.sakura.anime.data.remote.parse.util.WebViewUtil
+import com.sakura.anime.util.DownloadManager
+import org.jsoup.Jsoup
+import org.jsoup.select.Elements
+
+object GirigiriSource : AnimeSource {
+
+    private const val LOG_TAG = "GirigiriSource"
+
+    private const val BASE_URL = "https://anime.girigirilove.com"
+
+    private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+    override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
+        val source = DownloadManager.getHtml("${BASE_URL}/search/${query}----------${page}---/")
+        val document = Jsoup.parse(source)
+        val animeList = mutableListOf<AnimeBean>()
+        document.select("div.public-list-box").forEach { el ->
+            val title = el.select("div.thumb-txt").text()
+            val url = el.select("a").attr("href")
+            val imgUrl = el.select("img").attr("data-src").padDomain()
+            animeList.add(AnimeBean(title = title, img = imgUrl, url = url))
+        }
+        return animeList
+    }
+
+    override suspend fun getWeekData(): MutableMap<Int, List<AnimeBean>> {
+        val source = DownloadManager.getHtml(BASE_URL)
+        val document = Jsoup.parse(source)
+        val elements = document.select("div.wow")[0].select("div#week-module-box")
+        val weekMap = mutableMapOf<Int, List<AnimeBean>>()
+        elements.select("div.public-r").forEachIndexed { index, element ->
+            val dayList = getAnimeList(element.select("div.public-list-box"))
+            weekMap[index] = dayList
+        }
+        return weekMap
+    }
+
+    override suspend fun getHomeData(): List<HomeBean> {
+        val source = DownloadManager.getHtml(BASE_URL)
+        val document = Jsoup.parse(source)
+        val elements = document.select("div.wow").apply { removeAt(0) }
+        val homeBeanList = mutableListOf<HomeBean>()
+        for ((i, el) in elements.withIndex()) {
+            if (i == 1) continue
+            val title = el.select("div.title-left > h4").text()
+            val moreUrl = el.select("div.title-right > a").attr("href").trimDomain()
+            val homeItemBeanList = getAnimeList(el.select("div.public-list-box"))
+            homeBeanList.add(HomeBean(title = title, moreUrl = moreUrl, animes = homeItemBeanList))
+        }
+
+        return homeBeanList
+    }
+
+    override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
+        val source = DownloadManager.getHtml("${BASE_URL}/$detailUrl")
+        val document = Jsoup.parse(source)
+        val main = document.select("div.vod-detail")
+        val title = main.select("h3").text()
+        val desc = main.select("div#height_limit").text()
+        val imgUrl = main.select("img").attr("data-src").padDomain()
+        val tags =
+            main.select("div.slide-info").last()?.select("a").also { it?.removeLast() }
+                ?.map { it.text() } ?: emptyList()
+        val updateTime = main.select("span.slide-info-remarks")[1].text()
+        val episodes = getAnimeEpisodes(document.select("div.anthology-list").select("ul"))
+        val relatedAnimes =
+            getAnimeList(document.select("div.box-width")[6].select("div.public-list-box"))
+        return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
+    }
+
+    private fun getAnimeList(elements: Elements): List<AnimeBean> {
+        val animeList = mutableListOf<AnimeBean>()
+        elements.forEach { el ->
+            el.select("div.public-list-div > a").apply {
+                val title = attr("title")
+                val url = attr("href")
+                val imgUrl = select("img").attr("data-src").padDomain()
+                val episodeName = select("span.public-list-prb").text()
+                animeList.add(
+                    AnimeBean(
+                        title = title,
+                        img = imgUrl,
+                        url = url,
+                        episodeName = episodeName
+                    )
+                )
+            }
+        }
+        return animeList
+    }
+
+    override suspend fun getVideoData(episodeUrl: String): VideoBean {
+        val url = "${BASE_URL}/$episodeUrl"
+        val source = DownloadManager.getHtml(url)
+        val document = Jsoup.parse(source)
+        var elements = document.select("div.player-right")
+        if (elements.isEmpty()) {
+            elements = document.select("div.player-info")
+        }
+        val title = elements.select("h2").text()
+        var episodeName = ""
+        val episodes = getAnimeEpisodes(
+            elements.select("div.anthology-list-box").select("ul"),
+            action = { episodeName = it })
+        val videoUrl = getVideoUrl(url)
+        return VideoBean(title, videoUrl, episodeName, episodes)
+    }
+
+    private suspend fun getVideoUrl(url: String): String {
+        val regex = "https://anime.girigirilove.com/addons/dp/player/index.php.*"
+        val videoUrlRegex = "url=(.*)".toRegex()
+        val videoUrlTarget = webViewUtil.interceptRequest(
+            url = url,
+            regex = regex,
+        )
+
+        return videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
+            ?: throw IllegalStateException("video url is empty")
+    }
+
+    private fun getAnimeEpisodes(
+        elements: Elements,
+        action: (String) -> Unit = {}
+    ): List<EpisodeBean> {
+        if (elements.isEmpty()) return emptyList()
+        val dramaElements = elements[0].select("li").select("a")//剧集列表
+        val episodes = mutableListOf<EpisodeBean>()
+        dramaElements.forEach { el ->
+            val name = el.text()
+            val url = el.attr("href")
+            if (el.select("em.play-on").isNotEmpty()) {
+                action(name)
+            }
+            episodes.add(EpisodeBean(name, url))
+        }
+
+        return episodes
+    }
+
+    private fun String.padDomain(): String {
+        return "$BASE_URL$this"
+    }
+
+    private fun String.trimDomain() = replace(BASE_URL, "")
+}

@@ -3,6 +3,7 @@ package com.sakura.anime.util
 import com.sakura.anime.data.remote.parse.AgedmSource
 import com.sakura.anime.data.remote.parse.AnfunsSource
 import com.sakura.anime.data.remote.parse.AnimeSource
+import com.sakura.anime.data.remote.parse.GirigiriSource
 import com.sakura.anime.data.remote.parse.MxdmSource
 import com.sakura.anime.data.remote.parse.SilisiliSource
 import com.sakura.anime.data.remote.parse.YhdmSource
@@ -43,6 +44,7 @@ object SourceHolder {
             SourceMode.Mxdm -> MxdmSource
             SourceMode.Agedm -> AgedmSource
             SourceMode.Anfuns -> AnfunsSource
+            SourceMode.Girigiri -> GirigiriSource
         }
     }
 }

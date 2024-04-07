@@ -5,5 +5,6 @@ enum class SourceMode {
     Silisili,
     Agedm,
     Anfuns,
+    Girigiri,
     Mxdm
 }
