@@ -8,11 +8,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
@@ -55,7 +58,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -311,7 +313,7 @@ private fun FastForwardIndicator(modifier: Modifier) {
 
 @Composable
 private fun FastForwardAnimation(modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition()
+    val transition = rememberInfiniteTransition(label = "FastForwardAnimation")
 
     Row(modifier) {
         repeat(3) { index ->
@@ -322,7 +324,8 @@ private fun FastForwardAnimation(modifier: Modifier = Modifier) {
                     animation = tween(durationMillis = 500, easing = LinearEasing),
                     repeatMode = RepeatMode.Reverse,
                     initialStartOffset = StartOffset(index * 250)
-                )
+                ),
+                label = "color",
             )
 
             Icon(
@@ -340,7 +343,12 @@ private fun VolumeBrightnessIndicator(
     playerState: VideoPlayerState,
     modifier: Modifier = Modifier
 ) {
-    if (playerState.isChangingBrightness.value || playerState.isChangingVolume.value) {
+
+    AnimatedVisibility(
+        visible = playerState.isChangingBrightness.value || playerState.isChangingVolume.value,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
         Box(
             modifier = modifier
                 .width(200.dp)
@@ -354,9 +362,11 @@ private fun VolumeBrightnessIndicator(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
             ) {
-                if (playerState.isChangingBrightness.value) {
+                val isBrightnessVisible = remember { playerState.isChangingBrightness.value }
+
+                if (isBrightnessVisible) {
                     Icon(
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(SmallIconButtonSize),
                         painter = painterResource(id = R.drawable.ic_brightness),
                         tint = Color.White,
                         contentDescription = stringResource(id = R.string.brightness)
@@ -364,14 +374,14 @@ private fun VolumeBrightnessIndicator(
                 } else {
                     if (playerState.volumeBrightnessProgress.value == 0f) {
                         Icon(
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(SmallIconButtonSize),
                             painter = painterResource(id = R.drawable.ic_volume_mute),
                             tint = Color.White,
                             contentDescription = stringResource(id = R.string.brightness)
                         )
                     } else {
                         Icon(
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(SmallIconButtonSize),
                             painter = painterResource(id = R.drawable.ic_volume_up),
                             tint = Color.White,
                             contentDescription = stringResource(id = R.string.brightness)
@@ -437,8 +447,8 @@ private fun VideoSideSheet(
     playerState: VideoPlayerState,
     viewModel: VideoPlayViewModel
 ) {
-    var selectedSpeedIndex by remember { mutableIntStateOf(3) }
-    var selectedResizeIndex by remember { mutableIntStateOf(0) }
+    var selectedSpeedIndex by remember { mutableIntStateOf(3) }     // 1.0x
+    var selectedResizeIndex by remember { mutableIntStateOf(0) }    // 适应
     var selectedEpisodeIndex by remember { mutableIntStateOf(video.currentEpisodeIndex) }
 
     if (playerState.isSpeedUiVisible.value) {
@@ -565,17 +575,28 @@ private fun SideSheet(
         val fullWidth = constraints.maxWidth
         val sideSheetWidthDp = maxWidth * widthRatio
 
-        var isVisible by remember { mutableStateOf(false) }
-
-        LaunchedEffect(Unit) {
-            delay(100)
-            isVisible = true
+        val visibleState = remember {
+            MutableTransitionState(false).apply {
+                // Start the animation immediately.
+                targetState = true
+            }
         }
 
         val scope = rememberCoroutineScope()
-        val dismissRequestHandle: () -> Unit = {
-            isVisible = false
-            scope.launch { delay(300) }.invokeOnCompletion { onDismissRequest() }
+
+        /**
+         *  state.isIdle && state.currentState -> "Visible"
+         *  !state.isIdle && state.currentState -> "Disappearing"
+         *  state.isIdle && !state.currentState -> "Invisible"
+         *  else -> "Appearing"
+         */
+        val dismissRequestHandler: () -> Unit = {
+            visibleState.targetState = false
+            scope.launch {
+                while (!(visibleState.isIdle && !visibleState.currentState)) {
+                    delay(100)
+                }
+            }.invokeOnCompletion { onDismissRequest() }
         }
 
         Box(modifier = Modifier
@@ -583,12 +604,12 @@ private fun SideSheet(
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { position ->
                     if (position.x < fullWidth - sideSheetWidthDp.toPx()) {
-                        dismissRequestHandle()
+                        dismissRequestHandler()
                     }
                 })
             }) {
             AnimatedVisibility(
-                visible = isVisible,
+                visibleState = visibleState,
                 modifier = Modifier.align(Alignment.CenterEnd),
                 enter = slideInHorizontally { it },
                 exit = slideOutHorizontally { it }
@@ -606,12 +627,13 @@ private fun SideSheet(
         }
 
         BackHandler {
-            dismissRequestHandle()
+            dismissRequestHandler()
         }
     }
 }
 
 private val MediumTextButtonSize = 42.dp
+private val SmallIconButtonSize = 32.dp
 
 @Preview(device = Devices.TV_720p)
 @Composable

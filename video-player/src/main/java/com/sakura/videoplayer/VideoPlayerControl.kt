@@ -52,7 +52,7 @@ fun VideoPlayerControl(
     state: VideoPlayerState,
     title: String,
     subtitle: String? = null,
-    background: Color = Color.Black.copy(0.25f),
+    background: Color = Color.Black.copy(0.2f),
     contentColor: Color = Color.LightGray,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
@@ -70,7 +70,7 @@ fun VideoPlayerControl(
                         WindowInsets.displayCutout
                             .asPaddingValues()
                             .calculateLeftPadding(LayoutDirection.Ltr)
-                    } else 0.dp, end = 28.dp, top = 20.dp
+                    } else 0.dp, end = 28.dp, top = 18.dp
                 )
         ) {
 
@@ -81,15 +81,14 @@ fun VideoPlayerControl(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                if (!state.isSeeking.value) {
-                    ControlHeader(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = title,
-                        subtitle = subtitle,
-                        onOptionsClick = onOptionsClick,
-                        onBackClick = onBackClick
-                    )
-                }
+                ControlHeader(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = title,
+                    subtitle = subtitle,
+                    isSeeking = state.isSeeking.value,
+                    onOptionsClick = onOptionsClick,
+                    onBackClick = onBackClick
+                )
 
                 Spacer(Modifier.size(1.dp))
 
@@ -105,7 +104,7 @@ fun VideoPlayerControl(
                     isSeeking = state.isSeeking.value,
                     isPlaying = state.isPlaying.value,
                     onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
-                    onClickSlider = { state.onClickSlider(it)},
+                    onClickSlider = { state.onClickSlider(it) },
                     onDragSlider = { state.onSeeking(it) },
                     onDragSliderFinished = { state.onSeeked() },
                     speedText = state.speedText.value,
@@ -125,9 +124,12 @@ private fun ControlHeader(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String?,
+    isSeeking: Boolean,
     onBackClick: (() -> Unit)?,
     onOptionsClick: (() -> Unit)? = null,
 ) {
+    if (isSeeking) return
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -201,7 +203,7 @@ private fun TimelineControl(
     Column(
         modifier = modifier
     ) {
-        if (!isSeeking)
+        if (!isSeeking) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -220,6 +222,7 @@ private fun TimelineControl(
                 }
 
             }
+        }
 
         Slider(
             value = if (videoProgress.isNaN()) 0f else videoProgress,
@@ -331,4 +334,3 @@ private fun AdaptiveIconButton(
 private val BigIconButtonSize = 52.dp
 private val MediumIconButtonSize = 42.dp
 private val SmallIconButtonSize = 32.dp
-
