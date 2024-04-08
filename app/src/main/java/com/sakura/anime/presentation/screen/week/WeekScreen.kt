@@ -2,6 +2,7 @@ package com.sakura.anime.presentation.screen.week
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,7 +98,7 @@ fun WeekScreen(
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
     Box {
-        val openDialog = remember { mutableStateOf(false) }
+        val openSwitchSourceDialog = remember { mutableStateOf(false) }
 
         Column(
             Modifier
@@ -109,7 +110,9 @@ fun WeekScreen(
             val uriHandler = LocalUriHandler.current
             TopAppBar(
                 title = {
-                    Column {
+                    Column(modifier = Modifier.clickable {
+                        openSwitchSourceDialog.value = true
+                    }) {
                         Text(
                             text = stringResource(id = R.string.lbl_schedule),
                             style = MaterialTheme.typography.titleLarge
@@ -176,7 +179,7 @@ fun WeekScreen(
                                 text = { Text(stringResource(id = R.string.switch_source)) },
                                 onClick = {
                                     expanded = false
-                                    openDialog.value = true
+                                    openSwitchSourceDialog.value = true
                                 },
                                 leadingIcon = {
                                     Icon(
@@ -260,11 +263,11 @@ fun WeekScreen(
             }
         }
 
-        if (openDialog.value) {
+        if (openSwitchSourceDialog.value) {
             val radioOptions = SourceMode.values().map { it.name }
             val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
             Dialog(onDismissRequest = {
-                openDialog.value = false
+                openSwitchSourceDialog.value = false
                 if (selectedOption != currentSourceMode.name) {
                     onSourceChange(SourceMode.valueOf(selectedOption))
                     viewModel.refresh()
