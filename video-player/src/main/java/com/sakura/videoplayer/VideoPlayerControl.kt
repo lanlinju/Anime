@@ -136,8 +136,8 @@ private fun ControlHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(modifier = Modifier
-            .size(BigIconButtonSize)
-            .padding(10.dp), onClick = { onBackClick?.invoke() }) {
+            .size(BigIconButtonSize),
+            onClick = { onBackClick?.invoke() }) {
             Icon(imageVector = Icons.Rounded.ArrowBackIos, contentDescription = null)
         }
         Column(
@@ -200,6 +200,7 @@ private fun TimelineControl(
     val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
     }
+
     Column(
         modifier = modifier
     ) {
