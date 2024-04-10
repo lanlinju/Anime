@@ -6,6 +6,8 @@ import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.data.local.entity.HistoryEntity
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.util.SourceMode
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class HistoryWithEpisodes(
     @Embedded val history: HistoryEntity,
@@ -17,6 +19,8 @@ data class HistoryWithEpisodes(
 ) {
     fun toHistory(): History {
         val sortedEpisodes = episodes.sortedByDescending { it.createdAt }
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
         return History(
             title = history.title,
             imgUrl = history.imgUrl,
@@ -24,6 +28,7 @@ data class HistoryWithEpisodes(
             lastEpisodeName = if (sortedEpisodes.isEmpty()) "" else sortedEpisodes.first().name,
             lastEpisodeUrl = if (sortedEpisodes.isEmpty()) "" else sortedEpisodes.first().episodeUrl,
             sourceMode = SourceMode.valueOf(history.source),
+            time = simpleDateFormat.format(history.updatedAt),
             episodes = emptyList()
         )
     }

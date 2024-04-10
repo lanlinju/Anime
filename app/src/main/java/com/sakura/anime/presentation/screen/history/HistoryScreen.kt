@@ -153,18 +153,31 @@ fun HistoryItem(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    val interactionSource = remember { MutableInteractionSource() }
-                    Text(
-                        text = stringResource(id = R.string.resume_play),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.clickable(
-                            interactionSource = interactionSource,
-                            indication = LocalIndication.current
-                        ) {
-                            onPlayClick(history.lastEpisodeUrl, history.sourceMode)
-                        }
-                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        val interactionSource = remember { MutableInteractionSource() }
+                        Text(
+                            text = stringResource(id = R.string.resume_play),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.clickable(
+                                interactionSource = interactionSource,
+                                indication = LocalIndication.current
+                            ) {
+                                onPlayClick(history.lastEpisodeUrl, history.sourceMode)
+                            }
+                        )
+
+                        Text(
+                            text = history.time,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
                 }
             }
 

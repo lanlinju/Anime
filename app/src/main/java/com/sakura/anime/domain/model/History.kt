@@ -11,6 +11,7 @@ data class History(
     val lastEpisodeName: String = "",
     val lastEpisodeUrl: String = "",
     val sourceMode: SourceMode,
+    val time: String = "",
     val episodes: List<Episode>
 ) {
     fun toHistoryEntity(): HistoryEntity {
