@@ -39,6 +39,7 @@ import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.BackTopAppBar
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.PopupMenuListItem
+import com.sakura.anime.presentation.component.SourceBadge
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
@@ -117,18 +118,23 @@ fun HistoryItem(
             ),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(history.imgUrl)
-                    .crossfade(CROSSFADE_DURATION)
-                    .build(),
-                contentDescription = stringResource(id = R.string.lbl_anime_img),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(VIDEO_ASPECT_RATIO)
-                    .clip(RoundedCornerShape(dimensionResource(id = R.dimen.history_cover_radius)))
-            )
+            SourceBadge(
+                text = history.sourceMode.name,
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(history.imgUrl)
+                        .crossfade(CROSSFADE_DURATION)
+                        .build(),
+                    contentDescription = stringResource(id = R.string.lbl_anime_img),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(VIDEO_ASPECT_RATIO)
+                        .clip(RoundedCornerShape(dimensionResource(id = R.dimen.history_cover_radius)))
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxHeight(),
