@@ -14,71 +14,40 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.security.MessageDigest
 
-
 object SilisiliSource : AnimeSource {
 
     const val BASE_URL = "https://www.silisili.link/"
 
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val headers = mapOf(
+            Pair("Cookie", "appdw=on"),
+            Pair("User-Agent", "Mozilla/5.0 (Linux; Android 6.0) Mobile")
+        )
+        val source = DownloadManager.getHtml(BASE_URL, headers)
         val document = Jsoup.parse(source)
         val homeList = mutableListOf<HomeBean>()
 
-        // 今日更新
-        val animeList1 = mutableListOf<AnimeBean>()
-        document.select("div.index_slide_r > div.sliderlist > div.sliderli").forEach { element ->
-            val animeTitle = element.select("div.list-body").text()
-            val url = element.select("a").attr("href")
-            val img = getImgUrl(element.select("i.thumb").attr("style"))
-            val episodeName = element.select("time.d-inline-block").text()
-            val anime = AnimeBean(animeTitle, img, url, episodeName)
-            animeList1.add(anime)
+        val elements = document.select("div.conch-content").select("div.container")
+        for ((i, el) in elements.withIndex()) {
+
+            if (i == 0 || i == 2 || i == 3 || i == 8) continue
+
+            val title = el.select("h2").text()
+            val moreUrl = el.select("div.hl-rb-head > a").attr("href")
+            val animeList = mutableListOf<AnimeBean>()
+            el.select("ul.hl-vod-list > li").forEach {
+                it.select("a").apply {
+                    val animeTitle = attr("title")
+                    val url = attr("href")
+                    val imgUrl = attr("data-original")
+                    val episodeName = el.select("div.hl-pic-text").text()
+                    animeList.add(AnimeBean(animeTitle, imgUrl, url, episodeName))
+                }
+            }
+            homeList.add(HomeBean(title = title, moreUrl = moreUrl, animes = animeList))
         }
-
-        // 热门推荐
-        val animeList2 = mutableListOf<AnimeBean>()
-        document.select("div.list-box").forEach { element ->
-            val animeTitle = element.select("span.card-right-avatar-name").text()
-            val url = element.select("a").attr("href")
-            val img = element.select("img").attr("data-url")
-            val episodeName = animeTitle.split("|")[1]
-            val anime = AnimeBean(animeTitle, img, url, episodeName)
-            animeList2.add(anime)
-        }
-
-        // 更新动态
-        val animeList3 = getStaggeredGridAnimes(document)
-
-        // 新番日番
-        val animeFromJapan = DownloadManager.getHtml("$BASE_URL/vodtype/xinfanriman/")
-        val animeList4 = getStaggeredGridAnimes(Jsoup.parse(animeFromJapan))
-
-        // 剧场动漫
-        val theater = DownloadManager.getHtml("$BASE_URL/vodtype/juchang/")
-        val animeList5 = getStaggeredGridAnimes(Jsoup.parse(theater))
-
-        homeList.add(HomeBean("今日更新", "", animeList1))
-        homeList.add(HomeBean("热门推荐", "", animeList2))
-        homeList.add(HomeBean("更新动态", "", animeList3))
-        homeList.add(HomeBean("新番日漫", "", animeList4))
-        homeList.add(HomeBean("剧场动漫", "", animeList5))
 
         return homeList
-    }
-
-    private fun getStaggeredGridAnimes(document: Document): List<AnimeBean> {
-        val animeList = mutableListOf<AnimeBean>()
-        document.select("article.article").forEach { el ->
-            val header = el.select("header")
-            header.select("span").remove()
-            val animeTitle = header.text()
-            val url = el.select("div.entry-media > a").attr("href")
-            val img = el.select("div.entry-media > a > img").attr("src")
-            val desc = el.select("div.entry-summary > p").text()
-            val anime = AnimeBean(animeTitle, img, url, desc)
-            animeList.add(anime)
-        }
-        return animeList
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
