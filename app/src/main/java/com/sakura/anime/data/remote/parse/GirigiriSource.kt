@@ -1,5 +1,6 @@
 package com.sakura.anime.data.remote.parse
 
+import android.net.Uri
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.remote.dto.AnimeDetailBean
 import com.sakura.anime.data.remote.dto.EpisodeBean
@@ -8,7 +9,10 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 object GirigiriSource : AnimeSource {
 
@@ -114,20 +118,19 @@ object GirigiriSource : AnimeSource {
         val episodes = getAnimeEpisodes(
             elements.select("div.anthology-list-box").select("ul"),
             action = { episodeName = it })
-        val videoUrl = getVideoUrl(url)
+        val videoUrl = getVideoUrl(document)
         return VideoBean(title, videoUrl, episodeName, episodes)
     }
 
-    private suspend fun getVideoUrl(url: String): String {
-        val regex = "https://anime.girigirilove.com/addons/dp/player/index.php.*"
-        val videoUrlRegex = "url=(.*)".toRegex()
-        val videoUrlTarget = webViewUtil.interceptRequest(
-            url = url,
-            regex = regex,
-        )
-
-        return videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
+    @OptIn(ExperimentalEncodingApi::class)
+    private suspend fun getVideoUrl(document: Document): String {
+        val videoUrlTarget = document.select("div.player-box > div.player-left > script")[0].data()
+        val videoUrlRegex = """"url":"(.*?)","url_next"""".toRegex()
+        val rawVideoUrl = videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
             ?: throw IllegalStateException("video url is empty")
+
+        val encodedVideoUrl = String(Base64.decode(rawVideoUrl), Charsets.UTF_8)
+        return Uri.decode(encodedVideoUrl)
     }
 
     private fun getAnimeEpisodes(
