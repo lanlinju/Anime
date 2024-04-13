@@ -2,9 +2,11 @@ package com.sakura.videoplayer
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.view.OrientationEventListener
 import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -26,8 +28,9 @@ import kotlinx.coroutines.launch
 fun rememberVideoPlayerState(
     hideControllerAfterMs: Long = 6000,
     videoPositionPollInterval: Long = 500,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    isAutoOrientation: Boolean = true,
     context: Context = LocalContext.current,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     config: ExoPlayer.Builder.() -> Unit = {
         setLoadControl(loadControlCreator())
         setSeekForwardIncrementMs(10 * 1000)
@@ -38,7 +41,9 @@ fun rememberVideoPlayerState(
         player = ExoPlayer.Builder(context).apply(config).build(),
         audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager,
         window = (context as Activity).window,
+        context = context,
         coroutineScope = coroutineScope,
+        isAutoOrientation = isAutoOrientation,
         hideControllerAfterMs = hideControllerAfterMs,
         videoPositionPollInterval = videoPositionPollInterval
     ).also {
@@ -50,7 +55,9 @@ class VideoPlayerStateImpl(
     override val player: ExoPlayer,
     override val audioManager: AudioManager,
     override val window: Window,
+    private val context: Context,
     private val coroutineScope: CoroutineScope,
+    private val isAutoOrientation: Boolean,
     private val hideControllerAfterMs: Long,
     private val videoPositionPollInterval: Long,
 ) : VideoPlayerState, Player.Listener {
@@ -306,6 +313,37 @@ class VideoPlayerStateImpl(
             build()
         }
 
+    private val orientationEventListener = object : OrientationEventListener(context) {
+        private var currentOrientation = 270
+        private val activity = context as Activity
+        override fun onOrientationChanged(orientation: Int) {
+            if (!isFullscreen.value || orientation == ORIENTATION_UNKNOWN) {
+                return
+            }
+
+            if (orientation in 261..279) {
+                if (currentOrientation == 270) return
+                currentOrientation = 270
+
+                coroutineScope.launch {
+                    delay(300)
+                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                }
+
+            } else if (orientation in 81..99) {
+                if (currentOrientation == 90) return
+                currentOrientation = 90
+
+                coroutineScope.launch {
+                    delay(300)
+                    activity.requestedOrientation =
+                        ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                }
+            }
+        }
+
+    }
+
     override fun onVideoSizeChanged(videoSize: VideoSize) {
         this.videoSize.value = videoSize
     }
@@ -319,11 +357,17 @@ class VideoPlayerStateImpl(
         isEnded.value = false
     }
 
-    override fun requestAudioFocus() {
+    override fun registerListener() {
+        if (isAutoOrientation) {
+            orientationEventListener.enable()
+        }
         audioManager.requestAudioFocus(focusRequest)
     }
 
-    override fun abandonAudioFocus() {
+    override fun unregisterListener() {
+        if (isAutoOrientation) {
+            orientationEventListener.disable()
+        }
         audioManager.abandonAudioFocusRequest(focusRequest)
     }
 
@@ -376,8 +420,8 @@ interface VideoPlayerState {
     fun onLongPress()
     fun onDisLongPress()
 
-    fun requestAudioFocus()
-    fun abandonAudioFocus()
+    fun registerListener()
+    fun unregisterListener()
 
     fun setSpeedText(text: String)
     fun setResizeText(text: String)

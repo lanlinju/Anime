@@ -7,20 +7,11 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
@@ -77,6 +68,19 @@ enum class NavigationBarPaths(
     val route: String,
     val icon: @Composable () -> Unit
 ) {
+    Home(
+        Screen.HomeScreen.route,
+        {
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    id = Res.drawable.home
+                ),
+                contentDescription = stringResource(
+                    id = Res.string.home
+                )
+            )
+        }
+    ),
     RSlash(
         Screen.WeekScreen.route,
         {
@@ -90,17 +94,4 @@ enum class NavigationBarPaths(
             )
         }
     ),
-    Home(
-        Screen.HomeScreen.route,
-        {
-            Icon(
-                imageVector = ImageVector.vectorResource(
-                    id = Res.drawable.home
-                ),
-                contentDescription = stringResource(
-                    id = Res.string.home
-                )
-            )
-        }
-    )
 }

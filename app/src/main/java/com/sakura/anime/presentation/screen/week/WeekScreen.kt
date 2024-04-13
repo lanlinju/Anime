@@ -1,5 +1,6 @@
 package com.sakura.anime.presentation.screen.week
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -70,8 +73,10 @@ import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDRESS
+import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
+import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -92,13 +97,13 @@ fun WeekScreen(
     val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
 
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
     Box {
         val openSwitchSourceDialog = remember { mutableStateOf(false) }
+        val openSettingsDialog = remember { mutableStateOf(false) }
 
         Column(
             Modifier
@@ -206,6 +211,20 @@ fun WeekScreen(
                             )
 
                             DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.default_settins)) },
+                                onClick = {
+                                    expanded = false
+                                    openSettingsDialog.value = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Settings,
+                                        contentDescription = stringResource(id = R.string.default_settins)
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
                                 text = { Text(stringResource(id = R.string.github_repo)) },
                                 onClick = {
                                     expanded = false
@@ -237,7 +256,6 @@ fun WeekScreen(
 
             HorizontalPager(
                 state = pagerState,
-                beyondBoundsPageCount = 1,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 StateHandler(
@@ -256,7 +274,8 @@ fun WeekScreen(
                                 list = list,
                                 onItemClicked = {
                                     onNavigateToAnimeDetail(it.url, currentSourceMode)
-                                })
+                                }
+                            )
                         }
                     }
                 }
@@ -264,98 +283,175 @@ fun WeekScreen(
         }
 
         if (openSwitchSourceDialog.value) {
-            val radioOptions = SourceMode.values().map { it.name }
-            val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
-            Dialog(onDismissRequest = {
-                openSwitchSourceDialog.value = false
-                if (selectedOption != currentSourceMode.name) {
-                    onSourceChange(SourceMode.valueOf(selectedOption))
-                    viewModel.refresh()
-                }
-            }) {
-                Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
-                    Column(
+            SwitchSourceDialog(
+                currentSourceMode = currentSourceMode,
+                onSourceChange = onSourceChange,
+                onDismissRequest = { isRefresh ->
+                    openSwitchSourceDialog.value = false
+                    if (isRefresh) {
+                        viewModel.refresh()
+                    }
+                })
+        }
+
+        if (openSettingsDialog.value) {
+            SettingsDialog(onDismissRequest = { openSettingsDialog.value = false })
+        }
+
+        if (isUpdateVersion) {
+            UpdateVersionDialog(viewModel, context)
+        }
+
+        if (isCheckingUpdate) {
+            LoadingIndicationDialog()
+        }
+    }
+
+}
+
+@Composable
+private fun UpdateVersionDialog(
+    viewModel: WeekViewModel,
+    context: Context,
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    AlertDialog(
+        onDismissRequest = { viewModel.closeUpdateDialog() },
+        title = {
+            Text(text = stringResource(id = R.string.software_updates))
+        },
+        text = {
+            Text(text = viewModel.updateMessage)
+        },
+        confirmButton = {
+            TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
+                Text(text = stringResource(id = R.string.download_software))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { viewModel.closeUpdateDialog() }) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun LoadingIndicationDialog() {
+    AlertDialog(
+        onDismissRequest = { },
+        title = {
+            Text(text = stringResource(id = R.string.checking_update))
+        },
+        text = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dimensionResource(id = R.dimen.small_padding)),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        },
+        confirmButton = {},
+    )
+}
+
+@Composable
+private fun SwitchSourceDialog(
+    currentSourceMode: SourceMode,
+    onDismissRequest: (Boolean) -> Unit,
+    onSourceChange: (SourceMode) -> Unit,
+) {
+    val radioOptions = SourceMode.values().map { it.name }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
+    Dialog(onDismissRequest = {
+        val isRefresh = if (selectedOption != currentSourceMode.name) {
+            onSourceChange(SourceMode.valueOf(selectedOption))
+            true
+        } else {
+            false
+        }
+        onDismissRequest(isRefresh)
+    }) {
+        Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
+            Column(
+                Modifier
+                    .padding(vertical = dimensionResource(id = R.dimen.large_padding))
+                    .selectableGroup()
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
+                    text = stringResource(id = R.string.switch_source),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                radioOptions.forEach { text ->
+                    Row(
                         Modifier
-                            .padding(vertical = dimensionResource(id = R.dimen.large_padding))
-                            .selectableGroup()
+                            .fillMaxWidth()
+                            .height(dimensionResource(id = R.dimen.radio_button_height))
+                            .selectable(
+                                selected = (text == selectedOption),
+                                onClick = { onOptionSelected(text) },
+                                role = Role.RadioButton
+                            )
+                            .padding(start = dimensionResource(id = R.dimen.large_padding)),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
-                            text = stringResource(id = R.string.switch_source),
-                            style = MaterialTheme.typography.titleLarge
+                        RadioButton(
+                            selected = (text == selectedOption),
+                            onClick = null
                         )
-                        radioOptions.forEach { text ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(dimensionResource(id = R.dimen.radio_button_height))
-                                    .selectable(
-                                        selected = (text == selectedOption),
-                                        onClick = { onOptionSelected(text) },
-                                        role = Role.RadioButton
-                                    )
-                                    .padding(start = dimensionResource(id = R.dimen.large_padding)),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = (text == selectedOption),
-                                    onClick = null
-                                )
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.medium_padding))
-                                )
-                            }
-                        }
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.medium_padding))
+                        )
                     }
                 }
             }
         }
+    }
+}
 
-        if (isUpdateVersion) {
-            AlertDialog(
-                onDismissRequest = { viewModel.closeUpdateDialog() },
-                title = {
-                    Text(text = stringResource(id = R.string.software_updates))
-                },
-                text = {
-                    Text(text = viewModel.updateMessage)
-                },
-                confirmButton = {
-                    TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
-                        Text(text = stringResource(id = R.string.download_software))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { viewModel.closeUpdateDialog() }) {
-                        Text(text = stringResource(id = R.string.cancel))
-                    }
+@Composable
+private fun SettingsDialog(
+    onDismissRequest: () -> Unit,
+) {
+    var isAutoOrientation by rememberPreference(KEY_ENABLE_AUTO_ORIENTATION, true)
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
+            Column(
+                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.large_padding))
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
+                    text = stringResource(id = R.string.default_settins),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(id = R.dimen.radio_button_height))
+                        .padding(horizontal = dimensionResource(id = R.dimen.large_padding)),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.enable_auto_rotate_orientation),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+
+                    Switch(checked = isAutoOrientation, onCheckedChange = {
+                        isAutoOrientation = it
+                    })
                 }
-            )
-        }
-
-        if (isCheckingUpdate) {
-            AlertDialog(
-                onDismissRequest = { },
-                title = {
-                    Text(text = stringResource(id = R.string.checking_update))
-                },
-                text = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = dimensionResource(id = R.dimen.small_padding)),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                },
-                confirmButton = {},
-            )
+            }
         }
     }
-
 }
 
 @Composable
@@ -371,7 +467,7 @@ fun WeekList(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(6.dp)
     ) {
-        items(list) { anime ->
+        items(list, key = { it.url }) { anime ->
             WeekItem(
                 title = anime.title,
                 subtitle = anime.episodeName,

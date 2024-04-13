@@ -12,6 +12,7 @@ import androidx.core.content.edit
 
 const val KEY_SOURCE_MODE = "animeSourceMode"
 const val KEY_HOME_BACKGROUND_URI = "homeBackgroundUri"
+const val KEY_ENABLE_AUTO_ORIENTATION = "enableAutoOrientation"
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,

@@ -87,6 +87,8 @@ import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
+import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
+import com.sakura.anime.util.preferences
 import com.sakura.videoplayer.AdaptiveTextButton
 import com.sakura.videoplayer.ResizeMode
 import com.sakura.videoplayer.VideoPlayer
@@ -167,7 +169,10 @@ fun VideoPlayScreen(
         }
     ) { resource ->
         resource.data?.let { video ->
-            val playerState = rememberVideoPlayerState()
+            val isAutoOrientation = remember {
+                activity.preferences.getBoolean(KEY_ENABLE_AUTO_ORIENTATION, true)
+            }
+            val playerState = rememberVideoPlayerState(isAutoOrientation = isAutoOrientation)
 
             val onBackHandle: () -> Unit = remember {
                 {

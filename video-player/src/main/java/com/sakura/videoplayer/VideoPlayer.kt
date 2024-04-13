@@ -245,8 +245,9 @@ fun VideoPlayer(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+        playerState.registerListener()
         onDispose {
-            playerState.abandonAudioFocus()
+            playerState.unregisterListener()
             lifecycleOwner.lifecycle.removeObserver(observer)
             playerState.player.release()
         }
@@ -256,7 +257,6 @@ fun VideoPlayer(
         playerState.player.setMediaItem(mediaItemCreator(url))
         playerState.player.prepare()
         playerState.player.playWhenReady = true
-        playerState.requestAudioFocus()
     }
 
     BackHandler {

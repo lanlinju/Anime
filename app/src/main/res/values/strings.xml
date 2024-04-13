@@ -63,4 +63,6 @@
     <string name="software_updates">软件更新</string>
     <string name="checking_update">检测更新中</string>
     <string name="downloading_updates">后台下载更新中</string>
+    <string name="default_settins">默认设置</string>
+    <string name="enable_auto_rotate_orientation">播放器自动旋转屏幕</string>
 </resources>
