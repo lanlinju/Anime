@@ -14,6 +14,8 @@ interface RoomRepository {
 
     suspend fun checkFavourite(detailUrl: String): Flow<Boolean>
 
+    suspend fun removeFavourite(detailUrl: String)
+
     suspend fun addHistory(history: History)
 
     suspend fun checkHistory(detailUrl: String): Flow<Boolean>

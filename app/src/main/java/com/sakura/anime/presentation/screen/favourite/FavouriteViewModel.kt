@@ -31,4 +31,10 @@ class FavouriteViewModel @Inject constructor(
             }
         }
     }
+
+    fun removeFavourite(detailUrl: String) {
+        viewModelScope.launch {
+            roomRepository.removeFavourite(detailUrl)
+        }
+    }
 }

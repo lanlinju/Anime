@@ -45,6 +45,10 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun removeFavourite(detailUrl: String) {
+        favouriteDao.deleteFavouriteByDetailUrl(detailUrl)
+    }
+
     override suspend fun addHistory(history: History) {
         val isStoredHistory = checkHistory(history.detailUrl).first()
         with(history.episodes.first()) {

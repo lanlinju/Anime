@@ -1,6 +1,8 @@
 package com.sakura.anime.presentation.component
 
 import android.content.res.Configuration
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -68,19 +70,37 @@ fun <T> MediaSmallRow(
  * @param label A label for the [image], if this is `null`, the [label] is not shown.
  * @param onClick Action to happen when the card is clicked.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MediaSmall(
     image: String?,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: String? = null,
 ) {
+    MediaSmall(
+        modifier = modifier
+            .clip(RoundedCornerShape(dimensionResource(Res.dimen.media_card_corner_radius)))
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        image = image,
+        label = label
+    )
+}
+
+@Composable
+fun MediaSmall(
+    image: String?,
+    modifier: Modifier = Modifier,
+    label: String? = null,
+) {
     Card(
         modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
