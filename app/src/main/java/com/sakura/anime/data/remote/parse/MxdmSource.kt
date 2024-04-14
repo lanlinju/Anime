@@ -13,7 +13,7 @@ import org.jsoup.select.Elements
 
 object MxdmSource : AnimeSource {
 
-    const val BASE_URL = "http://www.mxdm9.com/"
+    const val BASE_URL = "https://www.mxdm6.com"
     const val BASE_M3U8 = "https://danmu.yhdmjx.com/m3u8.php?url="
     const val AES_KEY = "57A891D97E332A9D"
     override suspend fun getHomeData(): List<HomeBean> {
