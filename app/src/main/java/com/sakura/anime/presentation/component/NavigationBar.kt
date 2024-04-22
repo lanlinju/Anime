@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -41,7 +43,11 @@ fun NavigationBar(
         // TODO: Use a `NavigationRail` instead.
         windowInsets = if (LocalConfiguration.current.orientation
             == Configuration.ORIENTATION_LANDSCAPE
-        ) { WindowInsets.displayCutout } else { WindowInsets(0.dp) }
+        ) {
+            WindowInsets.displayCutout
+        } else {
+            WindowInsets(0.dp)
+        }
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -68,19 +74,6 @@ enum class NavigationBarPaths(
     val route: String,
     val icon: @Composable () -> Unit
 ) {
-    Home(
-        Screen.HomeScreen.route,
-        {
-            Icon(
-                imageVector = ImageVector.vectorResource(
-                    id = Res.drawable.home
-                ),
-                contentDescription = stringResource(
-                    id = Res.string.home
-                )
-            )
-        }
-    ),
     RSlash(
         Screen.WeekScreen.route,
         {
@@ -94,4 +87,26 @@ enum class NavigationBarPaths(
             )
         }
     ),
+    Home(
+        Screen.HomeScreen.route,
+        {
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    id = Res.drawable.home
+                ),
+                contentDescription = stringResource(
+                    id = Res.string.home
+                )
+            )
+        }
+    ),
+    Favourite(
+        Screen.FavouriteScreen.route,
+        {
+            Icon(
+                imageVector = Icons.Rounded.Star,
+                contentDescription = stringResource(id = Res.string.favourite)
+            )
+        }
+    )
 }
