@@ -25,7 +25,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
@@ -74,6 +73,8 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDRESS
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
+import com.sakura.anime.util.KEY_SOURCE_MODE
+import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
 import com.sakura.anime.util.rememberPreference
@@ -83,10 +84,7 @@ import java.time.LocalDate
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WeekScreen(
-    currentSourceMode: SourceMode,
-    onSourceChange: (SourceMode) -> Unit,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
-    onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToSearch: () -> Unit
@@ -123,20 +121,13 @@ fun WeekScreen(
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
-                            text = currentSourceMode.name,
+                            text = SourceHolder.currentSourceMode.name,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
 
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToFavourite) {
-                        Icon(
-                            imageVector = Icons.Rounded.FavoriteBorder,
-                            contentDescription = stringResource(id = R.string.favourite)
-                        )
-                    }
-
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_history),
@@ -273,7 +264,7 @@ fun WeekScreen(
                             WeekList(
                                 list = list,
                                 onItemClicked = {
-                                    onNavigateToAnimeDetail(it.url, currentSourceMode)
+                                    onNavigateToAnimeDetail(it.url, SourceHolder.currentSourceMode)
                                 }
                             )
                         }
@@ -284,8 +275,6 @@ fun WeekScreen(
 
         if (openSwitchSourceDialog.value) {
             SwitchSourceDialog(
-                currentSourceMode = currentSourceMode,
-                onSourceChange = onSourceChange,
                 onDismissRequest = { isRefresh ->
                     openSwitchSourceDialog.value = false
                     if (isRefresh) {
@@ -360,15 +349,18 @@ private fun LoadingIndicationDialog() {
 
 @Composable
 private fun SwitchSourceDialog(
-    currentSourceMode: SourceMode,
     onDismissRequest: (Boolean) -> Unit,
-    onSourceChange: (SourceMode) -> Unit,
 ) {
+    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Yhdm)
+
     val radioOptions = SourceMode.values().map { it.name }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
     Dialog(onDismissRequest = {
         val isRefresh = if (selectedOption != currentSourceMode.name) {
-            onSourceChange(SourceMode.valueOf(selectedOption))
+            val mode = SourceMode.valueOf(selectedOption)
+            SourceHolder.isSourceChanged = true
+            SourceHolder.switchSource(mode)
+            currentSourceMode = mode
             true
         } else {
             false

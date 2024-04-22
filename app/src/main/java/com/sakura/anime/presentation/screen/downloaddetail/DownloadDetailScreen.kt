@@ -47,6 +47,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
+import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.download.Progress
 import com.sakura.download.core.DownloadTask
@@ -63,7 +64,7 @@ import com.sakura.download.State as DownloadSate
 
 @Composable
 fun DownloadDetailScreen(
-    onNavigateToVideoPlay: (params: String) -> Unit,
+    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel: DownloadDetailViewModel = hiltViewModel()
@@ -122,7 +123,7 @@ fun DownloadDetailScreen(
                                         val params =
                                             "$KEY_FROM_LOCAL_VIDEO:${detailUrl}:${title}:${episodeName}"
 
-                                        onNavigateToVideoPlay(Uri.encode(params))
+                                        onNavigateToVideoPlay(Uri.encode(params), SourceMode.Yhdm)
                                     }
 
                                     state.isStarted() -> state.stop()

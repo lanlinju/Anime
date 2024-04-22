@@ -21,12 +21,9 @@ import com.sakura.anime.util.SourceMode
 fun AnimeNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    currentSourceMode: SourceMode,
-    onSourceChange: (SourceMode) -> Unit,
     startDestination: String = Screen.HomeScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
-    onNavigateToFavourite: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
@@ -40,7 +37,7 @@ fun AnimeNavHost(
         startDestination = startDestination
     ) {
         composable(Screen.HomeScreen.route) {
-            HomeScreen(onNavigateToAnimeDetail = { onNavigateToAnimeDetail(it, currentSourceMode) })
+            HomeScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail)
         }
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(
@@ -54,17 +51,14 @@ fun AnimeNavHost(
         }
         composable(Screen.SearchScreen.route) {
             SearchScreen(
-                onNavigateToAnimeDetail = { onNavigateToAnimeDetail(it, currentSourceMode) },
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onBackClick = onBackClick
             )
         }
         composable(Screen.WeekScreen.route) {
             WeekScreen(
-                currentSourceMode = currentSourceMode,
-                onSourceChange = onSourceChange,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onNavigateToSearch = onNavigateToSearch,
-                onNavigateToFavourite = onNavigateToFavourite,
                 onNavigateToHistory = onNavigateToHistory,
                 onNavigateToDownload = onNavigateToDownload
             )
@@ -72,7 +66,6 @@ fun AnimeNavHost(
         composable(Screen.FavouriteScreen.route) {
             FavouriteScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onBackClick = onBackClick
             )
         }
         composable(Screen.HistoryScreen.route) {
@@ -92,7 +85,7 @@ fun AnimeNavHost(
         composable(Screen.DownloadDetailScreen.route) {
             DownloadDetailScreen(
                 onBackClick = onBackClick,
-                onNavigateToVideoPlay = { onNavigateToVideoPlay(it, SourceMode.Yhdm) }
+                onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
     }

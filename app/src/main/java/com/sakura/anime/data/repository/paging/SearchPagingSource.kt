@@ -4,10 +4,12 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.componentsui.anime.domain.model.Anime
 import com.sakura.anime.data.remote.api.AnimeApi
+import com.sakura.anime.util.SourceMode
 
 class SearchPagingSource(
     private val api: AnimeApi,
-    private val query: String
+    private val query: String,
+    private val mode: SourceMode,
 ) : PagingSource<Int, Anime>() {
     override fun getRefreshKey(state: PagingState<Int, Anime>): Int? {
         return state.anchorPosition
@@ -17,7 +19,7 @@ class SearchPagingSource(
         val currentPage = params.key ?: 1
 
         return try {
-            val response = api.getSearchData(query, currentPage)
+            val response = api.getSearchData(query, currentPage, mode)
 
             val endOfPaginationReached = response.isEmpty()
 

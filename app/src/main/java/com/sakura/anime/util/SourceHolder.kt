@@ -9,9 +9,14 @@ import com.sakura.anime.data.remote.parse.SilisiliSource
 import com.sakura.anime.data.remote.parse.YhdmSource
 
 object SourceHolder {
-    private var _currentSource: AnimeSource = YhdmSource
+    private lateinit var _currentSource: AnimeSource
+    private lateinit var _currentSourceMode: SourceMode
+
     val currentSource: AnimeSource
         get() = _currentSource
+
+    val currentSourceMode: SourceMode
+        get() = _currentSourceMode
 
     var isSourceChanged = false
 
@@ -20,6 +25,7 @@ object SourceHolder {
      */
     fun setDefaultSource(mode: SourceMode) {
         _currentSource = getSource(mode)
+        _currentSourceMode = mode
         _currentSource.onEnter()
     }
 
@@ -30,6 +36,7 @@ object SourceHolder {
         _currentSource.onExit()
 
         _currentSource = getSource(mode)
+        _currentSourceMode = mode
 
         _currentSource.onEnter()
     }

@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.sakura.anime.domain.model.HomeItem
-import com.sakura.anime.R as Res
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.MediaSmallRow
@@ -47,12 +46,14 @@ import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.KEY_HOME_BACKGROUND_URI
 import com.sakura.anime.util.SourceHolder
+import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.rememberPreference
+import com.sakura.anime.R as Res
 
 @Composable
 fun HomeScreen(
-    onNavigateToAnimeDetail: (detailUrl: String) -> Unit
+    onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val availableDataList = homeViewModel.homeDataList.collectAsState()
@@ -105,7 +106,10 @@ fun HomeScreen(
                                     list = home.animList,
                                     title = home.title,
                                     onItemClicked = {
-                                        onNavigateToAnimeDetail(it.detailUrl)
+                                        onNavigateToAnimeDetail(
+                                            it.detailUrl,
+                                            SourceHolder.currentSourceMode
+                                        )
                                     }
                                 )
                             }

@@ -33,7 +33,10 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAnimeDetail(detailUrl: String, mode: SourceMode): Resource<AnimeDetail?> {
+    override suspend fun getAnimeDetail(
+        detailUrl: String,
+        mode: SourceMode
+    ): Resource<AnimeDetail?> {
         val response = invokeApi {
             animeApi.getAnimeDetail(detailUrl, mode)
         }
@@ -59,10 +62,10 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSearchData(query: String): Flow<PagingData<Anime>> {
+    override suspend fun getSearchData(query: String, mode: SourceMode): Flow<PagingData<Anime>> {
         return Pager(
             config = PagingConfig(pageSize = SEARCH_PAGE_SIZE),
-            pagingSourceFactory = { SearchPagingSource(api = animeApi, query) }
+            pagingSourceFactory = { SearchPagingSource(api = animeApi, query, mode) }
         ).flow
     }
 

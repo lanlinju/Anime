@@ -11,9 +11,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,17 +30,16 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sakura.anime.R
-import com.sakura.anime.presentation.component.BackTopAppBar
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.SourceBadge
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.SourceMode
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavouriteScreen(
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
-    onBackClick: () -> Unit
 ) {
     val favouriteViewModel: FavouriteViewModel = hiltViewModel()
     val availableDataList = favouriteViewModel.favouriteList.collectAsState()
@@ -50,9 +51,13 @@ fun FavouriteScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
             topBar = {
-                BackTopAppBar(
-                    title = stringResource(id = R.string.my_favourite),
-                    onBackClick = onBackClick
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.my_favourite),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    },
                 )
             }) { paddingValues ->
 

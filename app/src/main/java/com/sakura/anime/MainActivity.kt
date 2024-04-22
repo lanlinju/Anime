@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -32,7 +31,6 @@ import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.getEnum
 import com.sakura.anime.util.preferences
-import com.sakura.anime.util.rememberPreference
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,11 +40,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            window.attributes.layoutInDisplayCutoutMode =
-//                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-//        }
 
         SourceHolder.setDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, SourceMode.Yhdm))
 
@@ -60,8 +53,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
-    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Yhdm)
-
     val navController = rememberNavController()
 
     Box(modifier.background(MaterialTheme.colorScheme.background)) {
@@ -70,12 +61,6 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
                 .align(Alignment.TopCenter)
                 .fillMaxSize(),
             navController = navController,
-            currentSourceMode = currentSourceMode,
-            onSourceChange = { mode ->
-                currentSourceMode = mode
-                SourceHolder.isSourceChanged = true
-                SourceHolder.switchSource(mode)
-            },
             onNavigateToAnimeDetail = { detailUrl, mode ->
                 navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl, mode))
             },
@@ -84,9 +69,6 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             },
             onBackClick = {
                 navController.popBackStack()
-            },
-            onNavigateToFavourite = {
-                navController.navigate(Screen.FavouriteScreen.route)
             },
             onNavigateToHistory = {
                 navController.navigate(Screen.HistoryScreen.route)

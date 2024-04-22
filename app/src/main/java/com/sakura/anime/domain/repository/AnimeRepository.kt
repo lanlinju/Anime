@@ -17,7 +17,7 @@ interface AnimeRepository {
 
     suspend fun getVideoData(episodeUrl: String, mode: SourceMode): Resource<Video?>
 
-    suspend fun getSearchData(query: String): Flow<PagingData<Anime>>
+    suspend fun getSearchData(query: String, mode: SourceMode): Flow<PagingData<Anime>>
 
     suspend fun getWeekData(): Resource<Map<Int, List<AnimeBean>>>
 }

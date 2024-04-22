@@ -24,8 +24,8 @@ class AnimeApiImpl @Inject constructor() : AnimeApi {
         return animeSource.getVideoData(episodeUrl)
     }
 
-    override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val animeSource = SourceHolder.currentSource
+    override suspend fun getSearchData(query: String, page: Int, mode: SourceMode): List<AnimeBean> {
+        val animeSource = SourceHolder.getSource(mode)
         return animeSource.getSearchData(query, page)
     }
 
