@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.sakura.anime.domain.model.HomeItem
@@ -167,20 +169,35 @@ fun HomeBackground(scrollState: ScrollState) {
                 .height(dimensionResource(Res.dimen.banner_height))
         )
 
-        Text(
-            text = stringResource(Res.string.lbl_anime),
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.displayMedium,
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(
                     start = dimensionResource(Res.dimen.large_padding),
                     bottom = dimensionResource(Res.dimen.medium_padding)
                 )
-                .clickable {
-                    launcher.launch(arrayOf("image/*"))
-                }
-        )
+        ) {
+            Text(
+                text = stringResource(Res.string.lbl_anime),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier
+                    .clickable {
+                        launcher.launch(arrayOf("image/*"))
+                    }
+            )
+
+            Text(
+                text = SourceHolder.currentSourceMode.name,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .offset(y = 8.dp)
+            )
+        }
+
+
     }
 }
 
