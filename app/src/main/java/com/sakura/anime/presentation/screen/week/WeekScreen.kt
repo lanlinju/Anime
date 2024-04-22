@@ -39,6 +39,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
@@ -47,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +58,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
@@ -102,6 +107,7 @@ fun WeekScreen(
     Box {
         val openSwitchSourceDialog = remember { mutableStateOf(false) }
         val openSettingsDialog = remember { mutableStateOf(false) }
+        val openChangeDomainDialog = remember { mutableStateOf(false) }
 
         Column(
             Modifier
@@ -143,6 +149,14 @@ fun WeekScreen(
                         )
                     }
 
+                    IconButton(onClick = onNavigateToDownload) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowForward,
+                            modifier = Modifier.rotate(90f),
+                            contentDescription = stringResource(id = R.string.download_list)
+                        )
+                    }
+
                     Box {
                         IconButton(onClick = { expanded = true }) {
                             Icon(
@@ -155,22 +169,6 @@ fun WeekScreen(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.download_list)) },
-                                onClick = {
-                                    expanded = false
-                                    onNavigateToDownload()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Rounded.ArrowForward,
-                                        modifier = Modifier.rotate(90f),
-                                        contentDescription = stringResource(id = R.string.download_list)
-                                    )
-                                }
-                            )
-
                             DropdownMenuItem(
                                 text = { Text(stringResource(id = R.string.switch_source)) },
                                 onClick = {
@@ -187,6 +185,34 @@ fun WeekScreen(
                             )
 
                             DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.modifier_domain)) },
+                                onClick = {
+                                    expanded = false
+                                    openChangeDomainDialog.value = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_domain),
+                                        contentDescription = stringResource(id = R.string.modifier_domain)
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.default_settings)) },
+                                onClick = {
+                                    expanded = false
+                                    openSettingsDialog.value = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Settings,
+                                        contentDescription = stringResource(id = R.string.default_settings)
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
                                 text = { Text(stringResource(id = R.string.check_update)) },
                                 onClick = {
                                     expanded = false
@@ -197,20 +223,6 @@ fun WeekScreen(
                                         imageVector = Icons.Rounded.ArrowForward,
                                         modifier = Modifier.rotate(-90f),
                                         contentDescription = stringResource(id = R.string.check_update)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.default_settins)) },
-                                onClick = {
-                                    expanded = false
-                                    openSettingsDialog.value = true
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Settings,
-                                        contentDescription = stringResource(id = R.string.default_settins)
                                     )
                                 }
                             )
@@ -293,6 +305,15 @@ fun WeekScreen(
 
         if (isCheckingUpdate) {
             LoadingIndicationDialog()
+        }
+
+        if (openChangeDomainDialog.value) {
+            ChangeDomainDialog { isRefresh ->
+                openChangeDomainDialog.value = false
+                if (isRefresh) {
+                    viewModel.refresh()
+                }
+            }
         }
     }
 
@@ -420,7 +441,7 @@ private fun SettingsDialog(
             ) {
                 Text(
                     modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
-                    text = stringResource(id = R.string.default_settins),
+                    text = stringResource(id = R.string.default_settings),
                     style = MaterialTheme.typography.titleLarge
                 )
 
@@ -444,6 +465,90 @@ private fun SettingsDialog(
             }
         }
     }
+}
+
+@Composable
+private fun ChangeDomainDialog(
+    onDismissRequest: (Boolean) -> Unit = { s -> },
+) {
+    var currentDomain by rememberPreference(
+        SourceHolder.currentSource.KEY_SOURCE_DOMAIN,
+        SourceHolder.currentSource.DEFAULT_DOMAIN
+    )
+    var text by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = { onDismissRequest(false) },
+        icon = {
+            Icon(painterResource(id = R.drawable.ic_domain), contentDescription = null)
+        },
+        title = {
+            Text(text = stringResource(id = R.string.modifier_domain))
+        },
+        text = {
+            Column {
+
+                val focusRequester = remember { FocusRequester() }
+                val clipboardManager = LocalClipboardManager.current
+
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = {
+                        text = it
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.default_domain,
+                                SourceHolder.currentSource.DEFAULT_DOMAIN
+                            ),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.outline,
+                            maxLines = 1
+                        )
+                    },
+                    label = {
+                        Text(text = stringResource(id = R.string.anime_source_domain))
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            text += clipboardManager.getText()?.text.orEmpty()
+                        }) {
+                            Icon(
+                                painterResource(id = R.drawable.ic_content_paste),
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    modifier = Modifier.focusRequester(focusRequester)
+                )
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+            }
+
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (text.isNotEmpty()) {
+                    currentDomain = text
+                    SourceHolder.isSourceChanged = true
+                    SourceHolder.switchSource(SourceHolder.currentSourceMode)
+                    onDismissRequest(true)
+                } else {
+                    onDismissRequest(false)
+                }
+            }) {
+                Text(text = stringResource(id = R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest(false) }) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

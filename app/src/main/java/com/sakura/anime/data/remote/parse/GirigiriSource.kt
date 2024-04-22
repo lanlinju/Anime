@@ -8,6 +8,7 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
+import com.sakura.anime.util.preferences
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -18,16 +19,20 @@ object GirigiriSource : AnimeSource {
 
     private const val LOG_TAG = "GirigiriSource"
 
-    private const val BASE_URL = "https://anime.girigirilove.com"
-
+    private lateinit var baseUrl: String
+    override val DEFAULT_DOMAIN: String = "https://anime.girigirilove.com"
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+
+    override fun onEnter() {
+        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
+    }
 
     override fun onExit() {
         webViewUtil.clearWeb()
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("${BASE_URL}/search/${query}----------${page}---/")
+        val source = DownloadManager.getHtml("${baseUrl}/search/${query}----------${page}---/")
         val document = Jsoup.parse(source)
         val animeList = mutableListOf<AnimeBean>()
         document.select("div.public-list-box").forEach { el ->
@@ -40,7 +45,7 @@ object GirigiriSource : AnimeSource {
     }
 
     override suspend fun getWeekData(): MutableMap<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
         val elements = document.select("div.wow")[0].select("div#week-module-box")
         val weekMap = mutableMapOf<Int, List<AnimeBean>>()
@@ -52,7 +57,7 @@ object GirigiriSource : AnimeSource {
     }
 
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
         val elements = document.select("div.wow").apply { removeAt(0) }
         val homeBeanList = mutableListOf<HomeBean>()
@@ -68,7 +73,7 @@ object GirigiriSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("${BASE_URL}/$detailUrl")
+        val source = DownloadManager.getHtml("${baseUrl}/$detailUrl")
         val document = Jsoup.parse(source)
         val main = document.select("div.vod-detail")
         val title = main.select("h3").text()
@@ -106,7 +111,7 @@ object GirigiriSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val url = "${BASE_URL}/$episodeUrl"
+        val url = "${baseUrl}/$episodeUrl"
         val source = DownloadManager.getHtml(url)
         val document = Jsoup.parse(source)
         var elements = document.select("div.player-right")
@@ -153,8 +158,8 @@ object GirigiriSource : AnimeSource {
     }
 
     private fun String.padDomain(): String {
-        return "$BASE_URL$this"
+        return "$baseUrl$this"
     }
 
-    private fun String.trimDomain() = replace(BASE_URL, "")
+    private fun String.trimDomain() = replace(baseUrl, "")
 }

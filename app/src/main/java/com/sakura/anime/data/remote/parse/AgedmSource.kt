@@ -9,6 +9,7 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.log
+import com.sakura.anime.util.preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -23,20 +24,31 @@ object AgedmSource : AnimeSource {
 
     private const val LOG_TAG = "AgedmSource"
 
-    private const val BASE_URL = "https://www.agedm.org"
-    private const val REPLACE_DOMAIN_URL = "http://www.agedm.org"
+    private lateinit var baseUrl: String
+    private lateinit var replaceDomain: String
+    override val DEFAULT_DOMAIN: String = "https://www.agedm.org"
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+
     private val filterReqUrl: Array<String> = arrayOf(
         ".css", ".js", ".jpeg", ".svg", ".ico", ".ts",
         ".gif", ".jpg", ".png", ".webp", ".wasm", "age", ".php"
     )
+
+    override fun onEnter() {
+        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
+        // https://www.agedm.org -> http://www.agedm.org
+        // age动漫的跳转链接是完整形式，需要去掉域名
+        // [trimDomain()]
+        // eg. http://www.agedm.org/detail/20240060 裁剪成为 /detail/20240060
+        replaceDomain = baseUrl.replace("^http(?:s|)".toRegex(), "http")
+    }
 
     override fun onExit() {
         webViewUtil.clearWeb()
     }
 
     override suspend fun getWeekData(): MutableMap<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
         val weekMap = mutableMapOf<Int, List<AnimeBean>>()
         document.select("div.text_list_box").select("div.tab-pane")
@@ -54,7 +66,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("$BASE_URL/search?query=$query&page=$page")
+        val source = DownloadManager.getHtml("$baseUrl/search?query=$query&page=$page")
         val document = Jsoup.parse(source)
         val animeList = mutableListOf<AnimeBean>()
         document.select("div.card").forEach { el ->
@@ -67,7 +79,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
         val homeBeanList = mutableListOf<HomeBean>()
@@ -82,7 +94,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("$BASE_URL/$detailUrl")
+        val source = DownloadManager.getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
         val score = ""
         val videoDetailRight = document.select("div.video_detail_right")
@@ -105,7 +117,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$BASE_URL/$episodeUrl")
+        val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
         val elements = document.select("div.cata_video_item")
         val title = elements.select("h5").text()
@@ -177,7 +189,7 @@ object AgedmSource : AnimeSource {
         )
     }
 
-    private fun String.trimDomain() = replace(REPLACE_DOMAIN_URL, "")
+    private fun String.trimDomain() = replace(replaceDomain, "")
 
     private fun Response<*>.header(key: String): String {
         val header = headers()[key]

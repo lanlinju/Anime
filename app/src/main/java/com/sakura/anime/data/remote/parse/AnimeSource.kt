@@ -6,6 +6,11 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 
 interface AnimeSource {
+
+    val DEFAULT_DOMAIN: String
+    val KEY_SOURCE_DOMAIN: String
+        get() = "${this.javaClass.simpleName}Domain"
+
     suspend fun getHomeData(): List<HomeBean>
 
     suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean

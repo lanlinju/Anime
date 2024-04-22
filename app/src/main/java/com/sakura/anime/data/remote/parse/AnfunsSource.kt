@@ -9,6 +9,7 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
+import com.sakura.anime.util.preferences
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -20,15 +21,20 @@ object AnfunsSource : AnimeSource {
 
     private const val LOG_TAG = "AnfunsSource"
 
-    private const val BASE_URL = "https://www.anfuns.cc"
+    private lateinit var baseUrl: String
+    override val DEFAULT_DOMAIN: String = "https://www.anfuns.cc"
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
+
+    override fun onEnter() {
+        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
+    }
 
     override fun onExit() {
         webViewUtil.clearWeb()
     }
 
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
 
         val document = Jsoup.parse(source)
         val elements = document.select("div#conch-content").select("div.container")
@@ -47,7 +53,7 @@ object AnfunsSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("${BASE_URL}/$detailUrl")
+        val source = DownloadManager.getHtml("${baseUrl}/$detailUrl")
         val document = Jsoup.parse(source)
         val main = document.select("div.hl-dc-content")
         val title = main.select("div.hl-dc-headwrap > h2").text()
@@ -64,7 +70,7 @@ object AnfunsSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val url = "${BASE_URL}/$episodeUrl"
+        val url = "${baseUrl}/$episodeUrl"
         val source = DownloadManager.getHtml(url)
         val document = Jsoup.parse(source)
 
@@ -78,7 +84,7 @@ object AnfunsSource : AnimeSource {
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("${BASE_URL}/search.html?wd=${query}&page=${page}")
+        val source = DownloadManager.getHtml("${baseUrl}/search.html?wd=${query}&page=${page}")
         val document = Jsoup.parse(source)
         val animeList = mutableListOf<AnimeBean>()
         document.select("div.hl-rb-search").select("li").forEach { el ->
@@ -91,7 +97,7 @@ object AnfunsSource : AnimeSource {
     }
 
     override suspend fun getWeekData(): Map<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
         val elements = document.select("div#conch-content").select("div.container")[3]
         val weekMap = mutableMapOf<Int, List<AnimeBean>>()

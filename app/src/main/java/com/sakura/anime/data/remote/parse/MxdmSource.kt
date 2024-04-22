@@ -7,17 +7,22 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.decryptData
+import com.sakura.anime.util.preferences
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 object MxdmSource : AnimeSource {
 
-    const val BASE_URL = "https://www.mxdm6.com"
-    const val BASE_M3U8 = "https://danmu.yhdmjx.com/m3u8.php?url="
-    const val AES_KEY = "57A891D97E332A9D"
+    override val DEFAULT_DOMAIN = "https://www.mxdm6.com"
+    private lateinit var baseUrl: String
+
+    override fun onEnter() {
+        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
+    }
+
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
         val homeBeanList = mutableListOf<HomeBean>()
@@ -34,7 +39,7 @@ object MxdmSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("$BASE_URL/$detailUrl")
+        val source = DownloadManager.getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
 
         val main = document.select("main")
@@ -50,7 +55,7 @@ object MxdmSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$BASE_URL/${episodeUrl}")
+        val source = DownloadManager.getHtml("$baseUrl/${episodeUrl}")
         val document = Jsoup.parse(source)
 
         val elements = document.select("div.video-info-header")
@@ -63,7 +68,7 @@ object MxdmSource : AnimeSource {
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("$BASE_URL/search/$query----------$page---.html")
+        val source = DownloadManager.getHtml("$baseUrl/search/$query----------$page---.html")
         val document = Jsoup.parse(source)
 
         val animeList = mutableListOf<AnimeBean>()
@@ -77,7 +82,7 @@ object MxdmSource : AnimeSource {
     }
 
     override suspend fun getWeekData(): Map<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
         val elements = document.select("ul.mxoneweek-list")
@@ -126,6 +131,8 @@ object MxdmSource : AnimeSource {
         return episodes
     }
 
+    private const val BASE_M3U8 = "https://danmu.yhdmjx.com/m3u8.php?url="
+    private const val AES_KEY = "57A891D97E332A9D"
     private suspend fun getVideoUrl(document: Document): String {
         val urlTarget = document.select("div.player-wrapper > script")[0].data()
         val urlRegex = """"url":"(.*?)","url_next"""".toRegex()

@@ -6,22 +6,28 @@ import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
+import com.sakura.anime.util.preferences
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 object YhdmSource : AnimeSource {
+    override val DEFAULT_DOMAIN: String = "http://www.iyinghua.io"
+    private lateinit var baseUrl: String
 
-    const val BASE_URL = "http://www.iyinghua.io"
+    override fun onEnter() {
+        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
+    }
+
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
-        val titles = document.select("div.firs > div.dtit")
+        val elements = document.select("div.firs > div.dtit")
         val data = document.select("div.firs > div.img")
         val homeBeanList = mutableListOf<HomeBean>()
-        titles.forEachIndexed { i, title ->
-            val moreUrl = title.select("h2 > a").attr("href")
-            val title = title.select("h2 > a").text()
+        elements.forEachIndexed { i, el ->
+            val moreUrl = el.select("h2 > a").attr("href")
+            val title = el.select("h2 > a").text()
             val homeItemBeanList = mutableListOf<AnimeBean>()
             val animes = data.get(i).select("ul > li")
             for (anime in animes) {
@@ -40,7 +46,7 @@ object YhdmSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("${BASE_URL}/$detailUrl")
+        val source = DownloadManager.getHtml("${baseUrl}/$detailUrl")
 
         val document = Jsoup.parse(source)
         return with(document) {
@@ -65,7 +71,7 @@ object YhdmSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$BASE_URL/$episodeUrl")
+        val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
         val head = document.select("h1").text().split("：")
         val title = head[0]
@@ -84,7 +90,7 @@ object YhdmSource : AnimeSource {
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("${BASE_URL}/search/$query/?page=${page}")
+        val source = DownloadManager.getHtml("${baseUrl}/search/$query/?page=${page}")
         val document = Jsoup.parse(source)
         val elements = document.select("div.lpic > ul > li")
         val animeList = mutableListOf<AnimeBean>()
@@ -98,7 +104,7 @@ object YhdmSource : AnimeSource {
     }
 
     override suspend fun getWeekData(): Map<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(BASE_URL)
+        val source = DownloadManager.getHtml(baseUrl)
 
         val document = Jsoup.parse(source)
         val elements = document.select("div.tlist > ul")
@@ -110,7 +116,14 @@ object YhdmSource : AnimeSource {
                     val title = get(1).text()
                     val url = get(1).attr("href")
                     val episode = get(0).text()
-                    dayList.add(AnimeBean(title = title, img = "", url = url, episodeName = episode))
+                    dayList.add(
+                        AnimeBean(
+                            title = title,
+                            img = "",
+                            url = url,
+                            episodeName = episode
+                        )
+                    )
                 }
             }
             weekMap[i] = dayList

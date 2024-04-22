@@ -41,6 +41,7 @@ import com.sakura.anime.R
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.PaginationStateHandler
 import com.sakura.anime.presentation.component.WarningMessage
+import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,6 +102,7 @@ fun SearchScreen(
                                 onClick = {
                                     expanded = false
                                     viewModel.sourceMode = mode
+                                    SourceHolder.getSource(mode).onEnter() // 初始化baseUrl
                                     viewModel.getSearchData(searchQuery, mode)
                                 },
                             )
