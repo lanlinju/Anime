@@ -12,6 +12,11 @@ object SourceHolder {
     private lateinit var _currentSource: AnimeSource
     private lateinit var _currentSourceMode: SourceMode
 
+    /**
+     * 默认动漫源
+     */
+    val DEFAULT_ANIME_SOURCE = SourceMode.Silisili
+
     val currentSource: AnimeSource
         get() = _currentSource
 

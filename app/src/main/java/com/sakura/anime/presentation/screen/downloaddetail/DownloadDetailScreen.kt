@@ -47,6 +47,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
+import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 import com.sakura.download.Progress
@@ -123,7 +124,10 @@ fun DownloadDetailScreen(
                                         val params =
                                             "$KEY_FROM_LOCAL_VIDEO:${detailUrl}:${title}:${episodeName}"
 
-                                        onNavigateToVideoPlay(Uri.encode(params), SourceMode.Yhdm)
+                                        onNavigateToVideoPlay(
+                                            Uri.encode(params),
+                                            DEFAULT_ANIME_SOURCE
+                                        )
                                     }
 
                                     state.isStarted() -> state.stop()

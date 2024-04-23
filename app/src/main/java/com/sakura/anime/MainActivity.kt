@@ -28,7 +28,7 @@ import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
-import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.getEnum
 import com.sakura.anime.util.preferences
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        SourceHolder.setDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, SourceMode.Yhdm))
+        SourceHolder.setDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE))
 
         setContent {
             AnimeTheme {

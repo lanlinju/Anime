@@ -80,6 +80,7 @@ import com.sakura.anime.util.GITHUB_ADDRESS
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
+import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
 import com.sakura.anime.util.rememberPreference
@@ -372,7 +373,7 @@ private fun LoadingIndicationDialog() {
 private fun SwitchSourceDialog(
     onDismissRequest: (Boolean) -> Unit,
 ) {
-    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, SourceMode.Yhdm)
+    var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE)
 
     val radioOptions = SourceMode.values().map { it.name }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
