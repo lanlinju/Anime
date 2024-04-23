@@ -9,7 +9,7 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
-import com.sakura.anime.util.preferences
+import com.sakura.anime.util.getDefaultDomain
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -21,13 +21,9 @@ object AnfunsSource : AnimeSource {
 
     private const val LOG_TAG = "AnfunsSource"
 
-    private lateinit var baseUrl: String
     override val DEFAULT_DOMAIN: String = "https://www.anfuns.cc"
+    override var baseUrl = getDefaultDomain()
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
-
-    override fun onEnter() {
-        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
-    }
 
     override fun onExit() {
         webViewUtil.clearWeb()

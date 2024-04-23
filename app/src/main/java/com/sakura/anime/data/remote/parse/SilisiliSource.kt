@@ -7,7 +7,7 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.decryptData
-import com.sakura.anime.util.preferences
+import com.sakura.anime.util.getDefaultDomain
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -15,19 +15,18 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.security.MessageDigest
 
+/**
+ * 嘶哩嘶哩域名发布地址：https://weibass.github.io
+ */
 object SilisiliSource : AnimeSource {
 
-    private lateinit var baseUrl: String
     override val DEFAULT_DOMAIN: String = "https://www.silisili.link"
-
-    override fun onEnter() {
-        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
-    }
+    override var baseUrl = getDefaultDomain()
 
     override suspend fun getHomeData(): List<HomeBean> {
         val headers = mapOf(
-            Pair("Cookie", "appdw=on"),
-            Pair("User-Agent", "Mozilla/5.0 (Linux; Android 6.0) Mobile")
+            Pair("Cookie", "silisili=on;path=/;max-age=86400;appdw=on"),
+            Pair("User-Agent", "Mozilla/5.0 (Linux; Android 6.0) Mobile"),
         )
         val source = DownloadManager.getHtml(baseUrl, headers)
         val document = Jsoup.parse(source)
@@ -57,7 +56,7 @@ object SilisiliSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("$baseUrl/$detailUrl")
+        val source = getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
 
         val animeTitle = document.select("h1.entry-title").text()
@@ -93,7 +92,7 @@ object SilisiliSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
+        val source = getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
 
         val title = document.select("h1").text()
@@ -105,7 +104,7 @@ object SilisiliSource : AnimeSource {
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
-        val source = DownloadManager.getHtml("$baseUrl/vodsearch$query/page/$page/")
+        val source = getHtml("$baseUrl/vodsearch$query/page/$page/")
         val document = Jsoup.parse(source)
         val animeList = mutableListOf<AnimeBean>()
         document.select("article.post-list").forEach { el ->
@@ -119,7 +118,7 @@ object SilisiliSource : AnimeSource {
     }
 
     override suspend fun getWeekData(): Map<Int, List<AnimeBean>> {
-        val source = DownloadManager.getHtml(baseUrl)
+        val source = getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
         val weekMap = mutableMapOf<Int, List<AnimeBean>>()
@@ -181,6 +180,11 @@ object SilisiliSource : AnimeSource {
     private fun getImgUrl(urlTarget: String): String {
         val urlRegex = """url\((.*?)\)""".toRegex()
         return urlRegex.find(urlTarget)!!.groupValues[1]
+    }
+
+    private suspend fun getHtml(url: String): String {
+        val headerMap = mapOf(Pair("Cookie", "silisili=on;path=/;max-age=86400"))
+        return DownloadManager.getHtml(url, headerMap)
     }
 
     private fun postRequest(url: String): String {

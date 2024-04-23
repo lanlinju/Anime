@@ -27,6 +27,13 @@ fun AnimeSource.decryptData(data: String, key: String, iv: String): String {
 val AnimeSource.preferences: SharedPreferences
     get() = AnimeApplication.getInstance().preferences
 
+/**
+ * 获取默认的动漫域名
+ */
+fun AnimeSource.getDefaultDomain(): String {
+    return preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN) ?: DEFAULT_DOMAIN
+}
+
 fun getVersionName(context: Context): String {
     return context.packageManager.getPackageInfo(context.packageName, 0).versionName
 }

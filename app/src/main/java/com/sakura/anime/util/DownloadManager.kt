@@ -3,7 +3,6 @@ package com.sakura.anime.util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Headers
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
@@ -20,7 +19,7 @@ object DownloadManager {
     private const val FAKE_BASE_URL = "http://www.example.com"
 
     private val client = OkHttpClient.Builder()
-        .addInterceptor(interceptor)
+//        .addInterceptor(interceptor)
         .readTimeout(1L, TimeUnit.MINUTES)
         .build()
 
@@ -60,23 +59,12 @@ object DownloadManager {
     private fun Map<String, String>.toHeaders(): Headers {
         val builder = Headers.Builder()
         if (isEmpty()) return builder.build()
+
         for ((name, value) in this) {
             builder.add(name, value)
         }
         return builder.build()
     }
-}
-
-val interceptor = Interceptor { chain: Interceptor.Chain ->
-    var request = chain.request()
-
-    if (request.url.toString().contains("silisili")) {
-        request = request.newBuilder()
-            .addHeader("Cookie", "silisili=on;path=/;max-age=86400")
-            .build()
-    }
-
-    chain.proceed(request)
 }
 
 interface Api {
@@ -88,4 +76,19 @@ interface Api {
         @HeaderMap headers: Map<String, String>
     ): Response<ResponseBody>
 }
+
+/*
+val interceptor = Interceptor { chain: Interceptor.Chain ->
+    var request = chain.request()
+
+    if (request.url.toString().contains("silisili")) {
+        request = request.newBuilder()
+            .addHeader("Cookie", "silisili=on;path=/;max-age=86400")
+            .build()
+    }
+
+    chain.proceed(request)
+}*/
+
+
 

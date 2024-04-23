@@ -8,8 +8,8 @@ import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
+import com.sakura.anime.util.getDefaultDomain
 import com.sakura.anime.util.log
-import com.sakura.anime.util.preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -24,24 +24,16 @@ object AgedmSource : AnimeSource {
 
     private const val LOG_TAG = "AgedmSource"
 
-    private lateinit var baseUrl: String
-    private lateinit var replaceDomain: String
     override val DEFAULT_DOMAIN: String = "https://www.agedm.org"
+
+    override var baseUrl: String = getDefaultDomain()
+
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
 
     private val filterReqUrl: Array<String> = arrayOf(
         ".css", ".js", ".jpeg", ".svg", ".ico", ".ts",
         ".gif", ".jpg", ".png", ".webp", ".wasm", "age", ".php"
     )
-
-    override fun onEnter() {
-        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
-        // https://www.agedm.org -> http://www.agedm.org
-        // age动漫的跳转链接是完整形式，需要去掉域名
-        // [trimDomain()]
-        // eg. http://www.agedm.org/detail/20240060 裁剪成为 /detail/20240060
-        replaceDomain = baseUrl.replace("^http(?:s|)".toRegex(), "http")
-    }
 
     override fun onExit() {
         webViewUtil.clearWeb()
@@ -189,7 +181,11 @@ object AgedmSource : AnimeSource {
         )
     }
 
-    private fun String.trimDomain() = replace(replaceDomain, "")
+    /**
+     * age动漫的跳转链接是完整形式，需要去掉域名
+     *  eg. http://www.agedm.org/detail/20240060 裁剪成为 /detail/20240060
+     */
+    private fun String.trimDomain() = replace("http://www.agedm.org", "")
 
     private fun Response<*>.header(key: String): String {
         val header = headers()[key]
@@ -214,3 +210,4 @@ object AgedmSource : AnimeSource {
         errorBody()?.closeQuietly()
     }
 }
+

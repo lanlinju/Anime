@@ -28,7 +28,12 @@ class SearchViewModel @Inject constructor(
     val query: StateFlow<String>
         get() = _query
 
-    var sourceMode = SourceHolder.currentSourceMode
+    /**
+     * 用于标识使用当前动漫源搜索数据
+     *
+     * Note: 在Compose 组合函数中，从上一个界面返当前界面时，[remember]保存的数据状态会丢失。
+     */
+    var currentSourceMode = SourceHolder.currentSourceMode
 
     fun onSearch(query: String, mode: SourceMode) {
         getSearchData(query, mode)

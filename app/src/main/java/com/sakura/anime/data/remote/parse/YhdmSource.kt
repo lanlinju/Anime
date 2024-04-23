@@ -6,18 +6,14 @@ import com.sakura.anime.data.remote.dto.EpisodeBean
 import com.sakura.anime.data.remote.dto.HomeBean
 import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
-import com.sakura.anime.util.preferences
+import com.sakura.anime.util.getDefaultDomain
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 object YhdmSource : AnimeSource {
     override val DEFAULT_DOMAIN: String = "http://www.iyinghua.io"
-    private lateinit var baseUrl: String
-
-    override fun onEnter() {
-        baseUrl = preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN)!!
-    }
+    override var baseUrl = getDefaultDomain()
 
     override suspend fun getHomeData(): List<HomeBean> {
         val source = DownloadManager.getHtml(baseUrl)

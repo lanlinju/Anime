@@ -41,7 +41,6 @@ import com.sakura.anime.R
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.PaginationStateHandler
 import com.sakura.anime.presentation.component.WarningMessage
-import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +58,7 @@ fun SearchScreen(
     SearchBar(
         query = searchQuery,
         onQueryChange = viewModel::onQuery,
-        onSearch = { viewModel.onSearch(it, viewModel.sourceMode) },
+        onSearch = { viewModel.onSearch(it, viewModel.currentSourceMode) },
         active = true,
         onActiveChange = { if (!it) onBackClick() },
         leadingIcon = {
@@ -96,13 +95,12 @@ fun SearchScreen(
                                 text = {
                                     Text(
                                         text = mode.name,
-                                        color = if (viewModel.sourceMode == mode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        color = if (viewModel.currentSourceMode == mode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                     )
                                 },
                                 onClick = {
                                     expanded = false
-                                    viewModel.sourceMode = mode
-                                    SourceHolder.getSource(mode).onEnter() // 初始化baseUrl
+                                    viewModel.currentSourceMode = mode
                                     viewModel.getSearchData(searchQuery, mode)
                                 },
                             )
@@ -124,7 +122,7 @@ fun SearchScreen(
             items(count = animesState.itemCount) { index ->
                 val item = animesState[index]!!
                 MediaSmall(image = item.img, label = item.title, onClick = {
-                    onNavigateToAnimeDetail(item.detailUrl, viewModel.sourceMode)
+                    onNavigateToAnimeDetail(item.detailUrl, viewModel.currentSourceMode)
                 })
             }
 

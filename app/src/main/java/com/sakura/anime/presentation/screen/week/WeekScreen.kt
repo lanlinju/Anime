@@ -512,7 +512,7 @@ private fun ChangeDomainDialog(
                     },
                     trailingIcon = {
                         IconButton(onClick = {
-                            text += clipboardManager.getText()?.text.orEmpty()
+                            text = clipboardManager.getText()?.text.orEmpty()
                         }) {
                             Icon(
                                 painterResource(id = R.drawable.ic_content_paste),
@@ -534,7 +534,7 @@ private fun ChangeDomainDialog(
                 if (text.isNotEmpty()) {
                     currentDomain = text
                     SourceHolder.isSourceChanged = true
-                    SourceHolder.switchSource(SourceHolder.currentSourceMode)
+                    SourceHolder.currentSource.baseUrl = currentDomain
                     onDismissRequest(true)
                 } else {
                     onDismissRequest(false)
