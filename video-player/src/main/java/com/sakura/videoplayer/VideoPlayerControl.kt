@@ -36,12 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.imherrera.videoplayer.icons.Fullscreen
 import com.imherrera.videoplayer.icons.FullscreenExit
+import com.sakura.video_player.R
 import com.sakura.videoplayer.component.Slider
 import com.sakura.videoplayer.icons.ArrowBackIos
 import com.sakura.videoplayer.icons.Pause
@@ -56,6 +58,7 @@ fun VideoPlayerControl(
     contentColor: Color = Color.LightGray,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
+    onNextClick: () -> Unit,
     onOptionsClick: (() -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
@@ -111,7 +114,8 @@ fun VideoPlayerControl(
                     resizeText = state.resizeText.value,
                     onSpeedClick = { state.showSpeedUi() },
                     onResizeClick = { state.showResizeUi() },
-                    onEpisodeClick = { state.showEpisodeUi() }
+                    onEpisodeClick = { state.showEpisodeUi() },
+                    onNextClick = onNextClick
                 )
             }
         }
@@ -196,6 +200,7 @@ private fun TimelineControl(
     onSpeedClick: () -> Unit,
     onResizeClick: () -> Unit,
     onEpisodeClick: () -> Unit,
+    onNextClick: () -> Unit,
 ) {
     val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
         prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
@@ -246,15 +251,30 @@ private fun TimelineControl(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AdaptiveIconButton(
-                    modifier = Modifier.size(MediumIconButtonSize),
-                    onClick = { if (isPlaying) control.pause() else control.play() }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        modifier = Modifier.fillMaxSize(),
-                        imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                        contentDescription = null
-                    )
+                    AdaptiveIconButton(
+                        modifier = Modifier.size(MediumIconButtonSize),
+                        onClick = { if (isPlaying) control.pause() else control.play() }
+                    ) {
+                        Icon(
+                            modifier = Modifier.fillMaxSize(),
+                            imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                            contentDescription = null
+                        )
+                    }
+
+                    AdaptiveIconButton(
+                        modifier = Modifier.size(MediumIconButtonSize),
+                        onClick = onNextClick
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_next),
+                            contentDescription = null
+                        )
+                    }
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

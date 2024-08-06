@@ -85,12 +85,34 @@ class VideoPlayViewModel @Inject constructor(
         }
     }
 
-    fun getVideo(url: String, episodeName: String) {
+    fun getVideo(url: String, episodeName: String, index: Int) {
         if (!isLocalVideo) {
             getVideoFromRemote(url)
         } else {
             val video = _videoState.value.data!!
-            _videoState.value = Resource.Success(video.copy(url = url, episodeName = episodeName))
+            _videoState.value = Resource.Success(
+                video.copy(
+                    url = url,
+                    episodeName = episodeName,
+                    currentEpisodeIndex = index
+                )
+            )
+        }
+    }
+
+    fun nextEpisode() {
+        _videoState.value.data?.let { video ->
+            val nextEpisodeIndex = video.currentEpisodeIndex + 1
+            if (nextEpisodeIndex == video.episodes.size) {
+                return
+            }
+            _videoState.value = Resource.Success(video.copy(currentEpisodeIndex = nextEpisodeIndex))
+
+            getVideo(
+                video.episodes[nextEpisodeIndex].url,
+                video.episodes[nextEpisodeIndex].name,
+                nextEpisodeIndex
+            )
         }
     }
 }

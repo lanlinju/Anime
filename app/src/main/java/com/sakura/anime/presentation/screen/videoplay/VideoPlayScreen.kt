@@ -198,7 +198,8 @@ fun VideoPlayScreen(
                     VideoPlayerControl(
                         state = playerState,
                         title = "${video.title}-${video.episodeName}",
-                        onBackClick = onBackHandle
+                        onBackClick = onBackHandle,
+                        onNextClick = viewModel::nextEpisode
                     )
                 }
 
@@ -309,7 +310,7 @@ private fun FastForwardIndicator(modifier: Modifier) {
                 text = stringResource(id = R.string.fast_forward_2x),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
-                modifier = Modifier.offset(-12.dp)
+                modifier = Modifier.offset((-12).dp)
             )
         }
 
@@ -454,7 +455,6 @@ private fun VideoSideSheet(
 ) {
     var selectedSpeedIndex by remember { mutableIntStateOf(3) }     // 1.0x
     var selectedResizeIndex by remember { mutableIntStateOf(0) }    // 适应
-    var selectedEpisodeIndex by remember { mutableIntStateOf(video.currentEpisodeIndex) }
 
     if (playerState.isSpeedUiVisible.value) {
         SpeedSideSheet(selectedSpeedIndex,
@@ -473,16 +473,18 @@ private fun VideoSideSheet(
                 selectedResizeIndex = index
                 playerState.setResizeText(resizeText)
                 playerState.control.setVideoResize(resizeMode)
-            }, onDismissRequest = { playerState.hideResizeUi() })
+            }, onDismissRequest = { playerState.hideResizeUi() }
+        )
     }
 
     if (playerState.isEpisodeUiVisible.value) {
+        var selectedEpisodeIndex by remember { mutableIntStateOf(video.currentEpisodeIndex) }
         EpisodeSideSheet(
             episodes = video.episodes,
             selectedEpisodeIndex = selectedEpisodeIndex,
             onEpisodeClick = { index, episode ->
                 selectedEpisodeIndex = index
-                viewModel.getVideo(episode.url, episode.name)
+                viewModel.getVideo(episode.url, episode.name, index)
             },
             onDismissRequest = { playerState.hideEpisodeUi() }
         )
