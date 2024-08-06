@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -46,7 +47,6 @@ import com.sakura.anime.presentation.component.PopupMenuListItem
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
-import com.sakura.anime.util.LOW_CONTENT_ALPHA
 import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
@@ -168,79 +168,114 @@ fun DownloadEpisodeItem(
                 ),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imgUrl)
-                    .crossfade(CROSSFADE_DURATION)
-                    .build(),
-                contentDescription = stringResource(id = R.string.lbl_anime_img),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .height(dimensionResource(id = R.dimen.image_cover_height))
-                    .aspectRatio(VIDEO_ASPECT_RATIO)
-                    .clip(RoundedCornerShape(dimensionResource(id = R.dimen.small_padding)))
-                    .blur(if (state.isSucceed.value) 0.dp else 8.dp)
-            )
+            AnimeImage(imgUrl = imgUrl, isDownloaded = state.isSucceed.value)
 
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = title,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                AnimeTitle(title)
 
                 if (!state.isSucceed.value) {
-                    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = state.stateMessage.value,
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-
-                            Text(
-                                text = state.percentStr.value,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-
-                        if (state.isStarted()) {
-                            LinearProgressIndicator(
-                                progress = state.progress.value, modifier = Modifier
-                                    .height(2.dp),
-                                strokeCap = StrokeCap.Round
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.height(2.dp))
-                        }
-                    }
+                    DownloadInfo(state = state)
                 } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.play),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-
-                        Text(
-                            text = state.file.length().formatSize(),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+                    DownloadFinishInfo(state)
                 }
             }
         }
 
+    }
+}
+
+@Composable
+private fun AnimeTitle(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+    )
+}
+
+@Composable
+private fun AnimeImage(imgUrl: String, isDownloaded: Boolean) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imgUrl)
+            .crossfade(CROSSFADE_DURATION)
+            .build(),
+        contentDescription = stringResource(id = R.string.lbl_anime_img),
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .height(dimensionResource(id = R.dimen.image_cover_height))
+            .aspectRatio(VIDEO_ASPECT_RATIO)
+            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.small_padding)))
+            .blur(if (isDownloaded) 0.dp else 8.dp)
+    )
+}
+
+@Composable
+private fun DownloadInfo(state: DownloaderState) {
+    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = state.speedStr.value,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    text = state.stateMessage.value,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+            Text(
+                text = state.percentStr.value,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(Alignment.Bottom)
+            )
+        }
+
+        DownloadProgress(isStarted = state.isStarted(), progress = state.progress.value)
+    }
+}
+
+@Composable
+private fun DownloadProgress(isStarted: Boolean, progress: Float) {
+    if (isStarted) {
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = Modifier
+                .height(2.dp),
+            strokeCap = StrokeCap.Round
+        )
+    } else {
+        Spacer(modifier = Modifier.height(2.dp))
+    }
+}
+
+@Composable
+private fun DownloadFinishInfo(state: DownloaderState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(id = R.string.play),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        // 文件大小
+        Text(
+            text = state.file.length().formatSize(),
+            color = MaterialTheme.colorScheme.outline,
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 
@@ -279,10 +314,11 @@ class DownloaderSateImpl(
     val context: Context,
     progress: Progress,
     isSucceed: Boolean,
-    onSucceed: (DownloadTask) -> Unit
+    onSucceed: (DownloadTask) -> Unit,
 ) : DownloaderState {
     override val progress = mutableStateOf(progress.progress())
     override val percentStr = mutableStateOf(progress.percentStr())
+    override val speedStr = mutableStateOf("0.0 B/s")
     override val stateMessage = mutableStateOf("未开始")
     override val isSucceed = mutableStateOf(isSucceed)
     override fun isStarted(): Boolean {
@@ -336,6 +372,12 @@ class DownloaderSateImpl(
                     percentStr.value = it.percentStr()
                 }.launchIn(this)
             }
+
+            launch {
+                downloadTask.speedStr().onEach {
+                    speedStr.value = it
+                }.launchIn(this)
+            }
         }
     }
 }
@@ -347,6 +389,7 @@ interface DownloaderState {
 
     val progress: State<Float>
     val percentStr: State<String>
+    val speedStr: State<String>
     val stateMessage: State<String>
 
     val isSucceed: State<Boolean>

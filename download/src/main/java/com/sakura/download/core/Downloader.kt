@@ -1,5 +1,6 @@
 package com.sakura.download.core
 
+import com.sakura.download.Progress
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -10,7 +11,6 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import okhttp3.ResponseBody
 import retrofit2.Response
-import com.sakura.download.Progress
 import java.io.File
 
 class QueryProgress(val completableDeferred: CompletableDeferred<Progress>)
@@ -19,6 +19,12 @@ interface Downloader {
     var actor: SendChannel<QueryProgress>
 
     suspend fun queryProgress(): Progress
+
+    /**
+     * 用于计算下载网速
+     * [M3u8Downloader] 需要重写这个方法
+     */
+    suspend fun queryDownloadSize(): Long = queryProgress().downloadSize
 
     suspend fun download(
         downloadParam: DownloadParam,

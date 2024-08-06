@@ -9,10 +9,16 @@ import com.sakura.download.utils.recreate
 import com.sakura.download.utils.shadow
 import com.sakura.download.utils.tmp
 import com.sakura.download.utils.tsFile
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.BufferedOutputStream
@@ -27,9 +33,13 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
     private lateinit var rangeTmpFile: RangeTmpFile
 
     private lateinit var m3u8Parse: M3u8Parser
+
     private lateinit var tsUrlList: List<String>
     private lateinit var key: String
     private lateinit var iv: String
+
+    // 仅用于计算网速
+    private var tempDownloadByte: Long = 0L
 
     override suspend fun download(
         downloadParam: DownloadParam,
@@ -91,13 +101,23 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
     private suspend fun startDownload(config: DownloadConfig) {
         val progressChannel = coroutineScope.actor<Int> {
             channel.consumeEach {
+                // M3u8Downloader的downloadSize表示下载的ts分片数量，为了简化实现下载百分比,
+                // 因为m3u8文件不好获取全部文件字节大小，但是分片总数量很好获取
                 downloadSize += it
             }
         }
 
-        rangeTmpFile.undoneRanges().parallel(max = config.rangeCurrency, dispatcher = Dispatchers.IO) {
-            it.download(config, progressChannel)
+        // 已下载的字节数
+        val downloadByteChannel = coroutineScope.actor<Int> {
+            channel.consumeEach {
+                tempDownloadByte += it
+            }
         }
+
+        rangeTmpFile.undoneRanges()
+            .parallel(max = config.rangeCurrency, dispatcher = Dispatchers.IO) {
+                it.download(config, progressChannel, downloadByteChannel)
+            }
 
         progressChannel.close()
 
@@ -107,13 +127,20 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
         tmpFile.delete()
     }
 
+    /**
+     * @param sendChannel 用于发送已下载的分片数量
+     * @param byteSendChannel 用于发送已下载的字节数量
+     */
+
     private suspend fun Range.download(
         config: DownloadConfig,
         sendChannel: SendChannel<Int>,
+        byteSendChannel: SendChannel<Int>,
     ) = coroutineScope {
         val deferred = async(Dispatchers.IO) {
             val url = tsUrlList.get(index.toInt())
-            val rangeHeader = if (end == 0L) RANGE_CHECK_HEADER else mapOf("Range" to "bytes=${current}-${end}")
+            val rangeHeader =
+                if (end == 0L) RANGE_CHECK_HEADER else mapOf("Range" to "bytes=${current}-${end}")
             val tsFile = file.tsFile(index)
 
             val response = config.request(url, rangeHeader)
@@ -136,6 +163,8 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
                         current += readLen
 
                         tmpFileBuffer.putLong(16, current)
+
+                        byteSendChannel.send(readLen)
 
                         readLen = source.read(buffer)
                     }
@@ -185,5 +214,8 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
         }
     }
 
+    override suspend fun queryDownloadSize(): Long {
+        return tempDownloadByte
+    }
 }
 

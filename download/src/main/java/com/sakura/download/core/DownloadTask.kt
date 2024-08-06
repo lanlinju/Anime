@@ -6,6 +6,7 @@ import com.sakura.download.helper.Default
 import com.sakura.download.utils.clear
 import com.sakura.download.utils.closeQuietly
 import com.sakura.download.utils.fileName
+import com.sakura.download.utils.formatSize
 import com.sakura.download.utils.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -171,6 +172,38 @@ open class DownloadTask(
     }
 
     /**
+     * @param interval Update speed interval in milliseconds
+     * @return 返回间隔[interval]时间所下载的字节数
+     */
+    fun speed(interval: Long = 1000): Flow<Long> {
+        return downloadStateFlow.flatMapLatest {
+            // 会获取已下载缓存大小(downloading状态 先于 获取缓存大小)，可能会在刚开始时网速显示异常大
+            delay(100)
+            flow {
+                while (currentCoroutineContext().isActive) {
+                    val start = getDownloadSize()
+                    delay(interval)
+
+                    val end = getDownloadSize()
+
+                    val speed = (end - start) * 1000 / interval
+
+                    emit(speed)
+
+                    if (stateHolder.isEnd()) break
+                }
+            }
+        }
+    }
+
+    /**
+     * @param interval Update speed interval in milliseconds
+     */
+    fun speedStr(interval: Long = 1000): Flow<String> {
+        return speed(interval).map { "${it.formatSize()}/s" }
+    }
+
+    /**
      * @param interval 更新进度间隔时间，单位ms
      */
     fun state(): Flow<State> {
@@ -179,6 +212,10 @@ open class DownloadTask(
 
     suspend fun getProgress(): Progress {
         return downloader?.queryProgress() ?: Progress()
+    }
+
+    private suspend fun getDownloadSize(): Long {
+        return downloader?.queryDownloadSize() ?: 0L
     }
 
     fun getState() = stateHolder.currentState
