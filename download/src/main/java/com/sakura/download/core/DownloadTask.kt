@@ -3,6 +3,7 @@ package com.sakura.download.core
 import com.sakura.download.Progress
 import com.sakura.download.State
 import com.sakura.download.helper.Default
+import com.sakura.download.utils.LOG_ENABLE
 import com.sakura.download.utils.clear
 import com.sakura.download.utils.closeQuietly
 import com.sakura.download.utils.fileName
@@ -10,6 +11,8 @@ import com.sakura.download.utils.formatSize
 import com.sakura.download.utils.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import okhttp3.ResponseBody
+import retrofit2.Response
 import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -96,6 +99,9 @@ open class DownloadTask(
         }
         downloadJob = coroutineScope.launch(errorHandler + Dispatchers.IO) {
             val response = config.request(param.url, Default.RANGE_CHECK_HEADER)
+
+            printHttpLog(response)
+
             try {
                 if (!response.isSuccessful || response.body() == null) {
                     throw RuntimeException("request failed")
@@ -126,6 +132,17 @@ open class DownloadTask(
             }
         }
         downloadJob?.join()
+    }
+
+    private fun printHttpLog(response: Response<ResponseBody>) {
+        if (LOG_ENABLE) {
+            response.raw().apply {
+                request.url.log("request url")
+                config.rangeCurrency.log("rangeCurrency")
+                protocol.name.log("protocol")
+                headers.log()
+            }
+        }
     }
 
     /**

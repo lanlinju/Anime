@@ -2,6 +2,7 @@ package com.sakura.download.core
 
 import com.sakura.download.utils.contentLength
 import com.sakura.download.utils.isSupportRange
+import com.sakura.download.utils.log
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.ResponseBody
@@ -31,10 +32,13 @@ interface DownloadDispatcher {
 object DefaultDownloadDispatcher : DownloadDispatcher {
     override fun dispatch(downloadTask: DownloadTask, resp: Response<ResponseBody>): Downloader {
         return if (downloadTask.param.url.contains("m3u8")) {
+            "M3u8Downloader".log()
             M3u8Downloader(downloadTask.coroutineScope)
         } else if (downloadTask.config.disableRangeDownload || !resp.isSupportRange()) {
+            "NormalDownloader".log()
             NormalDownloader(downloadTask.coroutineScope)
         } else {
+            "RangeDownloader".log()
             RangeDownloader(downloadTask.coroutineScope)
         }
     }

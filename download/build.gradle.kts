@@ -34,6 +34,6 @@ android {
 
 dependencies {
     implementation("androidx.activity:activity-compose:1.8.1")
-    implementation(api("com.squareup.okhttp3:okhttp:4.9.3")!!)
-    implementation(api("com.squareup.retrofit2:retrofit:2.9.0")!!)
+    implementation(api("com.squareup.okhttp3:okhttp:4.12.0")!!)
+    implementation(api("com.squareup.retrofit2:retrofit:2.11.0")!!)
 }

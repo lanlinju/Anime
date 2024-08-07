@@ -131,7 +131,6 @@ class M3u8Downloader(coroutineScope: CoroutineScope) : BaseDownloader(coroutineS
      * @param sendChannel 用于发送已下载的分片数量
      * @param byteSendChannel 用于发送已下载的字节数量
      */
-
     private suspend fun Range.download(
         config: DownloadConfig,
         sendChannel: SendChannel<Int>,
