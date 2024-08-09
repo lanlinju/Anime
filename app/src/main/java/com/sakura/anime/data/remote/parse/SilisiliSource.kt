@@ -8,17 +8,21 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.decryptData
 import com.sakura.anime.util.getDefaultDomain
+import com.sakura.anime.util.log
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import java.security.MessageDigest
 
 /**
  * 嘶哩嘶哩域名发布地址：https://weibass.github.io
  */
 object SilisiliSource : AnimeSource {
+
+    private const val LOG_TAG = "SilisiliSource"
 
     override val DEFAULT_DOMAIN: String = "https://www.silisili.link"
     override var baseUrl = getDefaultDomain()
@@ -121,23 +125,33 @@ object SilisiliSource : AnimeSource {
         val source = getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
-        val weekMap = mutableMapOf<Int, List<AnimeBean>>()
-        val weekElements = document.select("div.week_item").select("ul.tab-content")
-        val sunday = weekElements[0]
-        weekElements.removeAt(0)
-        weekElements.add(6, sunday)
-        for (i in 0 until 7) {
+        val weekMap = mutableMapOf<Int, MutableList<AnimeBean>>()
+        val dayElements = document.select("div.week_item").select("ul.tab-content")
+        dayElements.size.log(LOG_TAG) // 14
+
+        dayElements.movePosition(0, 6) // 日漫 sunday
+        dayElements.movePosition(7, 13) // 国漫 sunday
+
+        for (i in 0 until 14) {
             val dayList = mutableListOf<AnimeBean>()
 
-            weekElements[i].select("li").forEach { li ->
+            dayElements[i].select("li").forEach { li ->
                 val title = li.select("a.item-cover").attr("title")
                 val url = li.select("a.item-cover").attr("href")
                 val episodeName = li.select("p.num").text()
                 dayList.add(AnimeBean(title, "", url, episodeName))
             }
-            weekMap[i] = dayList
+
+            weekMap[i % 7]?.addAll(dayList) ?: weekMap.set(i, dayList)
+
         }
         return weekMap
+    }
+
+    private fun MutableList<Element>.movePosition(current: Int, destination: Int) {
+        val tmp = this[current]
+        this.removeAt(current)
+        this.add(destination, tmp)
     }
 
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {
