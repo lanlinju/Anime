@@ -225,6 +225,7 @@ private fun VideoPlayer(
 fun VideoPlayer(
     modifier: Modifier = Modifier,
     url: String,
+    videoPosition: Long,
     playerState: VideoPlayerState,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onBackPress: () -> Unit,
@@ -256,6 +257,7 @@ fun VideoPlayer(
     LaunchedEffect(url) {
         playerState.player.setMediaItem(mediaItemCreator(url))
         playerState.player.prepare()
+        playerState.player.seekTo(videoPosition)
         playerState.player.playWhenReady = true
     }
 

@@ -26,6 +26,10 @@ interface RoomRepository {
 
     suspend fun getEpisodes(detailUrl: String): Flow<List<Episode>>
 
+    suspend fun getEpisode(episodeUrl: String): Flow<Episode?>
+
+    suspend fun addEpisode(episode: Episode)
+
     suspend fun getDownloads(): Flow<List<Download>>
 
     suspend fun addDownload(download: Download)

@@ -61,7 +61,10 @@ class RoomRepositoryImpl @Inject constructor(
             }
             val episodeEntity =
                 EpisodeEntity(historyId = historyId, name = name, episodeUrl = url)
-            episodeDao.insertEpisode(episodeEntity)
+
+            if (episodeDao.checkEpisode(episodeUrl = url).first() == null) {
+                episodeDao.insertEpisode(episodeEntity)
+            }
         }
     }
 
@@ -88,6 +91,14 @@ class RoomRepositoryImpl @Inject constructor(
         return episodeDao.getEpisodes(history.historyId).map {
             it.map { it.toEpisode() }
         }
+    }
+
+    override suspend fun getEpisode(episodeUrl: String): Flow<Episode?> {
+        return episodeDao.getEpisode(episodeUrl).map { it?.toEpisode() }
+    }
+
+    override suspend fun addEpisode(episode: Episode) {
+        episodeDao.insertEpisode(episode.toEpisodeEntity())
     }
 
     override suspend fun getDownloads(): Flow<List<Download>> {

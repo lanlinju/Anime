@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Video
-import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
+import com.sakura.anime.domain.usecase.GetVideoFromRemoteUseCase
 import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
 import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_VIDEO_EPISODE_URL
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
@@ -24,17 +24,19 @@ import javax.inject.Inject
 @HiltViewModel
 class VideoPlayViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: AnimeRepository,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val getVideoFromRemoteUseCase: GetVideoFromRemoteUseCase,
 ) : ViewModel() {
 
     private val _videoState: MutableStateFlow<Resource<Video?>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val videoState: StateFlow<Resource<Video?>>
         get() = _videoState
 
     private var isLocalVideo = false
     lateinit var mode: SourceMode
+
+    private var historyId: Long = -1L
 
     init {
         savedStateHandle.get<String>(key = ROUTE_ARGUMENT_SOURCE_MODE)?.let { mode ->
@@ -43,13 +45,31 @@ class VideoPlayViewModel @Inject constructor(
         savedStateHandle.get<String>(key = ROUTE_ARGUMENT_VIDEO_EPISODE_URL)?.let { episodeUrl ->
             val url = Uri.decode(episodeUrl)
             if (!url.contains(KEY_FROM_LOCAL_VIDEO)) {
+
+                // 或许使用detailUrl获取historyId更好一些
+                getHistoryId(episodeUrl)
+
                 getVideoFromRemote(url)
+
             } else {
                 isLocalVideo = true
                 getVideoFromLocal(url)
             }
         }
 
+    }
+
+    /**
+     * 用于获取保存episode所需的[historyId]
+     */
+    private fun getHistoryId(episodeUrl: String) {
+        viewModelScope.launch {
+            roomRepository.getEpisode(episodeUrl).collect {
+                if (it != null) {
+                    historyId = it.historyId
+                }
+            }
+        }
     }
 
     private fun getVideoFromLocal(params: String) {
@@ -69,6 +89,7 @@ class VideoPlayViewModel @Inject constructor(
                     title = title,
                     url = episodes[index].url,
                     episodeName = episodeName,
+                    episodeUrl = episodes[index].url,
                     currentEpisodeIndex = index,
                     episodes = episodes
                 )
@@ -81,12 +102,14 @@ class VideoPlayViewModel @Inject constructor(
 
     private fun getVideoFromRemote(episodeUrl: String) {
         viewModelScope.launch {
-            _videoState.value = repository.getVideoData(episodeUrl, mode)
+            _videoState.value = getVideoFromRemoteUseCase(episodeUrl, mode)
         }
+
     }
 
-    fun getVideo(url: String, episodeName: String, index: Int) {
+    fun getVideo(url: String, episodeName: String, index: Int, videoPosition: Long) {
         if (!isLocalVideo) {
+            saveVideoPosition(videoPosition)
             getVideoFromRemote(url)
         } else {
             val video = _videoState.value.data!!
@@ -100,7 +123,7 @@ class VideoPlayViewModel @Inject constructor(
         }
     }
 
-    fun nextEpisode() {
+    fun nextEpisode(videoPosition: Long) {
         _videoState.value.data?.let { video ->
             val nextEpisodeIndex = video.currentEpisodeIndex + 1
             if (nextEpisodeIndex == video.episodes.size) {
@@ -111,8 +134,29 @@ class VideoPlayViewModel @Inject constructor(
             getVideo(
                 video.episodes[nextEpisodeIndex].url,
                 video.episodes[nextEpisodeIndex].name,
-                nextEpisodeIndex
+                nextEpisodeIndex,
+                videoPosition
             )
         }
+    }
+
+    fun saveVideoPosition(videoPosition: Long) {
+        // 观看时长少于5秒和本地视频的播放时长不保存
+        if (videoPosition < 5_000 || isLocalVideo) {
+            return
+        }
+
+        _videoState.value.data?.let { video ->
+            viewModelScope.launch {
+                val episode = Episode(
+                    name = video.episodeName,
+                    url = video.episodeUrl,
+                    lastPosition = videoPosition,
+                    historyId = historyId
+                )
+                roomRepository.addEpisode(episode)
+            }
+        }
+
     }
 }

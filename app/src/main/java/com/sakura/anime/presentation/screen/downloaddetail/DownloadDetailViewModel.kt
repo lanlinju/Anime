@@ -23,7 +23,7 @@ class DownloadDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _downloadDetailsState: MutableStateFlow<Resource<List<DownloadDetail>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val downloadDetailsState: StateFlow<Resource<List<DownloadDetail>>>
         get() = _downloadDetailsState
 

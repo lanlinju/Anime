@@ -10,10 +10,12 @@ data class VideoBean(
 ) {
     fun toVideo(): Video {
         val index = episodes.indexOfFirst { it.name == episodeName }
+        val episodeUrl = episodes[index].url
         return Video(
             title = title,
             url = url,
             episodeName = episodeName,
+            episodeUrl = episodeUrl,
             currentEpisodeIndex = index,
             episodes = episodes.map { it.toEpisode() }
         )

@@ -32,7 +32,7 @@ class WeekViewModel @Inject constructor(
     private val repository: AnimeRepository,
 ) : ViewModel() {
     private val _weekDataMap: MutableStateFlow<Resource<Map<Int, List<AnimeBean>>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val weeKDataMap: StateFlow<Resource<Map<Int, List<AnimeBean>>>>
         get() = _weekDataMap
 
@@ -58,7 +58,7 @@ class WeekViewModel @Inject constructor(
     }
 
     fun refresh() {
-        _weekDataMap.value = Resource.Loading()
+        _weekDataMap.value = Resource.Loading
         getWeekData()
     }
 

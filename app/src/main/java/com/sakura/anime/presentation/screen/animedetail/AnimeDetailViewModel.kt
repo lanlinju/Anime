@@ -38,7 +38,7 @@ class AnimeDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _animeDetailState: MutableStateFlow<Resource<AnimeDetail?>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val animeDetailState: StateFlow<Resource<AnimeDetail?>>
         get() = _animeDetailState
 
@@ -116,7 +116,7 @@ class AnimeDetailViewModel @Inject constructor(
     }
 
     fun retry() {
-        _animeDetailState.value = Resource.Loading()
+        _animeDetailState.value = Resource.Loading
         getAnimeDetail(this.detailUrl)
     }
 }

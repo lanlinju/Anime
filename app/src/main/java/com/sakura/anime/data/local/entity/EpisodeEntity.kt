@@ -8,6 +8,10 @@ import androidx.room.PrimaryKey
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.util.EPISODE_TABLE
 
+/**
+ * [onDelete = ForeignKey.CASCADE] 当父表中的某一条记录被删除时，子表中所有引用该记录的行也会自动被删除。
+ * [onUpdate = ForeignKey.CASCADE] 当父表中的某一条记录的主键被更新时，子表中所有引用该主键的外键也会自动更新为新的值。
+ */
 @Entity(
     tableName = EPISODE_TABLE,
     indices = [Index("history_id", unique = false), Index("episode_url", unique = true)],
@@ -35,7 +39,8 @@ data class EpisodeEntity(
             name = name,
             url = episodeUrl,
             lastPosition = lastPosition,
-            isPlayed = false
+            isPlayed = false,
+            historyId = historyId
         )
     }
 }

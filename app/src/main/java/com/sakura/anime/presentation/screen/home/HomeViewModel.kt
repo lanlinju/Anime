@@ -16,7 +16,7 @@ class HomeViewModel @Inject constructor(
     private val repository: AnimeRepository
 ) : ViewModel() {
     private val _homeDataList: MutableStateFlow<Resource<List<Home>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val homeDataList: StateFlow<Resource<List<Home>>>
         get() = _homeDataList
 
@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun refresh() {
-        _homeDataList.value = Resource.Loading()
+        _homeDataList.value = Resource.Loading
         getHomeData()
     }
 }

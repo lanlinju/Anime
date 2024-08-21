@@ -16,7 +16,7 @@ class HistoryViewModel @Inject constructor(
     private val roomRepository: RoomRepository
 ) : ViewModel() {
     private val _historyList: MutableStateFlow<Resource<List<History>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
 
     val historyList: StateFlow<Resource<List<History>>>
         get() = _historyList

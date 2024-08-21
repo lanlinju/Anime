@@ -15,6 +15,12 @@ interface EpisodeDao {
     @Query("SELECT * FROM $EPISODE_TABLE WHERE history_id=:historyId ORDER BY created_at DESC")
     fun getEpisodes(historyId: Long): Flow<List<EpisodeEntity>>
 
+    @Query("SELECT * FROM $EPISODE_TABLE WHERE episode_url=:episodeUrl")
+    fun getEpisode(episodeUrl: String): Flow<EpisodeEntity?>
+
+    @Query("SELECT * FROM $EPISODE_TABLE WHERE episode_url=:episodeUrl")
+    fun checkEpisode(episodeUrl: String): Flow<EpisodeEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEpisodes(episodes: List<EpisodeEntity>)
 

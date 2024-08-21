@@ -26,7 +26,7 @@ class AnimeRepositoryImpl @Inject constructor(
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
-            is Resource.Loading -> Resource.Loading()
+            is Resource.Loading -> Resource.Loading
             is Resource.Success -> Resource.Success(
                 data = response.data?.map { it.toHome() }.orEmpty()
             )
@@ -40,9 +40,9 @@ class AnimeRepositoryImpl @Inject constructor(
         val response = invokeApi {
             animeApi.getAnimeDetail(detailUrl, mode)
         }
-        return when (response) {
+        return when (val response = response) {
             is Resource.Error -> Resource.Error(error = response.error)
-            is Resource.Loading -> Resource.Loading()
+            is Resource.Loading -> Resource.Loading
             is Resource.Success -> Resource.Success(
                 data = response.data?.toAnimeDetail()
             )
@@ -55,7 +55,7 @@ class AnimeRepositoryImpl @Inject constructor(
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
-            is Resource.Loading -> Resource.Loading()
+            is Resource.Loading -> Resource.Loading
             is Resource.Success -> Resource.Success(
                 data = response.data?.toVideo()
             )
@@ -75,7 +75,7 @@ class AnimeRepositoryImpl @Inject constructor(
         }
         return when (response) {
             is Resource.Error -> Resource.Error(error = response.error)
-            is Resource.Loading -> Resource.Loading()
+            is Resource.Loading -> Resource.Loading
             is Resource.Success -> Resource.Success(
                 data = response.data.orEmpty()
             )

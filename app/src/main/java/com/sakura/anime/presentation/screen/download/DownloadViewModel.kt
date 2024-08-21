@@ -18,7 +18,7 @@ class DownloadViewModel @Inject constructor(
     private val roomRepository: RoomRepository
 ) : ViewModel() {
     private val _downloadList: MutableStateFlow<Resource<List<Download>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
 
     val downloadList: StateFlow<Resource<List<Download>>>
         get() = _downloadList

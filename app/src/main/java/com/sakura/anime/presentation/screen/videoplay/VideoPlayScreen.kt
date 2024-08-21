@@ -192,6 +192,7 @@ fun VideoPlayScreen(
 
                 VideoPlayer(
                     url = video.url,
+                    videoPosition = video.lastPosition,
                     playerState = playerState,
                     onBackPress = onBackHandle
                 ) {
@@ -199,7 +200,7 @@ fun VideoPlayScreen(
                         state = playerState,
                         title = "${video.title}-${video.episodeName}",
                         onBackClick = onBackHandle,
-                        onNextClick = viewModel::nextEpisode
+                        onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) }
                     )
                 }
 
@@ -210,6 +211,11 @@ fun VideoPlayScreen(
                 VideoSideSheet(video, playerState, viewModel)
             }
 
+            DisposableEffect(Unit) {
+                onDispose {
+                    viewModel.saveVideoPosition(playerState.player.currentPosition)
+                }
+            }
         }
     }
 
@@ -484,7 +490,12 @@ private fun VideoSideSheet(
             selectedEpisodeIndex = selectedEpisodeIndex,
             onEpisodeClick = { index, episode ->
                 selectedEpisodeIndex = index
-                viewModel.getVideo(episode.url, episode.name, index)
+                viewModel.getVideo(
+                    episode.url,
+                    episode.name,
+                    index,
+                    playerState.player.currentPosition
+                )
             },
             onDismissRequest = { playerState.hideEpisodeUi() }
         )

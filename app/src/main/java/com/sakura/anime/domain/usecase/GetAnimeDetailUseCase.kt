@@ -16,10 +16,9 @@ class GetAnimeDetailUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(detailUrl: String, mode: SourceMode): Flow<Resource<AnimeDetail?>> {
         return flow {
-            val resource = animeRepository.getAnimeDetail(detailUrl, mode)
-            when (resource) {
+            when (val resource = animeRepository.getAnimeDetail(detailUrl, mode)) {
                 is Resource.Error -> emit(Resource.Error(error = resource.error))
-                is Resource.Loading -> emit(Resource.Loading())
+                is Resource.Loading -> emit(Resource.Loading)
                 is Resource.Success -> {
                     try {
                         roomRepository.checkHistory(detailUrl).collect { isStoredHistory ->

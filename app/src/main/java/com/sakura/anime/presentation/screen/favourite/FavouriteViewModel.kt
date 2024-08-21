@@ -16,7 +16,7 @@ class FavouriteViewModel @Inject constructor(
     private val roomRepository: RoomRepository
 ) : ViewModel() {
     private val _favouriteList: MutableStateFlow<Resource<List<Favourite>>> =
-        MutableStateFlow(value = Resource.Loading())
+        MutableStateFlow(value = Resource.Loading)
     val favouriteList: StateFlow<Resource<List<Favourite>>>
         get() = _favouriteList
 

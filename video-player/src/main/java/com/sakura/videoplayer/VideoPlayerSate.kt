@@ -197,6 +197,7 @@ class VideoPlayerStateImpl(
     }
 
     override fun showControlUi() {
+        controlUiLastInteractionMs = 0
         isControlUiVisible.value = true
         pollVideoPositionJob?.cancel()
         pollVideoPositionJob = coroutineScope.launch {
