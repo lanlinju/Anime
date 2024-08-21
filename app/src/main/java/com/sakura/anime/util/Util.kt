@@ -6,6 +6,7 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider.getUriForFile
 import com.sakura.anime.BuildConfig
@@ -58,4 +59,18 @@ fun <T> T.log(tag: String, prefix: String = ""): T {
         }
     }
     return this
+}
+
+fun openExternalPlayer(videoUrl: String) {
+    val context = AnimeApplication.getInstance()
+    val intent = Intent(ACTION_VIEW)
+    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+    var uri = Uri.parse(videoUrl)
+    if (!videoUrl.contains("http")) {
+        val authority = "${context.packageName}.provider"
+        uri = getUriForFile(context, authority, File(videoUrl))
+        intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    intent.setDataAndType(uri, "video/*")
+    context.startActivity(intent)
 }

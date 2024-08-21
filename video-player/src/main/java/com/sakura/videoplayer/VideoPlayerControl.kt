@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,7 +58,7 @@ fun VideoPlayerControl(
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
     onNextClick: () -> Unit,
-    onOptionsClick: (() -> Unit)? = null,
+    optionsContent: (@Composable () -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(
@@ -89,8 +88,8 @@ fun VideoPlayerControl(
                     title = title,
                     subtitle = subtitle,
                     isSeeking = state.isSeeking.value,
-                    onOptionsClick = onOptionsClick,
-                    onBackClick = onBackClick
+                    optionsContent = optionsContent,
+                    onBackClick = onBackClick,
                 )
 
                 Spacer(Modifier.size(1.dp))
@@ -130,7 +129,7 @@ private fun ControlHeader(
     subtitle: String?,
     isSeeking: Boolean,
     onBackClick: (() -> Unit)?,
-    onOptionsClick: (() -> Unit)? = null,
+    optionsContent: (@Composable () -> Unit)? = null,
 ) {
     if (isSeeking) return
 
@@ -165,17 +164,9 @@ private fun ControlHeader(
                 )
             }
         }
-        if (onOptionsClick != null) {
-            AdaptiveIconButton(
-                modifier = Modifier.size(MediumIconButtonSize),
-                onClick = onOptionsClick
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.MoreVert,
-                    contentDescription = null
-                )
-            }
-        }
+
+        optionsContent?.invoke()
+
     }
 }
 

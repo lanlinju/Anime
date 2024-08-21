@@ -46,11 +46,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -88,6 +92,7 @@ import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
+import com.sakura.anime.util.openExternalPlayer
 import com.sakura.anime.util.preferences
 import com.sakura.videoplayer.AdaptiveTextButton
 import com.sakura.videoplayer.ResizeMode
@@ -200,7 +205,8 @@ fun VideoPlayScreen(
                         state = playerState,
                         title = "${video.title}-${video.episodeName}",
                         onBackClick = onBackHandle,
-                        onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) }
+                        onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) },
+                        optionsContent = { OptionsContent(video) }
                     )
                 }
 
@@ -223,6 +229,34 @@ fun VideoPlayScreen(
         onDispose {
             view.keepScreenOn = false
             requestPortraitOrientation(view, activity)
+        }
+    }
+}
+
+@Composable
+private fun OptionsContent(video: Video) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = Icons.Rounded.MoreVert,
+                contentDescription = null
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = stringResource(id = R.string.external_play))
+                },
+                onClick = {
+                    expanded = false
+                    openExternalPlayer(video.url)
+                }
+            )
         }
     }
 }
