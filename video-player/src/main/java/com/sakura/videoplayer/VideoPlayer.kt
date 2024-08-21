@@ -259,6 +259,7 @@ fun VideoPlayer(
         playerState.player.prepare()
         playerState.player.seekTo(videoPosition)
         playerState.player.playWhenReady = true
+        playerState.showControlUi()
     }
 
     BackHandler {
