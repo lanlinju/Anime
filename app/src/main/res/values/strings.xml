@@ -70,4 +70,14 @@
     <string name="anime_source_domain">动漫源域名</string>
     <string name="enable_auto_rotate_orientation">播放器自动旋转屏幕</string>
     <string name="modifier_domain">修改域名</string>
+
+    <!-- 主题设置相关 -->
+    <string name="system">System</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="catppuccin">Catppuccin</string>
+    <string name="theme">主题</string>
+    <string name="appearance_settings">外观设置</string>
+    <string name="dynamic_color">动态颜色</string>
+    <string name="dynamic_color_description">应用来自于壁纸的颜色</string>
 </resources>

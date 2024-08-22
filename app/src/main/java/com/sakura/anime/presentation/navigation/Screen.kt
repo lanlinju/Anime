@@ -17,6 +17,8 @@ sealed class Screen(
     object FavouriteScreen : Screen(route = "favourite")
     object HistoryScreen : Screen(route = "history")
     object DownloadScreen : Screen(route = "download")
+    object AppearanceScreen : Screen(route = "Appearance")
+
     object DownloadDetailScreen :
         Screen(route = "downloadDetail/{$ROUTE_ARGUMENT_DETAIL_URL}/{$ROUTE_ARGUMENT_ANIME_TITLE}") {
         fun passUrl(detailUrl: String, title: String): String {

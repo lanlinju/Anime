@@ -85,6 +85,9 @@ fun MainScreen(modifier: Modifier = Modifier, activity: Activity) {
             onNavigateToSearch = {
                 navController.navigate(Screen.SearchScreen.route)
             },
+            onNavigateToAppearance = {
+                navController.navigate(Screen.AppearanceScreen.route)
+            },
             activity = activity
         )
 

@@ -13,6 +13,7 @@ import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
+import com.sakura.anime.presentation.screen.settings.AppearanceScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
 import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
@@ -28,6 +29,7 @@ fun AnimeNavHost(
     onNavigateToDownload: () -> Unit,
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToAppearance: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
 ) {
@@ -60,7 +62,8 @@ fun AnimeNavHost(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onNavigateToSearch = onNavigateToSearch,
                 onNavigateToHistory = onNavigateToHistory,
-                onNavigateToDownload = onNavigateToDownload
+                onNavigateToDownload = onNavigateToDownload,
+                onNavigateToAppearance = onNavigateToAppearance
             )
         }
         composable(Screen.FavouriteScreen.route) {
@@ -86,6 +89,11 @@ fun AnimeNavHost(
             DownloadDetailScreen(
                 onBackClick = onBackClick,
                 onNavigateToVideoPlay = onNavigateToVideoPlay
+            )
+        }
+        composable(Screen.AppearanceScreen.route) {
+            AppearanceScreen(
+                onBackClick = onBackClick
             )
         }
     }

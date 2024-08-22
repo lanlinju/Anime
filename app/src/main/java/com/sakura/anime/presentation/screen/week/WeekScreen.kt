@@ -24,11 +24,12 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -93,7 +94,8 @@ fun WeekScreen(
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
-    onNavigateToSearch: () -> Unit
+    onNavigateToSearch: () -> Unit,
+    onNavigateToAppearance: () -> Unit,
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
     val weekDataState by viewModel.weeKDataMap.collectAsState()
@@ -207,8 +209,22 @@ fun WeekScreen(
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Settings,
+                                        imageVector = Icons.Outlined.Settings,
                                         contentDescription = stringResource(id = R.string.default_settings)
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.appearance_settings)) },
+                                onClick = {
+                                    expanded = false
+                                    onNavigateToAppearance()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Palette,
+                                        contentDescription = null
                                     )
                                 }
                             )

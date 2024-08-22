@@ -36,8 +36,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -335,7 +335,7 @@ private fun TopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.Rounded.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = stringResource(id = R.string.back),
                     tint = Color.White.copy(alpha = 0.85f)
                 )
@@ -363,7 +363,7 @@ private fun TopAppBar(
                         },
                         leadingIcon = {
                             Icon(
-                                Icons.Rounded.ArrowForward,
+                                Icons.AutoMirrored.Rounded.ArrowForward,
                                 modifier = Modifier
                                     .size(24.dp)
                                     .rotate(90f),
@@ -500,6 +500,7 @@ fun AnimeGenres(
                     containerColor = color.copy(alpha = 0.25f)
                 ),
                 border = SuggestionChipDefaults.suggestionChipBorder(
+                    enabled = true,
                     borderColor = Color.Transparent
                 )
             )

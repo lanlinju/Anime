@@ -2,9 +2,9 @@ package com.sakura.anime.util
 
 enum class SourceMode {
     Silisili,
-    Yhdm,
+    Mxdm,
     Agedm,
-    Anfuns,
     Girigiri,
-    Mxdm
+    Yhdm,
+    Anfuns
 }

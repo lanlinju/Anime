@@ -14,6 +14,11 @@ const val KEY_SOURCE_MODE = "animeSourceMode"
 const val KEY_HOME_BACKGROUND_URI = "homeBackgroundUri"
 const val KEY_ENABLE_AUTO_ORIENTATION = "enableAutoOrientation"
 
+// theme
+const val KEY_CUSTOM_COLOR = "customColor"
+const val KEY_THEME_MODE = "themeMode"
+const val KEY_DYNAMIC_COLOR = "dynamicColor"
+
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,
     defaultValue: T

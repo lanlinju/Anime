@@ -2,12 +2,14 @@ package com.sakura.anime.di
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.repository.RoomRepositoryImpl
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.util.ANIME_DATABASE
+import com.sakura.anime.util.preferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,5 +51,11 @@ object AppModule {
     @Provides
     fun providesRoomRepository(database: AnimeDatabase): RoomRepository {
         return RoomRepositoryImpl(database)
+    }
+
+    @Singleton
+    @Provides
+    fun providesPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.preferences
     }
 }
