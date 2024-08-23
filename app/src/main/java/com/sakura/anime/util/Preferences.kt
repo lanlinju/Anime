@@ -18,6 +18,7 @@ const val KEY_ENABLE_AUTO_ORIENTATION = "enableAutoOrientation"
 const val KEY_CUSTOM_COLOR = "customColor"
 const val KEY_THEME_MODE = "themeMode"
 const val KEY_DYNAMIC_COLOR = "dynamicColor"
+const val KEY_DYNAMIC_IMAGE_COLOR = "dynamicImageColor"
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,

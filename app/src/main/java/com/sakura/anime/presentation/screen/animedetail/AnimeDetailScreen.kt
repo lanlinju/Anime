@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.animedetail
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.text.Html
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -63,6 +64,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -71,6 +73,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -81,6 +84,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -100,8 +104,13 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.CROSSFADE_DURATION
+import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
+import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
+import com.sakura.anime.util.dynamicColorOf
+import com.sakura.anime.util.rememberPreference
+import kotlinx.coroutines.launch
 import java.io.File
 import com.sakura.anime.R as Res
 
@@ -119,6 +128,7 @@ fun AnimeDetailScreen(
     val isFavourite by viewModel.isFavourite.collectAsState()
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     StateHandler(
         state = animeDetailState,
@@ -143,12 +153,18 @@ fun AnimeDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
                         .verticalScroll(scrollState)
                 ) {
+                    var mediaColor by remember { mutableStateOf(Color(0)) }
+
+                    val isDynamicImageColor by rememberPreference(
+                        key = KEY_DYNAMIC_IMAGE_COLOR,
+                        defaultValue = false
+                    )
+
                     AnimeBanner(
                         imageUrl = animeDetail.img,
-                        tintColor = Color(0).copy(alpha = 0.25f),
+                        tintColor = { mediaColor.copy(alpha = 0.25f) },
                         modifier = Modifier
                             .height(bannerHeight)
                             .fillMaxWidth()
@@ -163,7 +179,16 @@ fun AnimeDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = bannerHeight),
+                            .padding(top = bannerHeight)
+                            .background(
+                                Color(
+                                    ColorUtils.blendARGB(
+                                        MaterialTheme.colorScheme.background.toArgb(),
+                                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                        0.05f
+                                    )
+                                )
+                            ),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
@@ -261,7 +286,19 @@ fun AnimeDetailScreen(
                             label = null,
                             onClick = {},
                             enabled = false,
-                            modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
+                            modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width)),
+                            onSuccess = { bitmap ->
+                                if (isDynamicImageColor) {
+                                    coroutineScope.launch {
+                                        val newBitmap =
+                                            bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                                        dynamicColorOf(newBitmap)?.let {
+                                            mediaColor = it
+                                            SettingsPreferences.applyImageColor(it.toArgb())
+                                        }
+                                    }
+                                }
+                            }
                         )
 
                         FavouriteIcon(isFavourite, animeDetail, viewModel)
@@ -415,7 +452,7 @@ private fun FavouriteIcon(
 @Composable
 fun AnimeBanner(
     imageUrl: String?,
-    tintColor: Color,
+    tintColor: () -> Color,
     modifier: Modifier = Modifier
 ) {
     if (!imageUrl.isNullOrEmpty()) {
@@ -429,7 +466,7 @@ fun AnimeBanner(
             modifier = modifier,
             alignment = Alignment.Center,
             colorFilter = ColorFilter.tint(
-                color = tintColor,
+                color = tintColor(),
                 blendMode = BlendMode.SrcAtop
             )
         )
@@ -441,7 +478,7 @@ fun AnimeBanner(
             modifier = modifier,
             alignment = Alignment.TopCenter,
             colorFilter = ColorFilter.tint(
-                color = tintColor,
+                color = tintColor(),
                 blendMode = BlendMode.SrcAtop
             )
         )

@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Colorize
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,8 +53,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sakura.anime.R
 import com.sakura.anime.presentation.theme.AnimeTheme
+import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.catpucchinLatte
+import com.sakura.anime.util.rememberPreference
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +92,7 @@ fun AppearanceScreen(
 
             val selectedColor by SettingsPreferences.customColor.collectAsState()
             val dynamicColor by SettingsPreferences.dynamicColor.collectAsState()
+            var isDynamicImageColor by rememberPreference(KEY_DYNAMIC_IMAGE_COLOR, false)
 
             ColorBall(
                 selectedColor = selectedColor,
@@ -105,7 +109,19 @@ fun AppearanceScreen(
                 painter = rememberVectorPainter(image = Icons.Outlined.Colorize),
                 checked = dynamicColor,
                 onCheckedChange = {
+                    isDynamicImageColor = false
                     SettingsPreferences.changeDynamicColor(it)
+                }
+            )
+
+            SwitchPref(
+                title = stringResource(id = R.string.dynamic_image_color),
+                summary = stringResource(id = R.string.dynamic_image_color_description),
+                painter = rememberVectorPainter(image = Icons.Outlined.Image),
+                checked = isDynamicImageColor,
+                onCheckedChange = {
+                    isDynamicImageColor = it
+                    SettingsPreferences.changeDynamicColor(!isDynamicImageColor)
                 }
             )
         }

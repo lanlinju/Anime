@@ -35,6 +35,10 @@ object SettingsPreferences {
         preferences.edit { putInt(KEY_CUSTOM_COLOR, customColor) }
     }
 
+    fun applyImageColor(imageColor: Int) {
+        _customColor.value = imageColor
+    }
+
     fun changeDynamicColor(dynamicTheme: Boolean) {
         _dynamicColor.value = dynamicTheme
         preferences.edit { putBoolean(KEY_DYNAMIC_COLOR, dynamicTheme) }

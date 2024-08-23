@@ -104,6 +104,8 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.5.3")
 
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
     // room
     val room_version = "2.5.1"
     implementation("androidx.room:room-runtime:$room_version")

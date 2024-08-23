@@ -31,12 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.sakura.anime.domain.model.HomeItem
@@ -99,7 +101,15 @@ fun HomeScreen(
 
                         Column(
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(
+                                    Color(
+                                        ColorUtils.blendARGB(
+                                            MaterialTheme.colorScheme.background.toArgb(),
+                                            MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                            0.05f
+                                        )
+                                    )
+                                )
                                 .padding(vertical = dimensionResource(Res.dimen.large_padding)),
                             verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                         ) {

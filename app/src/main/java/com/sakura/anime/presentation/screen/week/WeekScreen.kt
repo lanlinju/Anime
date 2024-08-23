@@ -2,7 +2,6 @@ package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -114,7 +113,6 @@ fun WeekScreen(
 
         Column(
             Modifier
-                .background(MaterialTheme.colorScheme.background)
                 .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
                 .navigationBarsPadding()
         ) {
@@ -143,7 +141,6 @@ fun WeekScreen(
                             contentDescription = stringResource(id = R.string.history)
                         )
                     }
-
 
                     IconButton(onClick = onNavigateToSearch) {
                         Icon(

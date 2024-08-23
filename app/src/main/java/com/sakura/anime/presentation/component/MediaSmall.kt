@@ -1,6 +1,8 @@
 package com.sakura.anime.presentation.component
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,6 +81,7 @@ fun MediaSmall(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: String? = null,
+    onSuccess: (Bitmap) -> Unit = { }
 ) {
     MediaSmall(
         modifier = modifier
@@ -89,7 +92,8 @@ fun MediaSmall(
                 onLongClick = onLongClick
             ),
         image = image,
-        label = label
+        label = label,
+        onSuccess = onSuccess
     )
 }
 
@@ -98,6 +102,7 @@ fun MediaSmall(
     image: String?,
     modifier: Modifier = Modifier,
     label: String? = null,
+    onSuccess: (Bitmap) -> Unit = { }
 ) {
     Card(
         modifier = modifier,
@@ -116,7 +121,11 @@ fun MediaSmall(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(0.7f)
-                .clip(RoundedCornerShape(dimensionResource(Res.dimen.media_card_corner_radius)))
+                .clip(RoundedCornerShape(dimensionResource(Res.dimen.media_card_corner_radius))),
+            onSuccess = {
+                val bitmap = (it.result.drawable as BitmapDrawable).bitmap
+                onSuccess(bitmap)
+            }
         )
 
         if (label != null)

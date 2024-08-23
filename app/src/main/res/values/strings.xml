@@ -79,5 +79,7 @@
     <string name="theme">主题</string>
     <string name="appearance_settings">外观设置</string>
     <string name="dynamic_color">动态颜色</string>
+    <string name="dynamic_image_color">动态图片颜色</string>
     <string name="dynamic_color_description">应用来自于壁纸的颜色</string>
+    <string name="dynamic_image_color_description">根据动漫封面动态更改主题颜色</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.sakura.anime.presentation.screen.favourite
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,7 +49,6 @@ fun FavouriteScreen(
     }, onFailure = {}) { resource ->
         Scaffold(modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .padding(bottom = dimensionResource(R.dimen.navigation_bar_height)),
             topBar = {
                 TopAppBar(

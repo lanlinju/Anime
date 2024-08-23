@@ -436,11 +436,11 @@ private fun VolumeBrightnessIndicator(
                 }
 
                 LinearProgressIndicator(
+                    progress = { playerState.volumeBrightnessProgress.value },
                     modifier = Modifier
                         .padding(dimensionResource(id = R.dimen.medium_padding))
                         .height(2.dp),
-                    progress = playerState.volumeBrightnessProgress.value,
-                    strokeCap = StrokeCap.Round
+                    strokeCap = StrokeCap.Round,
                 )
             }
         }

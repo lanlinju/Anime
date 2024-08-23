@@ -1,8 +1,10 @@
 package com.sakura.anime.util
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.palette.graphics.Palette
 import com.google.android.material.color.utilities.Scheme
 
 // 参考 https://github.com/you-apps/VibeYou/blob/c5c7eb3e9a2228b715689d9524cdc98db139287d/app/src/main/java/app/suhasdissa/vibeyou/utils/ThemeUtil.kt#L10
@@ -64,3 +66,14 @@ fun Scheme.toColorScheme() = ColorScheme(
     outlineVariant = Color(outlineVariant),
     scrim = Color(scrim)
 )
+
+suspend fun dynamicColorOf(bitmap: Bitmap): Color? {
+    val palette = Palette
+        .from(bitmap)
+        .maximumColorCount(8)
+        .generate()
+
+    val dominantSwatch = palette.dominantSwatch ?: return null
+
+    return Color(dominantSwatch.rgb)
+}
