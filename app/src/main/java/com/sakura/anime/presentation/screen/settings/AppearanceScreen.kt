@@ -51,6 +51,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.material.color.DynamicColors
 import com.sakura.anime.R
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
@@ -104,16 +105,18 @@ fun AppearanceScreen(
                 }
             )
 
-            SwitchPref(
-                title = stringResource(id = R.string.dynamic_color),
-                summary = stringResource(id = R.string.dynamic_color_description),
-                painter = rememberVectorPainter(image = Icons.Outlined.Colorize),
-                checked = dynamicColor,
-                onCheckedChange = {
-                    isDynamicImageColor = false
-                    SettingsPreferences.changeDynamicColor(it)
-                }
-            )
+            if (DynamicColors.isDynamicColorAvailable()) {
+                SwitchPref(
+                    title = stringResource(id = R.string.dynamic_color),
+                    summary = stringResource(id = R.string.dynamic_color_description),
+                    painter = rememberVectorPainter(image = Icons.Outlined.Colorize),
+                    checked = dynamicColor,
+                    onCheckedChange = {
+                        isDynamicImageColor = false
+                        SettingsPreferences.changeDynamicColor(it)
+                    }
+                )
+            }
 
             SwitchPref(
                 title = stringResource(id = R.string.dynamic_image_color),
