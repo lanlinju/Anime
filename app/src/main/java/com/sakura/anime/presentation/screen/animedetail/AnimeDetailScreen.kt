@@ -153,9 +153,17 @@ fun AnimeDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(
+                            Color(
+                                ColorUtils.blendARGB(
+                                    MaterialTheme.colorScheme.background.toArgb(),
+                                    MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                    0.05f
+                                )
+                            )
+                        )
                         .verticalScroll(scrollState)
                 ) {
-                    var mediaColor by remember { mutableStateOf(Color(0)) }
 
                     val isDynamicImageColor by rememberPreference(
                         key = KEY_DYNAMIC_IMAGE_COLOR,
@@ -164,7 +172,7 @@ fun AnimeDetailScreen(
 
                     AnimeBanner(
                         imageUrl = animeDetail.img,
-                        tintColor = { mediaColor.copy(alpha = 0.25f) },
+                        tintColor = { Color(0).copy(alpha = 0.25f) },
                         modifier = Modifier
                             .height(bannerHeight)
                             .fillMaxWidth()
@@ -179,16 +187,7 @@ fun AnimeDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = bannerHeight)
-                            .background(
-                                Color(
-                                    ColorUtils.blendARGB(
-                                        MaterialTheme.colorScheme.background.toArgb(),
-                                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                        0.05f
-                                    )
-                                )
-                            ),
+                            .padding(top = bannerHeight),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
@@ -269,7 +268,6 @@ fun AnimeDetailScreen(
                             contentPadding = PaddingValues(horizontal = dimensionResource(Res.dimen.large_padding)),
                             onRelatedAnimeClick = { onRelatedAnimeClick(it, viewModel.mode) }
                         )
-
                     }
 
                     Box(
@@ -293,7 +291,6 @@ fun AnimeDetailScreen(
                                         val newBitmap =
                                             bitmap.copy(Bitmap.Config.ARGB_8888, true)
                                         dynamicColorOf(newBitmap)?.let {
-                                            mediaColor = it
                                             SettingsPreferences.applyImageColor(it.toArgb())
                                         }
                                     }

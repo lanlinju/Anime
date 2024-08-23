@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,9 +70,7 @@ fun HomeScreen(
     }
 
     Column(
-        Modifier
-            .padding(bottom = dimensionResource(Res.dimen.navigation_bar_height))
-            .navigationBarsPadding()
+        Modifier.fillMaxSize()
     ) {
         StateHandler(state = availableDataList.value, onLoading = {
             LoadingIndicator()
@@ -111,7 +109,7 @@ fun HomeScreen(
                                     )
                                 )
                                 .padding(vertical = dimensionResource(Res.dimen.large_padding)),
-                            verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
+                            verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding)),
                         ) {
                             resource.data?.forEach { home ->
                                 HomeRow(

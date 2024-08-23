@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,6 +30,7 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -111,11 +111,7 @@ fun WeekScreen(
         val openSettingsDialog = remember { mutableStateOf(false) }
         val openChangeDomainDialog = remember { mutableStateOf(false) }
 
-        Column(
-            Modifier
-                .padding(bottom = dimensionResource(R.dimen.navigation_bar_height))
-                .navigationBarsPadding()
-        ) {
+        Column {
             var expanded by remember { mutableStateOf(false) }
             val uriHandler = LocalUriHandler.current
             TopAppBar(
@@ -595,9 +591,11 @@ fun WeekItem(
     subtitle: String,
     onClick: () -> Unit
 ) {
+
     ElevatedCard(
         modifier = modifier.height(80.dp),
         onClick = onClick,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.5.dp)
     ) {
         Box(
             modifier = Modifier

@@ -1,6 +1,9 @@
 package com.sakura.anime.presentation.component
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
@@ -14,6 +17,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
@@ -24,10 +28,31 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.R as Res
 
+@Deprecated("Use NavigationBar(destinations) instead")
+@Composable
+fun BottomNavigationBar(modifier: Modifier, navController: NavHostController) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val isNavBarVisible = remember(currentBackStackEntry) {
+        val currentDestination = currentBackStackEntry?.destination
+        NavigationBarPath.values().any { it.route == currentDestination?.route }
+    }
+
+    AnimatedVisibility(
+        visible = isNavBarVisible,
+        modifier = modifier,
+        enter = slideInVertically { it },
+        exit = slideOutVertically { it }
+    ) {
+        NavigationBar(navController = navController)
+    }
+}
+
+@Deprecated("Use NavigationBar(destinations) instead")
 @Composable
 fun NavigationBar(
     navController: NavController
@@ -51,7 +76,7 @@ fun NavigationBar(
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
-        NavigationBarPaths.values().forEach { destination ->
+        NavigationBarPath.values().forEach { destination ->
             NavigationBarItem(
                 modifier = Modifier.navigationBarsPadding(),
                 selected = currentDestination?.hierarchy?.any { it.route == destination.route } == true,
@@ -70,7 +95,34 @@ fun NavigationBar(
     }
 }
 
-enum class NavigationBarPaths(
+@Composable
+fun NavigationBar(
+    destinations: Array<NavigationBarPath>,
+    currentDestination: String,
+    onNavigateToDestination: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        modifier = modifier
+            .height(
+                dimensionResource(Res.dimen.navigation_bar_height) + WindowInsets
+                    .navigationBars
+                    .asPaddingValues()
+                    .calculateBottomPadding()
+            ),
+    ) {
+        destinations.forEachIndexed { index, destination ->
+            val selected = destination.route == currentDestination
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onNavigateToDestination(index) },
+                icon = destination.icon,
+            )
+        }
+    }
+}
+
+enum class NavigationBarPath(
     val route: String,
     val icon: @Composable () -> Unit
 ) {

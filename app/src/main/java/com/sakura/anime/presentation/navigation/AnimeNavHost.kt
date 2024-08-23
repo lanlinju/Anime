@@ -9,20 +9,18 @@ import androidx.navigation.compose.composable
 import com.sakura.anime.presentation.screen.animedetail.AnimeDetailScreen
 import com.sakura.anime.presentation.screen.download.DownloadScreen
 import com.sakura.anime.presentation.screen.downloaddetail.DownloadDetailScreen
-import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.history.HistoryScreen
-import com.sakura.anime.presentation.screen.home.HomeScreen
+import com.sakura.anime.presentation.screen.main.MainScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.settings.AppearanceScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
-import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
 
 @Composable
 fun AnimeNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.HomeScreen.route,
+    startDestination: String = Screen.MainScreen.route,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
     onNavigateToHistory: () -> Unit,
@@ -38,8 +36,14 @@ fun AnimeNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Screen.HomeScreen.route) {
-            HomeScreen(onNavigateToAnimeDetail = onNavigateToAnimeDetail)
+        composable(Screen.MainScreen.route) {
+            MainScreen(
+                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
+                onNavigateToSearch = onNavigateToSearch,
+                onNavigateToHistory = onNavigateToHistory,
+                onNavigateToDownload = onNavigateToDownload,
+                onNavigateToAppearance = onNavigateToAppearance
+            )
         }
         composable(Screen.AnimeDetailScreen.route) {
             AnimeDetailScreen(
@@ -55,20 +59,6 @@ fun AnimeNavHost(
             SearchScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onBackClick = onBackClick
-            )
-        }
-        composable(Screen.WeekScreen.route) {
-            WeekScreen(
-                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onNavigateToSearch = onNavigateToSearch,
-                onNavigateToHistory = onNavigateToHistory,
-                onNavigateToDownload = onNavigateToDownload,
-                onNavigateToAppearance = onNavigateToAppearance
-            )
-        }
-        composable(Screen.FavouriteScreen.route) {
-            FavouriteScreen(
-                onNavigateToAnimeDetail = onNavigateToAnimeDetail,
             )
         }
         composable(Screen.HistoryScreen.route) {

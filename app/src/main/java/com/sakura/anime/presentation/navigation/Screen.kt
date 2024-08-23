@@ -11,6 +11,7 @@ const val ROUTE_ARGUMENT_SOURCE_MODE = "sourceMode"
 sealed class Screen(
     val route: String
 ) {
+    object MainScreen : Screen(route = "main")
     object HomeScreen : Screen(route = "home")
     object SearchScreen : Screen(route = "search")
     object WeekScreen : Screen(route = "week")
