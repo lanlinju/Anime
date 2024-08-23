@@ -26,32 +26,34 @@ class GetAnimeDetailUseCase @Inject constructor(
                                 emit(Resource.Success(data = resource.data))
                             } else {
                                 roomRepository.getEpisodes(detailUrl).collect { localEpisodes ->
+                                    if (localEpisodes.isEmpty()) {
+                                        emit(Resource.Success(data = resource.data))
+                                    } else {
+                                        val lastPlayedEpisode = localEpisodes.first()
+                                        val remoteEpisodes = resource.data!!.episodes
 
-                                    val lastPlayedEpisode = localEpisodes.first()
-                                    val remoteEpisodes = resource.data!!.episodes
+                                        val lastPosition =
+                                            remoteEpisodes.indexOfFirst { it.url == lastPlayedEpisode.url }
+                                        val episodeList = remoteEpisodes.map { episode ->
+                                            val index =
+                                                localEpisodes.indexOfFirst { e -> e.url == episode.url }
+                                            Episode(
+                                                name = episode.name,
+                                                url = episode.url,
+                                                lastPosition = if (index != -1) localEpisodes[index].lastPosition else 0L,
+                                                isPlayed = index != -1
+                                            )
+                                        }
 
-                                    val lastPosition =
-                                        remoteEpisodes.indexOfFirst { it.url == lastPlayedEpisode.url }
-                                    val episodeList = remoteEpisodes.map { episode ->
-                                        val index =
-                                            localEpisodes.indexOfFirst { e -> e.url == episode.url }
-                                        Episode(
-                                            name = episode.name,
-                                            url = episode.url,
-                                            lastPosition = if (index != -1) localEpisodes[index].lastPosition else 0L,
-                                            isPlayed = index != -1
-                                        )
-                                    }
-
-                                    emit(
-                                        Resource.Success(
-                                            data = resource.data.copy(
-                                                lastPosition = lastPosition.coerceAtLeast(0),
-                                                episodes = episodeList
+                                        emit(
+                                            Resource.Success(
+                                                data = resource.data.copy(
+                                                    lastPosition = lastPosition.coerceAtLeast(0),
+                                                    episodes = episodeList
+                                                )
                                             )
                                         )
-                                    )
-
+                                    }
                                 }
                             }
                         }

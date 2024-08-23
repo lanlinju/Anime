@@ -86,6 +86,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.componentsui.anime.domain.model.Anime
@@ -124,8 +125,8 @@ fun AnimeDetailScreen(
     val scrollState = rememberScrollState()
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
 
-    val animeDetailState by viewModel.animeDetailState.collectAsState()
-    val isFavourite by viewModel.isFavourite.collectAsState()
+    val animeDetailState by viewModel.animeDetailState.collectAsStateWithLifecycle()
+    val isFavourite by viewModel.isFavourite.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -136,7 +137,7 @@ fun AnimeDetailScreen(
         onFailure = {
             WarningMessage(
                 textId = Res.string.txt_empty_result,
-                extraText = it.error?.message ?: "",
+                extraText = it.error?.message + "\n" + it.error?.printStackTrace(),
                 onRetryClick = { viewModel.retry() }
             )
         }
@@ -167,7 +168,7 @@ fun AnimeDetailScreen(
 
                     val isDynamicImageColor by rememberPreference(
                         key = KEY_DYNAMIC_IMAGE_COLOR,
-                        defaultValue = false
+                        defaultValue = true
                     )
 
                     AnimeBanner(

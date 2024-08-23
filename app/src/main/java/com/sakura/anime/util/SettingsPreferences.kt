@@ -21,7 +21,7 @@ object SettingsPreferences {
         MutableStateFlow(preferences.getInt(KEY_CUSTOM_COLOR, catpucchinLatte.first()))
     val customColor = _customColor.asStateFlow()
 
-    private val _dynamicColor = MutableStateFlow(preferences.getBoolean(KEY_DYNAMIC_COLOR, true))
+    private val _dynamicColor = MutableStateFlow(preferences.getBoolean(KEY_DYNAMIC_COLOR, false))
     val dynamicColor = _dynamicColor.asStateFlow()
 
 

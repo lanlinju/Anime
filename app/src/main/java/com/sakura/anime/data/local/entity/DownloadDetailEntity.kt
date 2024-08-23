@@ -10,7 +10,7 @@ import com.sakura.anime.util.DOWNLOAD_DETAIL_TABLE
 
 @Entity(
     tableName = DOWNLOAD_DETAIL_TABLE,
-    indices = [Index("download_url", unique = true)],
+    indices = [Index("download_id", unique = false), Index("download_url", unique = true)],
     foreignKeys = [
         ForeignKey(
             entity = DownloadEntity::class,

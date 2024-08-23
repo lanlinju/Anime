@@ -22,9 +22,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
@@ -147,7 +147,7 @@ fun WeekScreen(
 
                     IconButton(onClick = onNavigateToDownload) {
                         Icon(
-                            imageVector = Icons.Rounded.ArrowForward,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                             modifier = Modifier.rotate(90f),
                             contentDescription = stringResource(id = R.string.download_list)
                         )
@@ -230,7 +230,7 @@ fun WeekScreen(
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.ArrowForward,
+                                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                                         modifier = Modifier.rotate(-90f),
                                         contentDescription = stringResource(id = R.string.check_update)
                                     )

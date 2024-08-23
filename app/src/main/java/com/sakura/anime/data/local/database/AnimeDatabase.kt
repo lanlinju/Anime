@@ -14,7 +14,7 @@ import com.sakura.anime.data.local.entity.FavouriteEntity
 import com.sakura.anime.data.local.entity.HistoryEntity
 
 @Database(
-    version = 2,
+    version = 3,
     entities = [
         FavouriteEntity::class,
         HistoryEntity::class,

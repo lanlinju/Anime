@@ -44,7 +44,8 @@ object AppModule {
             application,
             AnimeDatabase::class.java,
             ANIME_DATABASE,
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Singleton

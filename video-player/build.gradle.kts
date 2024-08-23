@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -30,9 +31,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -40,9 +38,9 @@ android {
 
 dependencies {
 
-    implementation("androidx.activity:activity-compose:1.8.1")
-    implementation("androidx.compose.ui:ui:1.5.4")
-    implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.compose.ui:ui:1.6.8")
+    implementation("androidx.compose.material3:material3:1.2.1")
     implementation(api("com.google.android.exoplayer:exoplayer-core:2.16.1")!!)
     implementation(api("com.google.android.exoplayer:exoplayer-hls:2.16.1")!!)
 }

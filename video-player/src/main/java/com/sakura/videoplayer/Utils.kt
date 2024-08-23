@@ -11,7 +11,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 
-internal inline fun VideoSize.aspectRatio(): Float =
+internal fun VideoSize.aspectRatio(): Float =
     if (height == 0 || width == 0) 0f else (width * pixelWidthHeightRatio) / height
 
 /**
@@ -28,7 +28,7 @@ private const val MAX_ASPECT_RATIO_DIFFERENCE_FRACTION = 0.01f
 private const val VIDEO_ASPECT_RATIO_16_9 = 16f.div(9f) // 16 : 9, 1.7777778
 private const val VIDEO_ASPECT_RATIO_4_3 = 4f.div(3f)  //   4 : 3, 1.3333334
 
-internal inline fun Constraints.resizeForVideo(
+internal fun Constraints.resizeForVideo(
     mode: ResizeMode,
     aspectRatio: Float
 ): Constraints {

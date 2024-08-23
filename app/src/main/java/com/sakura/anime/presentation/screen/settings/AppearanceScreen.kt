@@ -92,12 +92,13 @@ fun AppearanceScreen(
 
             val selectedColor by SettingsPreferences.customColor.collectAsState()
             val dynamicColor by SettingsPreferences.dynamicColor.collectAsState()
-            var isDynamicImageColor by rememberPreference(KEY_DYNAMIC_IMAGE_COLOR, false)
+            var isDynamicImageColor by rememberPreference(KEY_DYNAMIC_IMAGE_COLOR, true)
 
             ColorBall(
                 selectedColor = selectedColor,
                 isCheckVisible = !dynamicColor,
                 onSelect = {
+                    isDynamicImageColor = false
                     SettingsPreferences.changeDynamicColor(false)
                     SettingsPreferences.changeCustomColor(it)
                 }
