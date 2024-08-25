@@ -33,8 +33,8 @@ fun rememberVideoPlayerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     config: ExoPlayer.Builder.() -> Unit = {
         setLoadControl(loadControlCreator())
-        setSeekForwardIncrementMs(10 * 1000)
-        setSeekBackIncrementMs(10 * 1000)
+        setSeekForwardIncrementMs(15 * 1000)
+        setSeekBackIncrementMs(15 * 1000)
     }
 ): VideoPlayerState = remember {
     VideoPlayerStateImpl(

@@ -1,7 +1,6 @@
 package com.sakura.videoplayer
 
 
-import android.annotation.SuppressLint
 import android.media.AudioManager
 import android.provider.Settings
 import android.view.SurfaceView
@@ -59,9 +58,8 @@ private fun Modifier.adaptiveLayout(
     }
 }
 
-@SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
-    pointerInput(Unit) {
+    this.pointerInput(Unit) {
         var downX = 0f
         var downY = 0f
         var isChangePosition = false
@@ -143,11 +141,10 @@ private fun Modifier.defaultPlayerDragGestures(playerState: VideoPlayerState) =
         }
     }
 
-@SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.defaultPlayerTapGestures(
     playerState: VideoPlayerState,
     haptics: HapticFeedback,
-) = pointerInput(Unit) {
+) = this.pointerInput(Unit) {
     detectTapGestures(
         onTap = {
             if (playerState.isControlUiVisible.value) {

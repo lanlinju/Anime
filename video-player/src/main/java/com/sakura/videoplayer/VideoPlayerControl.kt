@@ -57,7 +57,7 @@ fun VideoPlayerControl(
     contentColor: Color = Color.LightGray,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onBackClick: () -> Unit = {},
-    onNextClick: () -> Unit,
+    onNextClick: () -> Unit = {},
     optionsContent: (@Composable () -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {

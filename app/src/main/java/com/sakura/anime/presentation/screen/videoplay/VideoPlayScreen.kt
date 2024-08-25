@@ -20,6 +20,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +63,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -72,8 +74,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
@@ -199,7 +209,15 @@ fun VideoPlayScreen(
                     url = video.url,
                     videoPosition = video.lastPosition,
                     playerState = playerState,
-                    onBackPress = onBackHandle
+                    onBackPress = onBackHandle,
+                    modifier = Modifier
+                        .focusable()
+                        .defaultRemoteControlHandler(
+                            playerState = playerState,
+                            onNextClick = {
+                                viewModel.nextEpisode(playerState.player.currentPosition)
+                            }
+                        )
                 ) {
                     VideoPlayerControl(
                         state = playerState,
@@ -230,6 +248,51 @@ fun VideoPlayScreen(
             view.keepScreenOn = false
             requestPortraitOrientation(view, activity)
         }
+    }
+}
+
+private fun Modifier.defaultRemoteControlHandler(
+    playerState: VideoPlayerState,
+    onNextClick: () -> Unit = {},
+) = onKeyEvent { keyEvent: KeyEvent ->
+    if (keyEvent.type == KeyEventType.KeyDown)
+        when (keyEvent.key) {
+            Key.DirectionLeft -> {
+                playerState.showControlUi()
+                playerState.control.rewind()
+                true
+            }
+
+            Key.DirectionRight -> {
+                playerState.showControlUi()
+                playerState.control.forward()
+                true
+            }
+
+            Key.DirectionUp -> {
+                playerState.showEpisodeUi()
+                true
+            }
+
+            Key.DirectionDown -> {
+                playerState.showControlUi()
+                onNextClick()
+                true
+            }
+
+            Key.DirectionCenter, Key.Spacebar -> {
+                if (playerState.isPlaying.value) {
+                    playerState.showControlUi()
+                    playerState.control.pause()
+                } else {
+                    playerState.control.play()
+                }
+                true
+            }
+
+            else -> false
+        } else {
+        false
     }
 }
 
@@ -594,6 +657,8 @@ private fun EpisodeSideSheet(
     onEpisodeClick: (Int, Episode) -> Unit,
     onDismissRequest: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     SideSheet(onDismissRequest = onDismissRequest) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
@@ -601,16 +666,25 @@ private fun EpisodeSideSheet(
             state = rememberLazyGridState(initialFirstVisibleItemIndex = selectedEpisodeIndex, -200)
         ) {
             itemsIndexed(episodes) { index, episode ->
+                val selected = index == selectedEpisodeIndex
                 OutlinedButton(
                     onClick = { onEpisodeClick(index, episode) },
                     contentPadding = PaddingValues(8.dp),
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .focusable()
                 ) {
                     Text(
                         text = episode.name,
-                        color = if (index == selectedEpisodeIndex) MaterialTheme.colorScheme.primary else Color.LightGray,
+                        color = if (selected) MaterialTheme.colorScheme.primary else Color.LightGray,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1
                     )
+                }
+                LaunchedEffect(Unit) {
+                    if (selected) {
+                        focusRequester.requestFocus()
+                    }
                 }
             }
         }
@@ -623,7 +697,10 @@ private fun SideSheet(
     widthRatio: Float = 0.4f,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         val fullWidth = constraints.maxWidth
         val sideSheetWidthDp = maxWidth * widthRatio
 
