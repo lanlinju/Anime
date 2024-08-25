@@ -1,11 +1,13 @@
 package com.sakura.anime.util
 
+import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider.getUriForFile
@@ -73,4 +75,9 @@ fun openExternalPlayer(videoUrl: String) {
     }
     intent.setDataAndType(uri, "video/*")
     context.startActivity(intent)
+}
+
+fun isAndroidTV(context: Context): Boolean {
+    val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+    return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
 }

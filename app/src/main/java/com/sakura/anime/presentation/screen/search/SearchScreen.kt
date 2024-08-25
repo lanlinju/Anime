@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.search
 
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,6 +49,7 @@ import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.PaginationStateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.isAndroidTV
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +98,7 @@ fun SearchScreen(
                         onDismissRequest = { expanded = false }
                     ) {
 
-                        SourceMode.values().forEach { mode ->
+                        SourceMode.entries.forEach { mode ->
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -112,7 +120,7 @@ fun SearchScreen(
         },
         modifier = Modifier.navigationBarsPadding()
     ) {
-
+        val context = LocalContext.current
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -120,10 +128,27 @@ fun SearchScreen(
             contentPadding = PaddingValues(6.dp)
         ) {
             items(count = animesState.itemCount) { index ->
+                val mediaFocusRequester = remember { FocusRequester() }
+                var isFocused by remember { mutableStateOf(false) }
                 val item = animesState[index]!!
-                MediaSmall(image = item.img, label = item.title, onClick = {
-                    onNavigateToAnimeDetail(item.detailUrl, viewModel.currentSourceMode)
-                })
+                MediaSmall(
+                    image = item.img,
+                    label = item.title,
+                    onClick = {
+                        onNavigateToAnimeDetail(item.detailUrl, viewModel.currentSourceMode)
+                    },
+                    modifier = Modifier
+                        .onFocusChanged(onFocusChanged = { isFocused = it.isFocused })
+                        .scale(if (isFocused && isAndroidTV(context)) 1.1f else 1f)
+                        .focusRequester(mediaFocusRequester) // 设置焦点请求者
+                        .focusable()
+                )
+
+                LaunchedEffect(item.detailUrl) {
+                    if (index == 0) {
+                        mediaFocusRequester.requestFocus() // 将焦点移动到 MediaSmall
+                    }
+                }
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
