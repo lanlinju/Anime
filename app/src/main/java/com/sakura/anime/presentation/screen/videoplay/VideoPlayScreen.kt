@@ -76,6 +76,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.key.Key
@@ -657,7 +658,6 @@ private fun EpisodeSideSheet(
     onEpisodeClick: (Int, Episode) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
 
     SideSheet(onDismissRequest = onDismissRequest) {
         LazyVerticalGrid(
@@ -666,11 +666,21 @@ private fun EpisodeSideSheet(
             state = rememberLazyGridState(initialFirstVisibleItemIndex = selectedEpisodeIndex, -200)
         ) {
             itemsIndexed(episodes) { index, episode ->
+
+                val focusRequester = remember { FocusRequester() }
+                var isFocused by remember { mutableStateOf(false) }
                 val selected = index == selectedEpisodeIndex
+
                 OutlinedButton(
                     onClick = { onEpisodeClick(index, episode) },
                     contentPadding = PaddingValues(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = if (isFocused) MaterialTheme.colorScheme.primary.copy(
+                            alpha = 0.4f
+                        ) else Color.Unspecified
+                    ),
                     modifier = Modifier
+                        .onFocusChanged(onFocusChanged = { isFocused = it.isFocused })
                         .focusRequester(focusRequester)
                         .focusable()
                 ) {
@@ -681,7 +691,8 @@ private fun EpisodeSideSheet(
                         maxLines = 1
                     )
                 }
-                LaunchedEffect(Unit) {
+
+                LaunchedEffect(selected) {
                     if (selected) {
                         focusRequester.requestFocus()
                     }

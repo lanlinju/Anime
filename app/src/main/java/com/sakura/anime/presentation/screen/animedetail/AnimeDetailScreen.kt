@@ -537,7 +537,7 @@ fun AnimeGenres(
                 border = SuggestionChipDefaults.suggestionChipBorder(
                     enabled = true,
                     borderColor = Color.Transparent
-                )
+                ),
             )
         }
     }
@@ -567,7 +567,7 @@ fun AnimeEpisodes(
         items(if (!reverseList) episodes else episodes.reversed()) { episode ->
             FilledTonalButton(
                 onClick = { onEpisodeClick(episode) },
-                colors = ButtonDefaults.buttonColors(containerColor = color.copy(0.5f))
+                colors = ButtonDefaults.filledTonalButtonColors(containerColor = color.copy(0.5f))
             ) {
                 Text(
                     text = episode.name,
