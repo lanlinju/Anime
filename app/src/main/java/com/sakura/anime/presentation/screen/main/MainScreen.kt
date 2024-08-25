@@ -60,10 +60,10 @@ fun MainScreen(
         }
 
         NavigationBar(
-            destinations = NavigationBarPath.values(),
+            destinations = NavigationBarPath.entries,
             currentDestination = currentDestination,
             onNavigateToDestination = {
-                currentDestination = NavigationBarPath.values()[it].route
+                currentDestination = NavigationBarPath.entries[it].route
                 scope.launch { pagerState.scrollToPage(it) }
             }
         )

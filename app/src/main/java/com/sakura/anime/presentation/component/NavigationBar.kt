@@ -97,7 +97,7 @@ fun NavigationBar(
 
 @Composable
 fun NavigationBar(
-    destinations: Array<NavigationBarPath>,
+    destinations: List<NavigationBarPath>,
     currentDestination: String,
     onNavigateToDestination: (Int) -> Unit,
     modifier: Modifier = Modifier

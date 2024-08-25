@@ -676,7 +676,7 @@ private fun EpisodeSideSheet(
                     contentPadding = PaddingValues(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (isFocused) MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.4f
+                            alpha = 0.3f
                         ) else Color.Unspecified
                     ),
                     modifier = Modifier
