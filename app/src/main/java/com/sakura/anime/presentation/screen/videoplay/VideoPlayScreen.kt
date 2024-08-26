@@ -106,6 +106,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
 import com.sakura.anime.util.isAndroidTV
+import com.sakura.anime.util.isTabletDevice
 import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.openExternalPlayer
 import com.sakura.anime.util.preferences
@@ -333,7 +334,7 @@ private fun OptionsContent(video: Video) {
 private fun requestPortraitOrientation(view: View, activity: Activity) {
     showSystemBars(view, activity)
 
-    if (isWideScreen(activity)) return
+    if (isAndroidTV(activity) || isTabletDevice(activity)) return
 
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 }

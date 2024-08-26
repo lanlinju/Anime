@@ -35,7 +35,7 @@ fun MainScreen(
     onNavigateToAppearance: () -> Unit,
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(NavigationBarPath.Home.route) }
-    val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.values().size }
+    val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.entries.size }
     val scope = rememberCoroutineScope()
 
     val isWideScreen = isWideScreen(LocalContext.current)
