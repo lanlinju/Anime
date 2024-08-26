@@ -2,6 +2,8 @@ package com.sakura.anime.presentation.screen.main
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -13,12 +15,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.sakura.anime.presentation.component.NavigationBar
+import androidx.compose.ui.platform.LocalContext
+import com.sakura.anime.presentation.component.AdaptiveNavigationBar
 import com.sakura.anime.presentation.component.NavigationBarPath
 import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.isWideScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -34,16 +38,25 @@ fun MainScreen(
     val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.values().size }
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    val isWideScreen = isWideScreen(LocalContext.current)
+
+    val navigationContent: @Composable () -> Unit = {
+        AdaptiveNavigationBar(
+            destinations = NavigationBarPath.entries,
+            currentDestination = currentDestination,
+            onNavigateToDestination = {
+                currentDestination = NavigationBarPath.entries[it].route
+                scope.launch { pagerState.scrollToPage(it) }
+            },
+            isWideScreen = isWideScreen,
+        )
+    }
+
+    val pagerContent: @Composable (Modifier) -> Unit = { modifier ->
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = modifier // 这里 error
         ) { page ->
             when (page) {
                 0 -> WeekScreen(
@@ -53,19 +66,27 @@ fun MainScreen(
                     onNavigateToDownload = onNavigateToDownload,
                     onNavigateToAppearance = onNavigateToAppearance
                 )
-
                 1 -> HomeScreen(onNavigateToAnimeDetail)
                 2 -> FavouriteScreen(onNavigateToAnimeDetail)
             }
         }
+    }
 
-        NavigationBar(
-            destinations = NavigationBarPath.entries,
-            currentDestination = currentDestination,
-            onNavigateToDestination = {
-                currentDestination = NavigationBarPath.entries[it].route
-                scope.launch { pagerState.scrollToPage(it) }
-            }
-        )
+    if (isWideScreen) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            navigationContent()
+            pagerContent(
+                Modifier
+                    .fillMaxHeight()
+                    .weight(1f))
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxSize()) {
+            pagerContent(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f))
+            navigationContent()
+        }
     }
 }

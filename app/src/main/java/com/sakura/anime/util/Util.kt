@@ -7,6 +7,7 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.util.Log
@@ -77,7 +78,35 @@ fun openExternalPlayer(videoUrl: String) {
     context.startActivity(intent)
 }
 
+/**
+ * 判断是否为AndroidTV
+ * 用于处理AndroidTV的交互，例如遥控器
+ */
 fun isAndroidTV(context: Context): Boolean {
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-    return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    val isTV = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    val hasLeanbackFeature =
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+    return isTV || hasLeanbackFeature
+}
+
+// 判断是否为平板或大屏设备
+fun isTabletDevice(context: Context): Boolean {
+    val configuration = context.resources.configuration
+    val screenWidthDp = configuration.smallestScreenWidthDp
+
+    return screenWidthDp >= 600
+}
+
+/**
+ * 用于处理宽屏设备布局
+ */
+fun isWideScreen(context: Context): Boolean {
+    /*val metrics = context.resources.displayMetrics
+    val aspectRatio = metrics.widthPixels.toFloat() / metrics.heightPixels.toFloat()
+    return aspectRatio > 1.33*/
+    val configuration = context.resources.configuration
+    val screenWidthDp = configuration.screenWidthDp
+    val screenHeightDp = configuration.screenHeightDp
+    return screenWidthDp > screenHeightDp
 }

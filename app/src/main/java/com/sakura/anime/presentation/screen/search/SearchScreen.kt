@@ -1,17 +1,18 @@
 package com.sakura.anime.presentation.screen.search
 
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Clear
@@ -34,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -50,6 +50,7 @@ import com.sakura.anime.presentation.component.PaginationStateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.isAndroidTV
+import com.sakura.anime.util.isWideScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,7 @@ fun SearchScreen(
     val animesState = viewModel.animesState.collectAsLazyPagingItems()
     val searchQuery by viewModel.query.collectAsState()
     var expanded by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
     SearchBar(
         query = searchQuery,
@@ -118,14 +120,18 @@ fun SearchScreen(
             }
 
         },
-        modifier = Modifier.navigationBarsPadding()
+        modifier = Modifier.focusRequester(focusRequester)
     ) {
         val context = LocalContext.current
+        val isAndroidTV = isAndroidTV(context)
+
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            columns = if (isWideScreen(context)) GridCells.Adaptive(dimensionResource(R.dimen.media_card_width)) else GridCells.Fixed(
+                3
+            ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(6.dp)
+            contentPadding = PaddingValues(8.dp),
         ) {
             items(count = animesState.itemCount) { index ->
                 val mediaFocusRequester = remember { FocusRequester() }
@@ -139,7 +145,15 @@ fun SearchScreen(
                     },
                     modifier = Modifier
                         .onFocusChanged(onFocusChanged = { isFocused = it.isFocused })
-                        .scale(if (isFocused && isAndroidTV(context)) 1.1f else 1f)
+                        .run {
+                            if (isFocused && isAndroidTV) {
+                                border(
+                                    4.dp, MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(dimensionResource(R.dimen.media_card_corner_radius))
+                                )
+                            } else this
+                        }
+//                        .scale(if (isFocused && isAndroidTV) 1.1f else 1f)
                         .focusRequester(mediaFocusRequester) // 设置焦点请求者
                         .focusable()
                 )
@@ -181,5 +195,12 @@ fun SearchScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        if (!viewModel.hasFocusRequest) {
+            viewModel.hasFocusRequest = true
+            focusRequester.requestFocus()
+        }
+
+    }
 }
 

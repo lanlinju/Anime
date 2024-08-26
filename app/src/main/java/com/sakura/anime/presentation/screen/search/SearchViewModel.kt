@@ -28,6 +28,9 @@ class SearchViewModel @Inject constructor(
     val query: StateFlow<String>
         get() = _query
 
+    // 只在第一次进入时请求焦点
+    var hasFocusRequest = false
+
     /**
      * 用于标识使用当前动漫源搜索数据
      *

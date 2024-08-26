@@ -83,6 +83,7 @@ import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
+import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -269,7 +270,8 @@ fun WeekScreen(
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = !isAndroidTV(LocalContext.current)
             ) { page ->
                 StateHandler(
                     state = weekDataState,
@@ -569,10 +571,10 @@ fun WeekList(
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Adaptive(dimensionResource(id = R.dimen.week_item_width)),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(6.dp)
+        contentPadding = PaddingValues(8.dp),
     ) {
         items(list, key = { it.url }) { anime ->
             WeekItem(
@@ -583,7 +585,6 @@ fun WeekList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekItem(
     modifier: Modifier = Modifier,

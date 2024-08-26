@@ -26,8 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -38,6 +41,7 @@ import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.SourceBadge
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.isWideScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +50,7 @@ fun FavouriteScreen(
 ) {
     val favouriteViewModel: FavouriteViewModel = hiltViewModel()
     val availableDataList = favouriteViewModel.favouriteList.collectAsState()
+    val focusRequester = remember { FocusRequester() }
 
     StateHandler(state = availableDataList.value, onLoading = {
         LoadingIndicator()
@@ -65,12 +70,17 @@ fun FavouriteScreen(
             contentWindowInsets = WindowInsets.systemBars.exclude(WindowInsets.navigationBars)
         ) { paddingValues ->
 
+            val context = LocalContext.current
+
             LazyVerticalGrid(
-                modifier = Modifier.padding(paddingValues),
-                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .padding(paddingValues),
+                columns = if (isWideScreen(context)) GridCells.Adaptive(dimensionResource(R.dimen.media_card_width)) else GridCells.Fixed(
+                    3
+                ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(6.dp)
+                contentPadding = PaddingValues(8.dp)
             ) {
                 resource.data?.let { favouriteList ->
                     items(favouriteList) { anime ->
@@ -126,6 +136,7 @@ fun FavouriteScreen(
                     }
                 }
             }
+
         }
 
     }

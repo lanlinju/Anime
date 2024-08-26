@@ -1,13 +1,12 @@
 package com.sakura.anime.source
 
 import com.sakura.anime.data.remote.api.AnimeApiImpl
-import com.sakura.anime.data.remote.parse.YhdmSource.BASE_URL
+import com.sakura.anime.data.remote.parse.YhdmSource.baseUrl
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 import java.time.LocalDate
 
 /**
@@ -27,7 +26,7 @@ class YhdmSourceTest {
     @Test
     fun test_network() {
         runBlocking {
-            val html = DownloadManager.getHtml(BASE_URL)
+            val html = DownloadManager.getHtml(baseUrl)
             println(html)
         }
     }
@@ -44,7 +43,7 @@ class YhdmSourceTest {
     fun test_search() {
         runBlocking {
             val query = "海贼王"
-            println(api.getSearchData(query, 1))
+            println(api.getSearchData(query, 1, SourceMode.Yhdm))
         }
     }
 

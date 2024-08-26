@@ -52,6 +52,7 @@ import com.sakura.anime.util.KEY_HOME_BACKGROUND_URI
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
+import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.rememberPreference
 import com.sakura.anime.R as Res
 
@@ -92,10 +93,15 @@ fun HomeScreen(
                         .verticalScroll(scrollState)
                 ) {
 
-                    HomeBackground(scrollState = scrollState)
+                    val context = LocalContext.current
+                    val isWideScreen = isWideScreen(context)
+
+                    if (!isWideScreen) {
+                        HomeBackground(scrollState = scrollState)
+                    }
 
                     Column {
-                        Spacer(Modifier.size(dimensionResource(Res.dimen.banner_height)))
+                        Spacer(Modifier.size(if (!isWideScreen) dimensionResource(Res.dimen.banner_height) else 0.dp))
 
                         Column(
                             modifier = Modifier
@@ -111,6 +117,10 @@ fun HomeScreen(
                                 .padding(vertical = dimensionResource(Res.dimen.large_padding)),
                             verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding)),
                         ) {
+                            if (isWideScreen) {
+                                HomeTile()
+                            }
+
                             resource.data?.forEach { home ->
                                 HomeRow(
                                     list = home.animList,
@@ -177,35 +187,51 @@ fun HomeBackground(scrollState: ScrollState) {
                 .height(dimensionResource(Res.dimen.banner_height))
         )
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(
-                    start = dimensionResource(Res.dimen.large_padding),
-                    bottom = dimensionResource(Res.dimen.medium_padding)
-                )
-        ) {
+        HomeTile(modifier = Modifier.align(Alignment.BottomStart)) {
+            launcher.launch(arrayOf("image/*"))
+        }
+
+    }
+}
+
+@Composable
+private fun HomeTile(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    val isWideScreen = isWideScreen(LocalContext.current)
+
+    Box(
+        modifier = modifier
+            .padding(
+                start = dimensionResource(Res.dimen.large_padding),
+                bottom = if (!isWideScreen) dimensionResource(Res.dimen.medium_padding) else 0.dp
+            )
+    ) {
+        if (!isWideScreen) {
             Text(
                 text = stringResource(Res.string.lbl_anime),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.displayMedium,
                 modifier = Modifier
-                    .clickable {
-                        launcher.launch(arrayOf("image/*"))
-                    }
-            )
-
-            Text(
-                text = SourceHolder.currentSourceMode.name,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .offset(y = 8.dp)
+                    .clickable { onClick() }
             )
         }
 
-
+        Text(
+            text = SourceHolder.currentSourceMode.name,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(y = 8.dp)
+                .run {
+                    if (isWideScreen) {
+                        // 获取焦点
+                        clickable { }
+                    } else this
+                }
+        )
     }
 }
 
@@ -216,15 +242,13 @@ fun HomeRow(
     onItemClicked: (HomeItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier) {
+    Column(modifier.fillMaxWidth()) {
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
-                .padding(
-                    start = dimensionResource(Res.dimen.large_padding)
-                )
+                .padding(start = dimensionResource(Res.dimen.large_padding))
         )
 
         Spacer(Modifier.size(dimensionResource(Res.dimen.medium_padding)))

@@ -64,7 +64,7 @@ fun Scheme.toColorScheme() = ColorScheme(
     onErrorContainer = Color(onErrorContainer),
     outline = Color(outline),
     outlineVariant = Color(outlineVariant),
-    scrim = Color(scrim)
+    scrim = Color(scrim),
 )
 
 suspend fun dynamicColorOf(bitmap: Bitmap): Color? {

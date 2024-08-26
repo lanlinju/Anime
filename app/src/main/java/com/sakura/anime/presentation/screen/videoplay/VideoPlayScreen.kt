@@ -74,6 +74,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -86,6 +87,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -103,6 +105,8 @@ import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
+import com.sakura.anime.util.isAndroidTV
+import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.openExternalPlayer
 import com.sakura.anime.util.preferences
 import com.sakura.videoplayer.AdaptiveTextButton
@@ -328,11 +332,17 @@ private fun OptionsContent(video: Video) {
 @SuppressLint("SourceLockedOrientationActivity")
 private fun requestPortraitOrientation(view: View, activity: Activity) {
     showSystemBars(view, activity)
+
+    if (isWideScreen(activity)) return
+
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 }
 
 private fun requestLandscapeOrientation(view: View, activity: Activity) {
     hideSystemBars(view, activity)
+
+    if (isWideScreen(activity)) return
+
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 }
 
@@ -658,7 +668,8 @@ private fun EpisodeSideSheet(
     onEpisodeClick: (Int, Episode) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-
+    val context = LocalContext.current
+    val isAndroidTV = remember { isAndroidTV(context) }
     SideSheet(onDismissRequest = onDismissRequest) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
@@ -675,12 +686,17 @@ private fun EpisodeSideSheet(
                     onClick = { onEpisodeClick(index, episode) },
                     contentPadding = PaddingValues(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = if (isFocused) MaterialTheme.colorScheme.primary.copy(
+                        containerColor = if (isFocused && isAndroidTV) MaterialTheme.colorScheme.primary.copy(
                             alpha = 0.3f
                         ) else Color.Unspecified
                     ),
+                    border = BorderStroke(
+                        if (isFocused && isAndroidTV) 2.dp else ButtonDefaults.outlinedButtonBorder.width,
+                        ButtonDefaults.outlinedButtonBorder.brush
+                    ),
                     modifier = Modifier
                         .onFocusChanged(onFocusChanged = { isFocused = it.isFocused })
+                        .scale(if (isFocused && isAndroidTV) 1.1f else 1f)
                         .focusRequester(focusRequester)
                         .focusable()
                 ) {

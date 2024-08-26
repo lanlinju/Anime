@@ -69,6 +69,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -110,6 +111,7 @@ import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.dynamicColorOf
+import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.io.File
@@ -154,15 +156,6 @@ fun AnimeDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            Color(
-                                ColorUtils.blendARGB(
-                                    MaterialTheme.colorScheme.background.toArgb(),
-                                    MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                    0.05f
-                                )
-                            )
-                        )
                         .verticalScroll(scrollState)
                 ) {
 
@@ -188,7 +181,16 @@ fun AnimeDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = bannerHeight),
+                            .padding(top = bannerHeight)
+                            .background(
+                                Color(
+                                    ColorUtils.blendARGB(
+                                        MaterialTheme.colorScheme.background.toArgb(),
+                                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                        0.05f
+                                    )
+                                )
+                            ),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
@@ -461,7 +463,8 @@ fun AnimeBanner(
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = modifier,
+            modifier = modifier
+                .blur(if (isWideScreen(LocalContext.current)) 24.dp else 0.dp),
             alignment = Alignment.Center,
             colorFilter = ColorFilter.tint(
                 color = tintColor(),

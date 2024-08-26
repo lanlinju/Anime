@@ -1,5 +1,6 @@
 package com.sakura.anime.presentation.screen.settings
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,20 +9,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Colorize
 import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -44,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -57,6 +66,7 @@ import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.catpucchinLatte
+import com.sakura.anime.util.getSchemeFromSeed
 import com.sakura.anime.util.rememberPreference
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,6 +77,7 @@ fun AppearanceScreen(
     val topBarBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             LargeTopAppBar(
                 title = { Text(text = stringResource(id = R.string.appearance_settings)) },
@@ -104,6 +115,17 @@ fun AppearanceScreen(
                     SettingsPreferences.changeCustomColor(it)
                 }
             )
+
+            /*
+            ColorButtonRow(
+                selectedColor = selectedColor,
+                isCheckVisible = !dynamicColor,
+                onSelect = {
+                    isDynamicImageColor = false
+                    SettingsPreferences.changeDynamicColor(false)
+                    SettingsPreferences.changeCustomColor(it)
+                }
+            )*/
 
             if (DynamicColors.isDynamicColorAvailable()) {
                 SwitchPref(
@@ -169,11 +191,15 @@ private fun ThemeModeSettings(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * [isCheckVisible] 如果是动态主题就不显示CheckIcon
+ */
 @Composable
 fun ColorBall(
     modifier: Modifier = Modifier,
     selectedColor: Int,
     isCheckVisible: Boolean = true,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onSelect: (Int) -> Unit,
 ) {
     LazyRow(
@@ -184,6 +210,10 @@ fun ColorBall(
         contentPadding = PaddingValues(horizontal = 24.dp),
     ) {
         items(catpucchinLatte) { color ->
+            val isSelected = color == selectedColor && isCheckVisible
+            val containerSize by animateDpAsState(targetValue = if (isSelected) 28.dp else 0.dp)
+            val iconSize by animateDpAsState(targetValue = if (isSelected) 16.dp else 0.dp)
+
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -192,8 +222,21 @@ fun ColorBall(
                     .clickable { onSelect(color) },
                 contentAlignment = Alignment.Center
             ) {
-                if (color == selectedColor && isCheckVisible) {
-                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .size(containerSize)
+                        .drawBehind { drawCircle(containerColor) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Check,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(iconSize)
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
         }
@@ -265,37 +308,65 @@ private fun SwitchPrefPreview() {
     }
 }
 
-/*@Composable
-fun RowScope.ColorButton(
+@Composable
+fun ColorButtonRow(
     modifier: Modifier = Modifier,
-    color: Color = Color.Green,
-    index: Int = 0,
-    tonalStyle: PaletteStyle = PaletteStyle.TonalSpot,
+    selectedColor: Int,
+    isCheckVisible: Boolean = true,
+    onSelect: (Int) -> Unit,
 ) {
-    val tonalPalettes by remember {
-        mutableStateOf(color.toTonalPalettes(tonalStyle))
-    }
-    val isSelect =
-        !LocalDynamicColorSwitch.current && LocalSeedColor.current == color.toArgb() && LocalPaletteStyleIndex.current == index
-    ColorButtonImpl(modifier = modifier, tonalPalettes = tonalPalettes, isSelected = { isSelect }) {
-        PreferenceUtil.switchDynamicColor(enabled = false)
-        PreferenceUtil.modifyThemeSeedColor(color.toArgb(), index)
-    }
+    Row {
+        LazyRow(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp),
+        ) {
+            items(catpucchinLatte) { color ->
+                ColorButton(
+                    modifier = modifier,
+                    originColor = Color(color),
+                    colorScheme = getSchemeFromSeed(color, false),
+                    isSelected = { color == selectedColor && isCheckVisible }) {
+                    onSelect(color)
+                }
 
+            }
+        }
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun ColorButtonImpl() {
+    AnimeTheme {
+        Row(modifier = Modifier.size(200.dp)) {
+            ColorButton(
+                colorScheme = getSchemeFromSeed(
+                    catpucchinLatte[2],
+                    dark = false
+                ),
+                isSelected = { true },
+                originColor = Color(catpucchinLatte[2])
+            )
+        }
+    }
 }
 
 @Composable
-fun RowScope.ColorButtonImpl(
+fun RowScope.ColorButton(
     modifier: Modifier = Modifier,
     isSelected: () -> Boolean = { false },
-    tonalPalettes: TonalPalettes,
-    cardColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    originColor: Color,
+    colorScheme: ColorScheme,
+    cardColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onClick: () -> Unit = {}
 ) {
 
-    val containerSize by animateDpAsState(targetValue = if (isSelected.invoke()) 28.dp else 0.dp)
-    val iconSize by animateDpAsState(targetValue = if (isSelected.invoke()) 16.dp else 0.dp)
+    val containerSize by animateDpAsState(targetValue = if (isSelected()) 28.dp else 0.dp)
+    val iconSize by animateDpAsState(targetValue = if (isSelected()) 16.dp else 0.dp)
 
     Surface(
         modifier = modifier
@@ -307,45 +378,47 @@ fun RowScope.ColorButtonImpl(
         color = cardColor,
         onClick = onClick
     ) {
-        CompositionLocalProvider(LocalTonalPalettes provides tonalPalettes) {
-            val color1 = 80.a1
-            val color2 = 90.a2
-            val color3 = 60.a3
-            Box(Modifier.fillMaxSize()) {
-                Box(modifier = modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .drawBehind { drawCircle(color1) }
-                    .align(Alignment.Center)) {
-                    Surface(
-                        color = color2, modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .size(24.dp)
-                    ) {}
-                    Surface(
-                        color = color3, modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(24.dp)
-                    ) {}
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .clip(CircleShape)
-                            .size(containerSize)
-                            .drawBehind { drawCircle(containerColor) },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Check,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(iconSize)
-                                .align(Alignment.Center),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
 
+        val primary = originColor
+        val secondary = colorScheme.tertiary
+        val tertiary = colorScheme.primary
+        Box(Modifier.fillMaxSize()) {
+            Box(modifier = modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .drawBehind { drawCircle(primary) }
+                .align(Alignment.Center)
+            ) {
+                Surface(
+                    color = secondary,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .size(24.dp)
+                ) {}
+                Surface(
+                    color = tertiary,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(24.dp)
+                ) {}
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .size(containerSize)
+                        .drawBehind { drawCircle(containerColor) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Check,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(iconSize)
+                            .align(Alignment.Center),
+                        tint = colorScheme.onPrimaryContainer
+                    )
                 }
+
             }
         }
     }
-}*/
+}
