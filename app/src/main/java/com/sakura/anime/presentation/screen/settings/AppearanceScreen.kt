@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Check
@@ -97,7 +99,8 @@ fun AppearanceScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .nestedScroll(topBarBehavior.nestedScrollConnection),
+                .nestedScroll(topBarBehavior.nestedScrollConnection)
+                .verticalScroll(rememberScrollState()), // 先nestedScroll，然后verticalScroll的顺序
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ThemeModeSettings(modifier = Modifier.padding(start = 24.dp))
