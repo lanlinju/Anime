@@ -5,8 +5,13 @@ import android.graphics.Bitmap
 import android.text.Html
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +37,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +66,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +77,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -111,7 +121,9 @@ import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.dynamicColorOf
+import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.isWideScreen
+import com.sakura.anime.util.log
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.io.File
@@ -557,9 +569,11 @@ fun AnimeEpisodes(
     onEpisodeClick: (episode: Episode) -> Unit
 ) {
     val scrollState = rememberLazyListState(
-        if (lastPosition < 3) 0 else lastPosition,
-        if (lastPosition < 3) 0 else -200
+        initialFirstVisibleItemIndex = if (lastPosition < 3) 0 else lastPosition,
+        initialFirstVisibleItemScrollOffset = if (lastPosition < 3) 0 else -200
     )
+
+    val isAndroidTV = isAndroidTV(LocalContext.current)
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.medium_padding)),
@@ -567,10 +581,23 @@ fun AnimeEpisodes(
         modifier = modifier,
         state = scrollState
     ) {
-        items(if (!reverseList) episodes else episodes.reversed()) { episode ->
+        itemsIndexed(if (!reverseList) episodes else episodes.reversed()) { index, episode ->
+            val focusRequester = remember { FocusRequester() }
+            val interactionSource = remember { MutableInteractionSource() }
+//            var focusIndex by rememberSaveable { mutableStateOf(lastPosition) } // 保存焦点位置
             FilledTonalButton(
                 onClick = { onEpisodeClick(episode) },
-                colors = ButtonDefaults.filledTonalButtonColors(containerColor = color.copy(0.5f))
+                colors = ButtonDefaults.filledTonalButtonColors(containerColor = color.copy(0.5f)),
+                modifier = Modifier.run {
+                    if (isAndroidTV) {
+//                        onFocusChanged { if (it.isFocused) focusIndex = index }
+                        clip(CircleShape)
+                            .indication(interactionSource, LocalIndication.current)
+                            .hoverable(interactionSource)
+                            .focusRequester(focusRequester)
+                            .focusable(interactionSource = interactionSource)
+                    } else this
+                }
             ) {
                 Text(
                     text = episode.name,
@@ -580,6 +607,13 @@ fun AnimeEpisodes(
                         vertical = dimensionResource(Res.dimen.small_padding)
                     )
                 )
+            }
+
+            LaunchedEffect(Unit) {
+                if (index == lastPosition && isAndroidTV) {
+                    "focusRequester: ${lastPosition + 1}".log("AnimeDetailScreen")
+                    focusRequester.requestFocus()
+                }
             }
         }
     }

@@ -164,7 +164,7 @@ fun SearchScreen(
                 )
 
                 LaunchedEffect(item.detailUrl) {
-                    if (index == 0) {
+                    if (index == 0 && isAndroidTV) {
                         mediaFocusRequester.requestFocus() // 将焦点移动到 MediaSmall
                     }
                 }

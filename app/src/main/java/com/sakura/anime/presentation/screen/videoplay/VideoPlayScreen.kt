@@ -701,7 +701,6 @@ private fun EpisodeSideSheet(
                 val focusRequester = remember { FocusRequester() }
                 var isFocused by remember { mutableStateOf(false) }
                 val selected = index == selectedEpisodeIndex
-
                 OutlinedButton(
                     onClick = { onEpisodeClick(index, episode) },
                     contentPadding = PaddingValues(8.dp),
@@ -729,7 +728,7 @@ private fun EpisodeSideSheet(
                 }
 
                 LaunchedEffect(selected) {
-                    if (selected) {
+                    if (selected && isAndroidTV) {
                         focusRequester.requestFocus()
                     }
                 }
