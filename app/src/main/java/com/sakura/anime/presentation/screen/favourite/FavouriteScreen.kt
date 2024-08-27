@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -50,13 +49,13 @@ fun FavouriteScreen(
 ) {
     val favouriteViewModel: FavouriteViewModel = hiltViewModel()
     val availableDataList = favouriteViewModel.favouriteList.collectAsState()
-    val focusRequester = remember { FocusRequester() }
 
     StateHandler(state = availableDataList.value, onLoading = {
         LoadingIndicator()
     }, onFailure = {}) { resource ->
-        Scaffold(modifier = Modifier
-            .fillMaxSize(),
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize(),
             topBar = {
                 TopAppBar(
                     title = {

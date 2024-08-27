@@ -40,7 +40,7 @@ fun MainScreen(
 
     val isWideScreen = isWideScreen(LocalContext.current)
 
-    val navigationContent: @Composable () -> Unit = {
+    val navigationBar: @Composable () -> Unit = {
         AdaptiveNavigationBar(
             destinations = NavigationBarPath.entries,
             currentDestination = currentDestination,
@@ -56,7 +56,7 @@ fun MainScreen(
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
-            modifier = modifier // 这里 error
+            modifier = modifier
         ) { page ->
             when (page) {
                 0 -> WeekScreen(
@@ -74,7 +74,7 @@ fun MainScreen(
 
     if (isWideScreen) {
         Row(modifier = Modifier.fillMaxSize()) {
-            navigationContent()
+            navigationBar()
             pagerContent(
                 Modifier
                     .fillMaxHeight()
@@ -86,7 +86,7 @@ fun MainScreen(
                 Modifier
                     .fillMaxWidth()
                     .weight(1f))
-            navigationContent()
+            navigationBar()
         }
     }
 }

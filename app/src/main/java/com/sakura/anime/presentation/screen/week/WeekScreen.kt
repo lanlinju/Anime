@@ -2,6 +2,7 @@ package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -107,7 +108,9 @@ fun WeekScreen(
     val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
-    Box {
+    Box(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+    ) {
         val openSwitchSourceDialog = remember { mutableStateOf(false) }
         val openSettingsDialog = remember { mutableStateOf(false) }
         val openChangeDomainDialog = remember { mutableStateOf(false) }

@@ -360,7 +360,7 @@ fun RowScope.ColorButton(
     isSelected: () -> Boolean = { false },
     originColor: Color,
     colorScheme: ColorScheme,
-    cardColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    cardColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onClick: () -> Unit = {}
 ) {

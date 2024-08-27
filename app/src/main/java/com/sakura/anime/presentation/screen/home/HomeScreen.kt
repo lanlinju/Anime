@@ -106,13 +106,14 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .background(
-                                    Color(
-                                        ColorUtils.blendARGB(
-                                            MaterialTheme.colorScheme.background.toArgb(),
-                                            MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                            0.05f
-                                        )
-                                    )
+                                    if (!isWideScreen)
+                                        Color(
+                                            ColorUtils.blendARGB(
+                                                MaterialTheme.colorScheme.background.toArgb(),
+                                                MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                                0.05f
+                                            )
+                                        ) else MaterialTheme.colorScheme.background
                                 )
                                 .padding(vertical = dimensionResource(Res.dimen.large_padding)),
                             verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding)),

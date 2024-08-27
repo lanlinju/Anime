@@ -128,7 +128,7 @@ fun NavigationBar(
 }
 
 /**
- * 可以[currentDestination]替换成索引判断是否选中
+ * 可以将[currentDestination]替换成索引判断是否选中
  */
 @Composable
 fun AdaptiveNavigationBar(
