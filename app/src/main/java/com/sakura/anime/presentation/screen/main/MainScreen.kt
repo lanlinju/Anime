@@ -11,10 +11,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.sakura.anime.presentation.component.AdaptiveNavigationBar
 import com.sakura.anime.presentation.component.NavigationBarPath
@@ -38,7 +40,11 @@ fun MainScreen(
     val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.entries.size }
     val scope = rememberCoroutineScope()
 
-    val isWideScreen = isWideScreen(LocalContext.current)
+    val configuration = LocalConfiguration.current // 屏幕方向改变会触发 recompose
+    val context = LocalContext.current
+
+    // 在屏幕方向变化时更新 isWideScreen
+    val isWideScreen = remember(configuration.orientation) { isWideScreen(context) }
 
     val navigationBar: @Composable () -> Unit = {
         AdaptiveNavigationBar(
