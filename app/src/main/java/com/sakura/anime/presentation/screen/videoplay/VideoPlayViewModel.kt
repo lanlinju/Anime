@@ -36,6 +36,9 @@ class VideoPlayViewModel @Inject constructor(
     private var isLocalVideo = false
     lateinit var mode: SourceMode
 
+    // 用于retry
+    private var currentEpisodeUrl: String = ""
+
     private var historyId: Long = -1L
 
     init {
@@ -45,6 +48,7 @@ class VideoPlayViewModel @Inject constructor(
         savedStateHandle.get<String>(key = ROUTE_ARGUMENT_VIDEO_EPISODE_URL)?.let { episodeUrl ->
             val url = Uri.decode(episodeUrl)
             if (!url.contains(KEY_FROM_LOCAL_VIDEO)) {
+                currentEpisodeUrl = url
 
                 // 或许使用detailUrl获取historyId更好一些
                 getHistoryId(episodeUrl)
@@ -104,11 +108,11 @@ class VideoPlayViewModel @Inject constructor(
         viewModelScope.launch {
             _videoState.value = getVideoFromRemoteUseCase(episodeUrl, mode)
         }
-
     }
 
     fun getVideo(url: String, episodeName: String, index: Int, videoPosition: Long) {
         if (!isLocalVideo) {
+            currentEpisodeUrl = url
             saveVideoPosition(videoPosition)
             getVideoFromRemote(url)
         } else {
@@ -157,6 +161,13 @@ class VideoPlayViewModel @Inject constructor(
                 roomRepository.addEpisode(episode)
             }
         }
+    }
 
+    /**
+     * 只处理远程数据重试
+     */
+    fun retry() {
+        _videoState.value = Resource.Loading
+        getVideoFromRemote(currentEpisodeUrl)
     }
 }

@@ -164,6 +164,7 @@ fun VideoPlayScreen(
             }
         },
         onFailure = {
+            // TODO(): Refactor this
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -185,6 +186,13 @@ fun VideoPlayScreen(
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 OutlinedButton(onClick = onBackClick) {
                     Text(text = stringResource(id = R.string.back), color = Color.White)
+                }
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                OutlinedButton(onClick = { viewModel.retry() }) {
+                    Text(
+                        text = stringResource(id = R.string.retry),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
@@ -383,11 +391,14 @@ private fun VideoStateMessage(playerState: VideoPlayerState, modifier: Modifier 
         }
 
         if (playerState.isError.value) {
-            ShowVideoMessage(stringResource(id = R.string.video_error_msg))
+            ShowVideoMessage(stringResource(id = R.string.video_error_msg), onRetryClick = {
+                playerState.control.retry()
+            })
         }
 
         if (playerState.isEnded.value) {
             ShowVideoMessage(stringResource(id = R.string.video_ended_msg))
+            playerState.control.retry()
         }
 
         if (playerState.isSeeking.value) {
@@ -548,17 +559,25 @@ private fun TimelineIndicator(
 }
 
 @Composable
-private fun ShowVideoMessage(text: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = CircleShape
-    ) {
-        Text(
-            modifier = Modifier.padding(12.dp),
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+private fun ShowVideoMessage(text: String, onRetryClick: (() -> Unit)? = null) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = CircleShape
+        ) {
+            Text(
+                modifier = Modifier.padding(12.dp),
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        onRetryClick?.let {
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+            OutlinedButton(onClick = it) {
+                Text(text = stringResource(id = R.string.retry))
+            }
+        }
     }
 }
 

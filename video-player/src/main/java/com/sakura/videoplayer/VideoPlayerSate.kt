@@ -171,6 +171,12 @@ class VideoPlayerStateImpl(
             player.seekBack()
         }
 
+        override fun retry() {
+            isError.value = false
+            isLoading.value = true
+            player.prepare()
+        }
+
         override fun setFullscreen(value: Boolean) {
             controlUiLastInteractionMs = 0
             isFullscreen.value = value
@@ -450,8 +456,9 @@ interface VideoPlayerControl {
     fun forward()
     fun rewind()
 
+    fun retry()
+
     fun setFullscreen(value: Boolean)
     fun setVideoResize(mode: ResizeMode)
     fun setPlaybackSpeed(speed: Float)
-
 }
