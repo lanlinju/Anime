@@ -39,6 +39,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -64,11 +65,15 @@ fun SearchScreen(
     val searchQuery by viewModel.query.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     SearchBar(
         query = searchQuery,
         onQueryChange = viewModel::onQuery,
-        onSearch = { viewModel.onSearch(it, viewModel.currentSourceMode) },
+        onSearch = {
+            viewModel.onSearch(it, viewModel.currentSourceMode)
+            keyboardController?.hide()
+        },
         active = true,
         onActiveChange = { if (!it) onBackClick() },
         leadingIcon = {
