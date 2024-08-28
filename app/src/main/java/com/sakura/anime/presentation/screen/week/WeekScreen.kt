@@ -19,9 +19,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.outlined.Palette
@@ -69,6 +71,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,6 +81,7 @@ import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDRESS
+import com.sakura.anime.util.GITHUB_RELEASE_ADDRESS
 import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
@@ -319,7 +323,7 @@ fun WeekScreen(
         }
 
         if (isCheckingUpdate) {
-            LoadingIndicationDialog()
+            LoadingIndicationDialog(onDismissRequest = { viewModel.closeLoadingIndicationDialog() })
         }
 
         if (openChangeDomainDialog.value) {
@@ -347,7 +351,18 @@ private fun UpdateVersionDialog(
             Text(text = stringResource(id = R.string.software_updates))
         },
         text = {
-            Text(text = viewModel.updateMessage)
+            val uriHandler = LocalUriHandler.current
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(text = viewModel.versionName + "\n" + viewModel.updateMessage)
+                Text(
+                    text = stringResource(R.string.github_release_address),
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .padding(top = dimensionResource(id = R.dimen.small_padding))
+                        .clickable { uriHandler.openUri(GITHUB_RELEASE_ADDRESS) }
+                )
+            }
         },
         confirmButton = {
             TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
@@ -363,9 +378,11 @@ private fun UpdateVersionDialog(
 }
 
 @Composable
-private fun LoadingIndicationDialog() {
+private fun LoadingIndicationDialog(
+    onDismissRequest: () -> Unit = {}
+) {
     AlertDialog(
-        onDismissRequest = { },
+        onDismissRequest = onDismissRequest,
         title = {
             Text(text = stringResource(id = R.string.checking_update))
         },

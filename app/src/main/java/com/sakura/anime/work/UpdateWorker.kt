@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.sakura.anime.util.KEY_DOWNLOAD_UPDATE_URL
 import com.sakura.anime.util.installApk
+import com.sakura.anime.util.log
 import com.sakura.download.download
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,6 +31,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters) :
                     Result.failure()
                 }
             } catch (e: Exception) {
+                e.message?.log("UpdateWorker: ")
                 Result.failure()
             }
         }

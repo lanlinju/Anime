@@ -46,6 +46,7 @@ class WeekViewModel @Inject constructor(
 
     private lateinit var downloadUpdateUrl: String
     lateinit var updateMessage: String
+    lateinit var versionName: String
 
     init {
         getWeekData()
@@ -70,15 +71,15 @@ class WeekViewModel @Inject constructor(
             try {
                 val json = DownloadManager.getHtml(CHECK_UPDATE_ADDRESS)
                 val obj = JSONObject(json)
-                val latestVersionName = obj.getString("name")
-                val curVersionName = getVersionName(context)
                 val downloadUpdateUrl =
                     obj.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
-                val updateMessage = obj.getString("body")
 
                 this@WeekViewModel.downloadUpdateUrl = downloadUpdateUrl
-                this@WeekViewModel.updateMessage = updateMessage
+                this@WeekViewModel.updateMessage = obj.getString("body")
+                this@WeekViewModel.versionName = obj.getString("tag_name")
 
+                val latestVersionName = obj.getString("name")
+                val curVersionName = getVersionName(context)
                 val isUpdateVersion = !latestVersionName.equals(curVersionName)
 
                 _isCheckingUpdate.value = false
@@ -130,5 +131,9 @@ class WeekViewModel @Inject constructor(
 
     fun closeUpdateDialog() {
         _isUpdateVersion.value = false
+    }
+
+    fun closeLoadingIndicationDialog() {
+        _isCheckingUpdate.value = false
     }
 }

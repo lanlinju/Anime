@@ -11,6 +11,7 @@ val TABS = listOf("周一", "周二", "周三", "周四", "周五", "周六", "�
 
 const val GITHUB_ADDRESS = "https://github.com/lanlinju/Anime"
 const val CHECK_UPDATE_ADDRESS = "https://api.github.com/repos/lanlinju/Anime/releases/latest"
+const val GITHUB_RELEASE_ADDRESS = "https://github.com/lanlinju/Anime/releases/latest"
 
 const val ANIME_DATABASE = "anime_database.db"
 const val FAVOURITE_TABLE = "favourite_table"

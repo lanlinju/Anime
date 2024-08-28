@@ -84,4 +84,5 @@
     <string name="dynamic_image_color">动态图片颜色</string>
     <string name="dynamic_color_description">应用来自于壁纸的颜色</string>
     <string name="dynamic_image_color_description">根据动漫封面动态更改主题颜色</string>
+    <string name="github_release_address">Github发布页</string>
 </resources>
