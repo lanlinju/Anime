@@ -572,10 +572,29 @@ private fun ShowVideoMessage(text: String, onRetryClick: (() -> Unit)? = null) {
                 color = MaterialTheme.colorScheme.primary
             )
         }
+        // 重试 Button
         onRetryClick?.let {
+            val focusRequester = remember { FocusRequester() }
+            val isAndroidTV = isAndroidTV(LocalContext.current)
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            OutlinedButton(onClick = it) {
+            OutlinedButton(
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isAndroidTV) MaterialTheme.colorScheme.primary.copy(
+                        alpha = 0.3f
+                    ) else Color.Unspecified
+                ),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusable(),
+                onClick = it
+            ) {
                 Text(text = stringResource(id = R.string.retry))
+            }
+
+            LaunchedEffect(Unit) {
+                if (isAndroidTV) {
+                    focusRequester.requestFocus()
+                }
             }
         }
     }
