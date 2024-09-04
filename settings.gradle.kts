@@ -29,3 +29,4 @@ rootProject.name = "Anime"
 include(":app")
 include(":video-player")
 include(":download")
+include(":danmaku")
