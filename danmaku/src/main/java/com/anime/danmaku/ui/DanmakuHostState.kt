@@ -44,9 +44,12 @@ class DanmakuHostState(
     internal var hostHeight by mutableIntStateOf(0)
 
     internal val presentFloatingDanmaku = mutableStateListOf<FloatingDanmaku<StyledDanmaku>>()
+    internal val presentFixedDanmaku = mutableListOf<FixedDanmaku<StyledDanmaku>>()
 
     // 弹幕轨道
     internal val floatingTracks = mutableListOf<FloatingDanmakuTrack<StyledDanmaku>>()
+    internal val topTracks = mutableListOf<FixedDanmakuTrack<StyledDanmaku>>()
+    internal val bottomTracks = mutableListOf<FixedDanmakuTrack<StyledDanmaku>>()
 
     var elapsedFrameTimeNanos: Long = 0L
     val isDebug = config.isDebug
@@ -93,9 +96,19 @@ class DanmakuHostState(
                 floatingDanmaku?.also(presentFloatingDanmaku::add) != null
             }
 
-            DanmakuLocation.TOP -> false
+            DanmakuLocation.TOP -> {
+                val floatingDanmaku = topTracks.firstNotNullOfOrNull {
+                    it.tryPlace(styledDanmaku)
+                }
+                floatingDanmaku?.also(presentFixedDanmaku::add) != null
+            }
 
-            DanmakuLocation.BOTTOM -> false
+            DanmakuLocation.BOTTOM -> {
+                val floatingDanmaku = bottomTracks.firstNotNullOfOrNull {
+                    it.tryPlace(styledDanmaku)
+                }
+                floatingDanmaku?.also(presentFixedDanmaku::add) != null
+            }
         }
     }
 
@@ -105,6 +118,8 @@ class DanmakuHostState(
     @UiThread
     fun tick() {
         floatingTracks.forEach { it.tick() }
+        topTracks.forEach { it.tick() }
+        bottomTracks.forEach { it.tick() }
     }
 
     /**
@@ -130,12 +145,11 @@ class DanmakuHostState(
         }
     }
 
-    /**
-     * 清空屏幕弹幕
-     * Todo: 将[list] 填充到屏幕.
-     */
-    suspend fun repopulate(list: List<DanmakuPresentation>) {
-        clearPresentDanmaku()
+    fun setTrackCount() {
+        val trackCount = floor(hostHeight / trackHeight * config.displayArea)
+            .coerceAtLeast(1f)
+            .toInt()
+        initTrackCount(trackCount, config)
     }
 
     /**
@@ -163,22 +177,52 @@ class DanmakuHostState(
                 },
             )
         }
-    }
-
-    fun setTrackCount() {
-        val trackCount = floor(hostHeight / trackHeight * config.displayArea)
-            .coerceAtLeast(1f)
-            .toInt()
-        initTrackCount(trackCount, config)
+        topTracks.setTrackCountImpl(if (config.enableTop) count else 0) { index ->
+            FixedDanmakuTrack(
+                trackIndex = index,
+                elapsedFrameTimeNanos = { elapsedFrameTimeNanos },
+                trackHeight = trackHeight,
+                trackWidth = trackWidth,
+                hostHeight = hostHeight,
+                fromBottom = false,
+                durationMillis = config.danmakuTrackProperties.fixedDanmakuPresentDuration,
+                onRemoveDanmaku = { removed -> presentFixedDanmaku.removeFirst { it.danmaku == removed.danmaku } },
+            )
+        }
+        bottomTracks.setTrackCountImpl(if (config.enableBottom) count else 0) { index ->
+            FixedDanmakuTrack(
+                trackIndex = index,
+                elapsedFrameTimeNanos = { elapsedFrameTimeNanos },
+                trackHeight = trackHeight,
+                trackWidth = trackWidth,
+                hostHeight = hostHeight,
+                fromBottom = true,
+                durationMillis = config.danmakuTrackProperties.fixedDanmakuPresentDuration,
+                onRemoveDanmaku = { removed -> presentFixedDanmaku.removeFirst { it.danmaku == removed.danmaku } },
+            )
+        }
     }
 
     @UiThread
     private fun clearPresentDanmaku() {
         floatingTracks.forEach { it.clearAll() }
+        topTracks.forEach { it.clearAll() }
+        bottomTracks.forEach { it.clearAll() }
 
         check(presentFloatingDanmaku.size == 0) {
             "presentFloatingDanmaku is not totally cleared after releasing track."
         }
+        check(presentFixedDanmaku.size == 0) {
+            "presentFixedDanmaku is not totally cleared after releasing track."
+        }
+    }
+
+    /**
+     * 清空屏幕弹幕
+     * Todo: 将[list] 填充到屏幕.
+     */
+    suspend fun repopulate(list: List<DanmakuPresentation>) {
+        clearPresentDanmaku()
     }
 
     // Todo: 发送弹幕到屏幕, 此方法一定会保证弹幕发送出去

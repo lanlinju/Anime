@@ -1,8 +1,25 @@
 package com.anime.danmaku.ui
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import kotlin.math.round
+
+internal var LOG_ENABLE = true
+
+internal const val LOG_TAG = "Danmaku"
+
+internal fun <T> T.log(prefix: String = ""): T {
+    val prefixStr = if (prefix.isEmpty()) "" else "[$prefix] "
+    if (LOG_ENABLE) {
+        if (this is Throwable) {
+            Log.w(LOG_TAG, prefixStr + this.message, this)
+        } else {
+            Log.d(LOG_TAG, prefixStr + toString())
+        }
+    }
+    return this
+}
 
 /**
  * Equivalent to `String.format("%.2f", value)`

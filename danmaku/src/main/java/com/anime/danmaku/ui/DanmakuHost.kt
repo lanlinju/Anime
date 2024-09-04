@@ -55,6 +55,13 @@ fun DanmakuHost(
                     screenPosY = { danmaku.screenPosY },
                 )
             }
+            for (danmaku in state.presentFixedDanmaku) {
+                drawDanmakuText(
+                    state = danmaku.danmaku,
+                    screenPosX = { danmaku.screenPosX },
+                    screenPosY = { danmaku.screenPosY },
+                )
+            }
         }
     }
 
