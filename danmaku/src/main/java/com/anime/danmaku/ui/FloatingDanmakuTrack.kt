@@ -21,28 +21,39 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     private val density: Density,
     var baseSpeedPxPerSecond: Float,
     var safeSeparation: Float,
-    // 放到这个轨道的弹幕里, 长度大于此基础长度才会加速弹幕运动, 等于此长度的弹幕速度为 100% [speedPxPerSecond]
-    // var baseTextLength: Int,
-    // val speedMultiplier: FloatState,
-    // 某个弹幕需要消失, 必须调用此函数避免内存泄漏.
-    private val onRemoveDanmaku: (FloatingDanmaku<T>) -> Unit
+    // val speedMultiplier: Float,
+    private val onRemoveDanmaku: (FloatingDanmaku<T>) -> Unit // 某个弹幕需要消失, 必须调用此函数避免内存泄漏.
 ) : DanmakuTrack<T, FloatingDanmaku<T>> {
     private val danmakuList: MutableList<FloatingDanmaku<T>> = mutableListOf()
 
     /**
-     * Checks whether this [danmaku] can be placed in the track.
-     * If the last danmaku in the track is fully visible, the new danmaku can be placed.
-     * Otherwise, the new danmaku cannot be placed to prevent overlap.
+     * Determines whether the given [danmaku] can be placed on the track without overlapping with the previous danmaku.
+     *
+     * If the track is empty, the danmaku can be placed. If the last danmaku on the track is fully visible,
+     * further checks are made to ensure that the new danmaku will not catch up and overlap with the last one.
+     *
+     * The placement is determined by comparing the speeds of the new and last danmaku. If the new danmaku is slower
+     * or won't catch up to the last one before it exits the screen, it can be placed.
      *
      * @param danmaku The danmaku object to be placed.
-     * @return `true` if the danmaku can be placed, otherwise `false`.
+     * @return `true` if the danmaku can be placed without overlap, otherwise `false`.
      */
     override fun canPlace(danmaku: T): Boolean {
         if (danmakuList.isEmpty()) return true
         val lastDanmaku = danmakuList.last()
 
-        // If the last danmaku is fully visible, the new danmaku can be placed
-        return if (lastDanmaku.isFullyVisible()) true else false
+        // If the last danmaku is not fully visible, the new danmaku cannot be placed
+        if (!lastDanmaku.isFullyVisible()) return false
+
+        val lastSpeed = lastDanmaku.speedPxPerSecond
+        val newSpeed =
+            calculateLengthBasedSpeed(danmaku.danmakuWidth.toFloat(), density, baseSpeedPxPerSecond)
+
+        // 如果新弹幕速度更慢，可以放置，因为它不会追上
+        if (newSpeed <= lastSpeed) return true
+
+        // 检查是否会发生碰撞
+        return !checkHit(lastDanmaku, newSpeed, lastSpeed)
     }
 
     /**
@@ -109,7 +120,7 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
      * @return `true` if the danmaku's X-axis position is less than the track width
      * minus the danmaku width and the safe separation, otherwise `false`.
      */
-    internal fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
+    private fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
         return screenPosX <= trackWidth - danmaku.danmakuWidth - safeSeparation
     }
 
@@ -156,7 +167,9 @@ class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
      * 弹幕的速度, 以像素每秒为单位.
      * Unit px/s
      */
-    val speedPxPerSecond = baseSpeedPxPerSecond
+    val speedPxPerSecond by lazy {
+        calculateLengthBasedSpeed(danmaku.danmakuWidth.toFloat(), density, baseSpeedPxPerSecond)
+    }
 
     /**
      * 在每一帧更新弹幕的位置.
@@ -170,4 +183,47 @@ class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
     override fun toString(): String {
         return "FloatingDanmaku(elapsedX=${distanceX}, y=$screenPosY)"
     }
+}
+
+internal fun calculateLengthBasedSpeed(
+    length: Float,
+    density: Density,
+    baseSpeedPxPerSecond: Float
+): Float {
+    return with(density) {
+        val ratio = calculateRatio(
+            length.coerceIn(BaseTextLength.toPx(), MaxTextLength.toPx()),
+            BaseTextLength.toPx(),
+            MaxTextLength.toPx()
+        )
+        lerp(baseSpeedPxPerSecond, baseSpeedPxPerSecond * MaxSpeedMultiplier, ratio)
+    }
+}
+
+internal fun lerp(start: Float, end: Float, fraction: Float): Float {
+    return (1 - fraction) * start + fraction * end
+}
+
+internal fun calculateRatio(value: Float, min: Float, max: Float): Float {
+    return (value - min) / (max - min)
+}
+
+// 检测两个弹幕是否会碰撞
+private fun <T : SizeSpecifiedDanmaku> FloatingDanmakuTrack<*>.checkHit(
+    lastDanmaku: FloatingDanmaku<T>,
+    newSpeed: Float,
+    lastSpeed: Float,
+): Boolean {
+    val lastDanmakuWidth = lastDanmaku.danmaku.danmakuWidth
+    val remainingDistance = lastDanmaku.screenPosX + lastDanmakuWidth
+
+    // 计算最后一个弹幕退出屏幕所需的时间
+    val timeToExit = remainingDistance / lastSpeed
+
+    // 计算新弹幕追上最后一个弹幕所需的时间
+    val timeToHit =
+        (lastDanmaku.distanceX - lastDanmakuWidth - safeSeparation) / (newSpeed - lastSpeed)
+
+    // 如果新弹幕在最后一个弹幕退出屏幕之前不会追上，则返回 false (不会发生碰撞)
+    return timeToExit >= timeToHit
 }

@@ -15,11 +15,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
+ * 用于限制弹幕的最低和最高速度
+ * 同时根据弹幕长度基于[baseSpeed]计算相应速度
+ */
+internal val MaxSpeedMultiplier = 3f
+internal val BaseTextLength = 120.dp
+internal val MaxTextLength = 620.dp
+
+/**
  * Configuration for the presentation of each [Danmaku].
  */
 @Immutable
 data class DanmakuConfig(
-    // 备注: 增加新的属性后还要修改 [DanmakuConfigData]
     /**
      * Controls the text styles of the [Danmaku].
      * For example, font size, stroke width.
@@ -35,7 +42,7 @@ data class DanmakuConfig(
     /**
      * The minimum distance between two [Danmaku]s so that they don't overlap.
      */
-    val safeSeparation: Dp = 36.dp,
+    val safeSeparation: Dp = 2.dp,
     /**
      * 弹幕在屏幕中的显示区域. 0.1 表示屏幕的 10%.
      *

@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -65,7 +69,8 @@ fun DanmakuHost(
         }
     }
 
-    LaunchedEffect(state.hostWidth, state.hostHeight) { state.setTrackCount() }
+    // set the number of tracks
+    LaunchedEffect(state.hostHeight) { state.setTrackCount() }
     // calculate current play time on every frame
     LaunchedEffect(state.paused) { if (!state.paused) state.interpolateFrameLoop() }
     // logical tick for removal of danmaku
@@ -78,6 +83,9 @@ fun DanmakuHost(
         }
     }
 
+    if (state.isDebug) {
+        DanmakuDebug(state)
+    }
 }
 
 @Composable
@@ -88,6 +96,35 @@ fun DanmakuCanvas(modifier: Modifier = Modifier, onDraw: DrawScope.() -> Unit) {
             .clipToBounds()
     ) {
         onDraw()
+    }
+}
+
+@Composable
+private fun DanmakuDebug(state: DanmakuHostState) {
+    CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.bodySmall) {
+        Column(
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxSize()
+        ) {
+            Text("DanmakuHost state: ")
+            Text("  hostSize: ${state.hostWidth}x${state.hostHeight}, trackHeight: ${state.trackHeight}")
+            Text("  paused: ${state.paused}, elapsedFrameTimeMillis: ${state.elapsedFrameTimeNanos / 1_000_000}")
+            Text("  presentDanmakuCount: ${state.presentFixedDanmaku.size + state.presentFloatingDanmaku.size}")
+            HorizontalDivider()
+            Text("  floating tracks: ")
+            for (track in state.floatingTracks) {
+                Text("    $track")
+            }
+            Text("  top tracks: ")
+            for (track in state.topTracks) {
+                Text("    $track")
+            }
+            Text("  bottom tracks: ")
+            for (track in state.bottomTracks) {
+                Text("    $track")
+            }
+        }
     }
 }
 

@@ -43,6 +43,9 @@ class DanmakuHostState(
     internal var hostWidth by mutableIntStateOf(0)
     internal var hostHeight by mutableIntStateOf(0)
 
+    /**
+     * 所有在 [floatingTracks], [topTracks] 和 [bottomTracks] 弹幕.
+     */
     internal val presentFloatingDanmaku = mutableStateListOf<FloatingDanmaku<StyledDanmaku>>()
     internal val presentFixedDanmaku = mutableListOf<FixedDanmaku<StyledDanmaku>>()
 
@@ -123,7 +126,8 @@ class DanmakuHostState(
     }
 
     /**
-     * 在每一帧中调用，主要更新浮动弹幕的位置
+     * 在每一帧中调用，主要用于更新浮动弹幕的位置。
+     * 该方法为一个协程循环，确保弹幕的位置根据时间的变化得到更新。
      */
     suspend fun interpolateFrameLoop() {
         var lastFrameTimeNanos = withFrameNanos { it }
@@ -203,6 +207,9 @@ class DanmakuHostState(
         }
     }
 
+    /**
+     * 清除当前显示的所有弹幕。
+     */
     @UiThread
     private fun clearPresentDanmaku() {
         floatingTracks.forEach { it.clearAll() }
