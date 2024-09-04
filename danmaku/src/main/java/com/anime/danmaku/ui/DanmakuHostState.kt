@@ -55,21 +55,21 @@ class DanmakuHostState(
     internal val bottomTracks = mutableListOf<FixedDanmakuTrack<StyledDanmaku>>()
 
     var elapsedFrameTimeNanos: Long = 0L
-    val isDebug = config.isDebug
+    val isDebug by mutableStateOf(config.isDebug)
     var paused by mutableStateOf(false)
 
     val trackWidth by derivedStateOf { hostWidth }
     val trackHeight by lazy {
-        val dummyTextLayout = dummyDanmaku(
+        val dummyDanmaku = dummyDanmaku(
             trackStubMeasurer,
             baseStyle,
             config.style,
             "Lorem Ipsum"
-        ).solidTextLayout
+        )
         val verticalPadding = with(density) {
             (config.danmakuTrackProperties.verticalPadding * 2).dp.toPx()
         }
-        val trackHeight = (dummyTextLayout.size.height + verticalPadding).toInt()
+        val trackHeight = (dummyDanmaku.danmakuHeight + verticalPadding).toInt()
         trackHeight
     }
 

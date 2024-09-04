@@ -1,13 +1,17 @@
 package com.anime.danmaku.ui
 
-import androidx.compose.foundation.Canvas
+import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.anime.danmaku.api.Danmaku
@@ -15,6 +19,7 @@ import com.anime.danmaku.api.DanmakuLocation
 import com.anime.danmaku.api.DanmakuPresentation
 import java.util.UUID
 import kotlin.math.floor
+import android.graphics.Canvas as AndroidCanvas
 
 /**
  * 已知大小长度的弹幕
@@ -44,37 +49,55 @@ data class StyledDanmaku(
         if (isDebug) "$text (${floor((seconds / 60)).toInt()}:${String.format2f(seconds % 60)})" else text
     }
 
-    val solidTextLayout = measurer.measure(
+    private val solidTextLayout = measurer.measure(
         text = danmakuText,
         style = baseStyle.merge(
             style.styleForText(
                 color = if (enableColor) {
                     Color(0xFF_00_00_00L or presentation.danmaku.color.toUInt().toLong())
-                        .copy(alpha = style.alpha)
                 } else Color.White,
-            ),
+            ).copy(textDecoration = if (presentation.isSelf) TextDecoration.Underline else null),
         ),
         overflow = TextOverflow.Clip,
         maxLines = 1,
         softWrap = false,
     )
 
-    val borderTextLayout = measurer.measure(
+    private val borderTextLayout = measurer.measure(
         text = danmakuText,
-        style = baseStyle.merge(style.styleForBorder()),
+        style = baseStyle.merge(style.styleForBorder())
+            .copy(textDecoration = if (presentation.isSelf) TextDecoration.Underline else null),
         overflow = TextOverflow.Clip,
         maxLines = 1,
         softWrap = false,
     )
 
+    internal val imageBitmap = createDanmakuImageBitmap(solidTextLayout, borderTextLayout)
+
     override val danmakuWidth: Int = solidTextLayout.size.width
     override val danmakuHeight: Int = solidTextLayout.size.height
+}
+
+
+/**
+ *
+ * Source: https://github.com/open-ani/ani/blob/92690b0505f6596da0ebe1bbad01dd865020fc6f/danmaku/ui/commonMain/StyledDanmaku.kt#L80
+ * 绘制缓存好的`ImageBitmap` `drawImage` cpu使用率相比 直接绘制`drawText` cpu使用率
+ * 降低`4% - %6`左右
+ * 测试用的CPU: `snapdragon870`, 非release模式下
+ */
+internal fun DrawScope.drawDanmakuText(
+    state: StyledDanmaku,
+    screenPosX: () -> Float,
+    screenPosY: () -> Float,
+) {
+    drawImage(state.imageBitmap, Offset(screenPosX(), screenPosY()))
 }
 
 /**
  * draw text
  */
-fun DrawScope.drawDanmakuText(
+/*internal fun DrawScope.drawDanmakuText(
     state: StyledDanmaku,
     screenPosX: () -> Float,
     screenPosY: () -> Float
@@ -87,8 +110,31 @@ fun DrawScope.drawDanmakuText(
         topLeft = offset,
         textDecoration = if (state.presentation.isSelf) TextDecoration.Underline else null
     )
-}
+    "drawDanmakuText: $offset".log("drawDanmakuText")
+}*/
 
+/**
+ * Create image snapshot of danmaku text.
+ */
+internal fun createDanmakuImageBitmap(
+    solidTextLayout: TextLayoutResult,
+    borderTextLayout: TextLayoutResult,
+): ImageBitmap {
+    // create a gpu-accelerated bitmap
+    val destBitmap = Bitmap.createBitmap(
+        borderTextLayout.size.width,
+        borderTextLayout.size.height,
+        Bitmap.Config.ARGB_8888
+    )
+    val destCanvas = Canvas(AndroidCanvas(destBitmap))
+
+    TextPainter.paint(destCanvas, borderTextLayout)
+    TextPainter.paint(destCanvas, solidTextLayout)
+
+    return destBitmap.asImageBitmap().apply {
+        prepareToDraw()
+    }
+}
 
 internal fun dummyDanmaku(
     measurer: TextMeasurer,

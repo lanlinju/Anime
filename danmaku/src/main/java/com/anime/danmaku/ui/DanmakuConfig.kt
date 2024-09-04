@@ -56,7 +56,7 @@ data class DanmakuConfig(
     /**
      * 是否启用顶部弹幕
      */
-    val enableTop: Boolean = true,
+    val enableTop: Boolean = false,
     /**
      * 是否启用浮动弹幕
      */
@@ -64,7 +64,7 @@ data class DanmakuConfig(
     /**
      * 是否启用底部弹幕
      */
-    val enableBottom: Boolean = true,
+    val enableBottom: Boolean = false,
     /**
      * 调试模式, 启用发送弹幕的信息和弹幕处理信息.
      */
@@ -84,16 +84,15 @@ class DanmakuStyle(
     val fontWeight: FontWeight = FontWeight.W600,
     val alpha: Float = 0.8f,
     val strokeColor: Color = Color.Black,
-    val strokeWidth: Float = 4f,
+    val strokeWidth: Float = 2f,
     val shadow: Shadow? = null,
 ) {
     @Stable
     fun styleForBorder(): TextStyle = TextStyle(
         fontSize = fontSize,
-        color = strokeColor,
+        color = strokeColor.copy(alpha),
         fontWeight = fontWeight,
         drawStyle = Stroke(
-            miter = 3f,
             width = strokeWidth,
             join = StrokeJoin.Round,
         ),
@@ -105,7 +104,7 @@ class DanmakuStyle(
     @Stable
     fun styleForText(color: Color = Color.White): TextStyle = TextStyle(
         fontSize = fontSize,
-        color = color,
+        color = color.copy(alpha),
         fontWeight = fontWeight,
         textMotion = TextMotion.Animated,
     )
