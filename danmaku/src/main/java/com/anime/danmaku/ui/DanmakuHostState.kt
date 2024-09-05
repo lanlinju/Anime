@@ -238,18 +238,10 @@ class DanmakuHostState(
     }
 
     /**
-     * Sends the danmaku to the screen, guaranteeing its placement.
+     * Sends the danmaku to the screen, guaranteeing its placement on a track without collisions.
+     * Todo: 已知Bug，发送的弹幕会被后面的弹幕撞击，导致重叠
      *
-     * The method first attempts to place the danmaku using `trySend`.
-     * If unsuccessful, it randomly selects a track from `floatingTracks`,
-     * marks the track as unavailable (e.g., `forbided = true`),
-     * and retrieves the last `FloatingDanmaku` (last).
-     *
-     * It then calculates the time required for `last` to fully enter the screen from the right side (`waitTime`).
-     * If `last` has already fully entered, the `waitTime` will be zero or negative.
-     * After calling `delay(waitTime)`, the method places the new danmaku on the track.
-     *
-     * Finally, it marks the track as available again.
+     * @param danmaku The danmaku to be sent to the screen.
      */
     suspend fun send(danmaku: DanmakuPresentation) {
         if (trySend(danmaku)) return
@@ -278,17 +270,27 @@ class DanmakuHostState(
 
         // Calculate the remaining distance for the last danmaku to fully enter the screen
         val safeSeparation = 16.dp.toPx(density)
-        val remainingDistance = last.danmaku.danmakuWidth + safeSeparation - last.distanceX
+        val remainingDistance = last.danmaku.danmakuWidth - last.distanceX
 
-        // Place the new danmaku and mark the track as available
-        selectedTrack.place(styledDanmaku).let { sendDanmaku ->
-            // Placed behind the last danmaku's position
-            sendDanmaku.placePosition += remainingDistance
-            // Avoid sending danmaku too quickly.
-            // Todo: 这样做会导致后面速度快的追上 发送的弹幕
-            sendDanmaku.speedPxPerSecond = last.speedPxPerSecond
-            presentFloatingDanmaku.add(sendDanmaku)
+        // Place the new danmaku
+        val sendDanmaku = selectedTrack.place(styledDanmaku)
+
+        if (last.speedPxPerSecond < sendDanmaku.speedPxPerSecond) {
+            // Calculate the exit time for the last danmaku
+            val exitDistance = last.screenPosX + last.danmaku.danmakuWidth + safeSeparation
+            val exitTime = exitDistance / last.speedPxPerSecond
+
+            // Calculate how far the new danmaku will move during the last's exit time
+            val distance = sendDanmaku.speedPxPerSecond * exitTime
+
+            // Set the new danmaku's position to avoid overtaking the last one
+            sendDanmaku.placePosition = distance.coerceAtLeast(trackWidth.toFloat())
+        } else {
+            // Place the new danmaku directly behind the last one
+            sendDanmaku.placePosition += remainingDistance + safeSeparation
         }
+
+        presentFloatingDanmaku.add(sendDanmaku)
 
         selectedTrack.forbided = false
     }

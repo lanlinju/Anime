@@ -124,7 +124,7 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
      * @return `true` if the danmaku's X-axis position is less than the track width
      * minus the danmaku width and the safe separation, otherwise `false`.
      */
-    private fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
+    internal fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
         return screenPosX <= trackWidth - danmaku.danmakuWidth - safeSeparation
     }
 
@@ -178,7 +178,6 @@ internal class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
     var speedPxPerSecond =
         calculateLengthBasedSpeed(danmaku.danmakuWidth.toFloat(), density, baseSpeedPxPerSecond)
 
-
     /**
      * 在每一帧更新弹幕的位置.
      *
@@ -218,20 +217,18 @@ internal fun calculateRatio(value: Float, min: Float, max: Float): Float {
 
 // 检测两个弹幕是否会碰撞
 private fun <T : SizeSpecifiedDanmaku> FloatingDanmakuTrack<*>.checkHit(
-    lastDanmaku: FloatingDanmaku<T>,
+    last: FloatingDanmaku<T>,
     newSpeed: Float,
     lastSpeed: Float,
 ): Boolean {
-    val lastDanmakuWidth = lastDanmaku.danmaku.danmakuWidth
-    val remainingDistance = lastDanmaku.screenPosX + lastDanmakuWidth
-
-    // 计算最后一个弹幕退出屏幕所需的时间
-    val timeToExit = remainingDistance / lastSpeed
+    val lastWidth = last.danmaku.danmakuWidth
+    // 计算前一个弹幕离开屏幕的剩余距离和时间
+    val exitDistance = last.screenPosX + lastWidth + safeSeparation
+    val exitTime = exitDistance / lastSpeed
 
     // 计算新弹幕追上最后一个弹幕所需的时间
-    val timeToHit =
-        (lastDanmaku.distanceX - lastDanmakuWidth - safeSeparation) / (newSpeed - lastSpeed)
+    val hitTime = (last.distanceX - lastWidth - safeSeparation) / (newSpeed - lastSpeed)
 
     // 如果新弹幕在最后一个弹幕退出屏幕之前不会追上，则返回 false (不会发生碰撞)
-    return timeToExit >= timeToHit
+    return exitTime >= hitTime
 }

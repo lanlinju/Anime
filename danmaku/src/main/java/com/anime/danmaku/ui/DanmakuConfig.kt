@@ -56,7 +56,7 @@ data class DanmakuConfig(
     /**
      * 是否启用顶部弹幕
      */
-    val enableTop: Boolean = false,
+    val enableTop: Boolean = true,
     /**
      * 是否启用浮动弹幕
      */
@@ -64,7 +64,7 @@ data class DanmakuConfig(
     /**
      * 是否启用底部弹幕
      */
-    val enableBottom: Boolean = false,
+    val enableBottom: Boolean = true,
     /**
      * 调试模式, 启用发送弹幕的信息和弹幕处理信息.
      */
