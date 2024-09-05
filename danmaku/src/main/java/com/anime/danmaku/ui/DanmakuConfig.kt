@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
  * 同时根据弹幕长度基于[baseSpeed]计算相应速度
  */
 internal val MaxSpeedMultiplier = 3f
-internal val BaseTextLength = 120.dp
+internal val BaseTextLength = 80.dp
 internal val MaxTextLength = 620.dp
 
 /**

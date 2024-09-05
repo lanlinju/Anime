@@ -16,9 +16,11 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.anime.danmaku.api.DanmakuLocation
 import com.anime.danmaku.api.DanmakuPresentation
+import kotlinx.coroutines.delay
 import kotlin.math.floor
 
 
@@ -149,6 +151,9 @@ class DanmakuHostState(
         }
     }
 
+    /**
+     * 设置弹幕轨道的数量。根据Host高度和配置中的显示区域比例，计算出轨道数量并初始化。
+     */
     fun setTrackCount() {
         val trackCount = floor(hostHeight / trackHeight * config.displayArea)
             .coerceAtLeast(1f)
@@ -232,9 +237,63 @@ class DanmakuHostState(
         clearPresentDanmaku()
     }
 
-    // Todo: 发送弹幕到屏幕, 此方法一定会保证弹幕发送出去
+    /**
+     * Sends the danmaku to the screen, guaranteeing its placement.
+     *
+     * The method first attempts to place the danmaku using `trySend`.
+     * If unsuccessful, it randomly selects a track from `floatingTracks`,
+     * marks the track as unavailable (e.g., `forbided = true`),
+     * and retrieves the last `FloatingDanmaku` (last).
+     *
+     * It then calculates the time required for `last` to fully enter the screen from the right side (`waitTime`).
+     * If `last` has already fully entered, the `waitTime` will be zero or negative.
+     * After calling `delay(waitTime)`, the method places the new danmaku on the track.
+     *
+     * Finally, it marks the track as available again.
+     */
     suspend fun send(danmaku: DanmakuPresentation) {
-        error("Send is not yet implemented")
+        if (trySend(danmaku)) return
+
+        val styledDanmaku = StyledDanmaku(
+            presentation = danmaku,
+            measurer = danmakuTextMeasurer,
+            baseStyle = baseStyle,
+            style = config.style,
+            enableColor = config.enableColor,
+            isDebug = config.isDebug
+        )
+
+        // Randomly select a track from floatingTracks
+        val selectedTrack = floatingTracks.random()
+
+        // Mark the track as unavailable
+        selectedTrack.forbided = true
+
+        // Get the last FloatingDanmaku from the selected track
+        val last = selectedTrack.danmakuList.lastOrNull() ?: run {
+            selectedTrack.place(styledDanmaku).let(presentFloatingDanmaku::add)
+            selectedTrack.forbided = false
+            return
+        }
+
+        // Calculate the remaining time for the last danmaku to fully enter the screen
+        val distance = last.trackWidth - last.screenPosX // The distance already scrolled
+        val remainingDistance = last.trackWidth + config.safeSeparation.toPx(density) - distance
+        val waitTime = maxOf(remainingDistance * 1000 / last.speedPxPerSecond, 0f)
+
+        // Wait for the last danmaku to fully enter the screen
+        delay(waitTime.toLong())
+
+        // Place the new danmaku and mark the track as available
+        selectedTrack.place(styledDanmaku).let { floatingDanmaku ->
+            // Placed behind the last danmaku's position when paused
+            if (paused) {
+                floatingDanmaku.screenPosX + remainingDistance
+            }
+            presentFloatingDanmaku.add(floatingDanmaku)
+        }
+
+        selectedTrack.forbided = false
     }
 
     fun play() {
@@ -260,4 +319,8 @@ private inline fun <T> MutableList<T>.removeFirst(predicate: (T) -> Boolean): T?
     val index = indexOfFirst(predicate)
     if (index == -1) return null
     return removeAt(index)
+}
+
+private fun Dp.toPx(density: Density): Float {
+    return with(density) { toPx() }
 }

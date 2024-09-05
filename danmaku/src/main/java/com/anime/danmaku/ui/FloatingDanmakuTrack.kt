@@ -24,7 +24,10 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     // val speedMultiplier: Float,
     private val onRemoveDanmaku: (FloatingDanmaku<T>) -> Unit // 某个弹幕需要消失, 必须调用此函数避免内存泄漏.
 ) : DanmakuTrack<T, FloatingDanmaku<T>> {
-    private val danmakuList: MutableList<FloatingDanmaku<T>> = mutableListOf()
+    internal val danmakuList: MutableList<FloatingDanmaku<T>> = mutableListOf()
+
+    @Volatile
+    internal var forbided: Boolean = false // 表示当前轨道是否可用(forbid的正确的过去式：forbade,过去分词：forbidden)
 
     /**
      * Determines whether the given [danmaku] can be placed on the track without overlapping with the previous danmaku.
@@ -39,7 +42,7 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
      * @return `true` if the danmaku can be placed without overlap, otherwise `false`.
      */
     override fun canPlace(danmaku: T): Boolean {
-        if (danmakuList.isEmpty()) return true
+        if (danmakuList.isEmpty() && !forbided) return true
         val lastDanmaku = danmakuList.last()
 
         // If the last danmaku is not fully visible, the new danmaku cannot be placed
