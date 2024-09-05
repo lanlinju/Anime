@@ -42,7 +42,8 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
      * @return `true` if the danmaku can be placed without overlap, otherwise `false`.
      */
     override fun canPlace(danmaku: T): Boolean {
-        if (danmakuList.isEmpty() && !forbided) return true
+        if (forbided) return false // 优先保证用户发送的弹幕进入屏幕，防止其他弹幕竞争当前轨道
+        if (danmakuList.isEmpty()) return true
         val lastDanmaku = danmakuList.last()
 
         // If the last danmaku is not fully visible, the new danmaku cannot be placed
@@ -136,15 +137,19 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
  * 一条浮动弹幕
  */
 @Stable
-class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
-    var danmaku: T,
-    val trackIndex: Int,
-    val trackHeight: Int,
-    val trackWidth: Int,
-    val density: Density,
-    private var baseSpeedPxPerSecond: Float,
+internal class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
+    val danmaku: T,
     val placeTimeNanos: Long,
+    private val trackIndex: Int,
+    private val trackHeight: Int,
+    private val trackWidth: Int,
+    private val density: Density,
+    private val baseSpeedPxPerSecond: Float,
 ) {
+    /**
+     * 弹幕初始时所在的位置，默认为轨道宽度[trackWidth]
+     */
+    var placePosition: Float = trackWidth.toFloat()
 
     /**
      * 弹幕在浮动轨道已滚动的距离, 是正数. 单位 px
@@ -152,7 +157,7 @@ class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
      * 例如, 如果弹幕现在在左侧刚被放置, 则等于 `0`.
      * 如果左边已滑到轨道最左侧, 则等于轨道长度.
      */
-    val distanceX: Float get() = trackWidth - screenPosX
+    val distanceX: Float get() = placePosition - screenPosX
 
     /**
      * 弹幕在屏幕上的 Y 坐标位置, 由轨道高度和轨道索引计算得出.
@@ -164,15 +169,15 @@ class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
      * 弹幕在屏幕上的 X 坐标位置. 初始位置为轨道宽度 (即弹幕刚好在屏幕右侧边缘).
      * 使用 `mutableFloatStateOf` 以确保该值是可变且可组合的状态.
      */
-    var screenPosX by mutableFloatStateOf(trackWidth.toFloat())
+    var screenPosX by mutableFloatStateOf(placePosition)
 
     /**
      * 弹幕的速度, 以像素每秒为单位.
      * Unit px/s
      */
-    val speedPxPerSecond by lazy {
+    var speedPxPerSecond =
         calculateLengthBasedSpeed(danmaku.danmakuWidth.toFloat(), density, baseSpeedPxPerSecond)
-    }
+
 
     /**
      * 在每一帧更新弹幕的位置.

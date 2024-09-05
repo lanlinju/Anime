@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -21,11 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
@@ -35,6 +38,7 @@ import com.anime.danmaku.api.DanmakuLocation
 import com.anime.danmaku.api.DanmakuPresentation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -106,6 +110,7 @@ private fun DanmakuDebug(state: DanmakuHostState) {
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             Text("DanmakuHost state: ")
             Text("  hostSize: ${state.hostWidth}x${state.hostHeight}, trackHeight: ${state.trackHeight}")
@@ -185,7 +190,7 @@ internal fun DanmakuHostPreview() {
         )
 
     } else {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Column {
             DanmakuHost(
                 state,
                 Modifier
@@ -195,5 +200,33 @@ internal fun DanmakuHostPreview() {
             )
             HorizontalDivider()
         }
+
+
+        // test send
+        Column {
+            val scope = rememberCoroutineScope()
+            Button(onClick = {
+                val d = Danmaku(
+                    "111",
+                    "dummy",
+                    5500,
+                    "1",
+                    DanmakuLocation.NORMAL,
+                    text = "Send Danmaku Test!!!",
+                    Color.Green.toArgb(),
+                )
+                scope.launch {
+                    state.send(DanmakuPresentation(d, isSelf = true))
+                }
+            }) {
+                Text(text = "Send")
+            }
+            Button(onClick = {
+                state.paused = !state.paused
+            }) {
+                Text(text = "Pause")
+            }
+        }
+
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import kotlin.math.round
 
-internal var LOG_ENABLE = true
+internal var LOG_ENABLE = false
 
 internal const val LOG_TAG = "Danmaku"
 

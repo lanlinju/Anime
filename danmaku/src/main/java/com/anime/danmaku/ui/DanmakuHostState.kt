@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.anime.danmaku.api.DanmakuLocation
 import com.anime.danmaku.api.DanmakuPresentation
-import kotlinx.coroutines.delay
 import kotlin.math.floor
 
 
@@ -56,12 +55,13 @@ class DanmakuHostState(
     internal val topTracks = mutableListOf<FixedDanmakuTrack<StyledDanmaku>>()
     internal val bottomTracks = mutableListOf<FixedDanmakuTrack<StyledDanmaku>>()
 
-    var elapsedFrameTimeNanos: Long = 0L
-    val isDebug by mutableStateOf(config.isDebug)
-    var paused by mutableStateOf(false)
+    /* 计时器，用于计算弹幕在屏幕上的[FloatingDanmaku]滚动距离和[FixedDanmaku]停留时间 */
+    internal var elapsedFrameTimeNanos: Long = 0L
+    internal val isDebug by mutableStateOf(config.isDebug)
+    internal var paused by mutableStateOf(false)
 
-    val trackWidth by derivedStateOf { hostWidth }
-    val trackHeight by lazy {
+    internal val trackWidth by derivedStateOf { hostWidth }
+    internal val trackHeight by lazy {
         val dummyDanmaku = dummyDanmaku(
             trackStubMeasurer,
             baseStyle,
@@ -131,7 +131,7 @@ class DanmakuHostState(
      * 在每一帧中调用，主要用于更新浮动弹幕的位置。
      * 该方法为一个协程循环，确保弹幕的位置根据时间的变化得到更新。
      */
-    suspend fun interpolateFrameLoop() {
+    internal suspend fun interpolateFrameLoop() {
         var lastFrameTimeNanos = withFrameNanos { it }
 
         while (true) {
@@ -144,8 +144,8 @@ class DanmakuHostState(
                 // 更新浮动弹幕的位置
                 for (danmaku in presentFloatingDanmaku) {
                     val time = (elapsedFrameTimeNanos - danmaku.placeTimeNanos) / 1_000_000_000f
-                    val x = time * danmaku.speedPxPerSecond
-                    danmaku.updatePosX(danmaku.trackWidth - x)
+                    val x = time * danmaku.speedPxPerSecond // 已行驶的距离
+                    danmaku.updatePosX(danmaku.placePosition - x)
                 }
             }
         }
@@ -154,7 +154,7 @@ class DanmakuHostState(
     /**
      * 设置弹幕轨道的数量。根据Host高度和配置中的显示区域比例，计算出轨道数量并初始化。
      */
-    fun setTrackCount() {
+    internal fun setTrackCount() {
         val trackCount = floor(hostHeight / trackHeight * config.displayArea)
             .coerceAtLeast(1f)
             .toInt()
@@ -276,21 +276,18 @@ class DanmakuHostState(
             return
         }
 
-        // Calculate the remaining time for the last danmaku to fully enter the screen
-        val distance = last.trackWidth - last.screenPosX // The distance already scrolled
-        val remainingDistance = last.trackWidth + config.safeSeparation.toPx(density) - distance
-        val waitTime = maxOf(remainingDistance * 1000 / last.speedPxPerSecond, 0f)
-
-        // Wait for the last danmaku to fully enter the screen
-        delay(waitTime.toLong())
+        // Calculate the remaining distance for the last danmaku to fully enter the screen
+        val safeSeparation = 16.dp.toPx(density)
+        val remainingDistance = last.danmaku.danmakuWidth + safeSeparation - last.distanceX
 
         // Place the new danmaku and mark the track as available
-        selectedTrack.place(styledDanmaku).let { floatingDanmaku ->
-            // Placed behind the last danmaku's position when paused
-            if (paused) {
-                floatingDanmaku.screenPosX + remainingDistance
-            }
-            presentFloatingDanmaku.add(floatingDanmaku)
+        selectedTrack.place(styledDanmaku).let { sendDanmaku ->
+            // Placed behind the last danmaku's position
+            sendDanmaku.placePosition += remainingDistance
+            // Avoid sending danmaku too quickly.
+            // Todo: 这样做会导致后面速度快的追上 发送的弹幕
+            sendDanmaku.speedPxPerSecond = last.speedPxPerSecond
+            presentFloatingDanmaku.add(sendDanmaku)
         }
 
         selectedTrack.forbided = false

@@ -1,5 +1,6 @@
 package com.anime.danmaku.ui
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 /**
@@ -80,10 +81,10 @@ internal class FixedDanmakuTrack<T : SizeSpecifiedDanmaku>(
     }
 }
 
-@Stable
+@Immutable
 internal class FixedDanmaku<T : SizeSpecifiedDanmaku>(
-    var danmaku: T,
-    var placeFrameTimeNanos: Long,
+    val danmaku: T,
+    val placeFrameTimeNanos: Long,
     private val trackIndex: Int,
     private val trackHeight: Int,
     private val trackWidth: Int,
@@ -106,7 +107,7 @@ internal class FixedDanmaku<T : SizeSpecifiedDanmaku>(
      *
      * @return 计算后的 Y 坐标位置
      */
-    internal fun calculatePosY(): Float {
+    private fun calculatePosY(): Float {
         return if (fromBottom) {
             hostHeight - (trackIndex + 1) * trackHeight.toFloat()
         } else {
