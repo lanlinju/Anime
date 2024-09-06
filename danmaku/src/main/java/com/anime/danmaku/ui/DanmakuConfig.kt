@@ -69,7 +69,9 @@ data class DanmakuConfig(
      * 调试模式, 启用发送弹幕的信息和弹幕处理信息.
      */
     val isDebug: Boolean = false,
-
+    /**
+     * 轨道属性
+     */
     val danmakuTrackProperties: DanmakuTrackProperties = DanmakuTrackProperties.Default,
 ) {
     companion object {

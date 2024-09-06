@@ -8,24 +8,21 @@ package com.anime.danmaku.api
  * @see DanmakuProviderFactory
  */
 interface DanmakuProvider : AutoCloseable {
+    // 弹幕提供者的唯一标识符
     val id: String
 
-    /**
-     * Matches a danmaku stream by the given filtering parameters.
-     *
-     * Returns `null` if not found.
-     *
-     * The returned [DanmakuSession] should be closed when it is no longer needed.
-     */
+    // 挂起函数，用于获取弹幕会话
     suspend fun fetch(): DanmakuSession
 }
 
-interface DanmakuProviderFactory { // SPI interface
+interface DanmakuProviderFactory { // SPI 接口
     /**
      * @see DanmakuProvider.id
+     * 获取弹幕提供者的唯一标识符
      */
     val id: String
 
+    // 创建一个新的弹幕提供者实例
     fun create(): DanmakuProvider
 }
 

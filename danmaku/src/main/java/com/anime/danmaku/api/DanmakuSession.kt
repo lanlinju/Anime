@@ -6,9 +6,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.isActive
-import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -21,15 +19,9 @@ interface DanmakuSession {
     val totalCount: Flow<Int?> get() = emptyFlow()
 
     /**
-     * 创建一个随视频进度 [progress] 匹配到的弹幕数据流.
+     * 创建一个随视频进度 [curTimeMillis] 匹配到的弹幕数据流.
      *
-     * 每当有一个新的 [Duration] 从 [progress] emit, 本函数返回的 flow 都会 emit 一些新的 [Danmaku] 对象, 表示在该视频进度 [Duration] 匹配到的弹幕列表.
-     *
-     * 当有新的 [Duration] 从 [progress] emit, 并且上一个时间点匹配到的弹幕列表还没被完全 collect 时, 将会抛弃上一个时间点匹配到的弹幕列表, 并且从新的时间点开始匹配.
-     *
-     * ### Flow 终止
-     *
-     * 当 [progress] [完结][Flow.onCompletion] 时, 本函数返回的 flow 也会 [完结][Flow.onCompletion].
+     * [curTimeMillis] 当前的视频播放进度
      */
     fun at(curTimeMillis: () -> Duration): Flow<DanmakuEvent>
 }
@@ -54,7 +46,6 @@ class TimeBasedDanmakuSession private constructor(
      * 一个[Danmaku] list. 必须根据 [DanmakuInfo.playTime] 排序且创建后不可更改，是一条动漫完整的弹幕列表.
      */
     private val list: List<Danmaku>,
-    private val shiftMillis: Long = 0,
     private val flowCoroutineContext: CoroutineContext = EmptyCoroutineContext,
     private val tickDelayTimeMs: Long = 200, // 轮询要发送弹幕的间隔，单位[MillisSeconds]毫秒
 ) : DanmakuSession {
@@ -63,12 +54,11 @@ class TimeBasedDanmakuSession private constructor(
     companion object {
         fun create(
             sequence: Sequence<Danmaku>,
-            shiftMillis: Long = 0,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
         ): DanmakuSession {
             val list = sequence.mapTo(ArrayList()) { sanitize(it) }
             list.sortBy { it.playTimeMillis }
-            return TimeBasedDanmakuSession(list, shiftMillis, coroutineContext)
+            return TimeBasedDanmakuSession(list, coroutineContext)
         }
     }
 
@@ -147,7 +137,6 @@ class TimeBasedDanmakuSession private constructor(
 }
 
 internal class DanmakuSessionFlowState(
-    @Volatile
     var list: List<Danmaku>,
     /**
      * 当前视频播放进度
@@ -172,19 +161,7 @@ internal class DanmakuSessionFlowState(
     /**
      * 最后成功发送了的弹幕的索引
      */
-    @JvmField
     var lastIndex = -1
-
-    /*/**
-     * @see DanmakuSession.requestRepopulate
-     */
-    fun requestRepopulate() {
-        lastTime = Duration.INFINITE
-    }
-
-    fun updateList(newList: List<Danmaku>) {
-        list = newList
-    } */
 }
 
 
