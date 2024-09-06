@@ -243,7 +243,5 @@ internal fun DanmakuHostPreview() {
                 }
             }
         }
-
-
     }
 }

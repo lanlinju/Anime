@@ -30,23 +30,23 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     internal var forbided: Boolean = false // 表示当前轨道是否可用(forbid的正确的过去式：forbade,过去分词：forbidden)
 
     /**
-     * Determines whether the given [danmaku] can be placed on the track without overlapping with the previous danmaku.
+     * 判断给定的 [danmaku] 是否可以在轨道上放置，而不会与之前的弹幕重叠。
      *
-     * If the track is empty, the danmaku can be placed. If the last danmaku on the track is fully visible,
-     * further checks are made to ensure that the new danmaku will not catch up and overlap with the last one.
+     * 如果轨道是空的，则弹幕可以放置。如果轨道上最后一个弹幕完全可见，
+     * 则进一步检查以确保新弹幕不会追赶上并与最后一个弹幕重叠。
      *
-     * The placement is determined by comparing the speeds of the new and last danmaku. If the new danmaku is slower
-     * or won't catch up to the last one before it exits the screen, it can be placed.
+     * 放置的依据是比较新弹幕和最后一个弹幕的速度。如果新弹幕速度较慢
+     * 或者在最后一个弹幕退出屏幕之前不会追赶上，则可以放置。
      *
-     * @param danmaku The danmaku object to be placed.
-     * @return `true` if the danmaku can be placed without overlap, otherwise `false`.
+     * @param danmaku 要放置的弹幕对象。
+     * @return 如果弹幕可以无重叠地放置，则返回 `true`，否则返回 `false`。
      */
     override fun canPlace(danmaku: T): Boolean {
         if (forbided) return false // 优先保证用户发送的弹幕进入屏幕，防止其他弹幕竞争当前轨道
         if (danmakuList.isEmpty()) return true
         val lastDanmaku = danmakuList.last()
 
-        // If the last danmaku is not fully visible, the new danmaku cannot be placed
+        // 如果最后一个弹幕没有完全可见，则新弹幕不能放置
         if (!lastDanmaku.isFullyVisible()) return false
 
         val lastSpeed = lastDanmaku.speedPxPerSecond
@@ -61,12 +61,11 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     }
 
     /**
-     * Places the specified danmaku into the current track.
-     * The danmaku's movement speed and placement time will be initialized according to the parameters,
-     * and it will be added to the track's danmaku list.
+     * 在当前轨道上放置指定的弹幕。
+     * 弹幕的移动速度和放置时间将根据参数进行初始化，并将其添加到轨道的弹幕列表中。
      *
-     * @param danmaku The danmaku object to be placed.
-     * @return The initialized [FloatingDanmaku] object that has been placed.
+     * @param danmaku 要放置的弹幕对象。
+     * @return 已放置的初始化的 [FloatingDanmaku] 对象。
      */
     override fun place(danmaku: T): FloatingDanmaku<T> {
         return FloatingDanmaku(
@@ -81,9 +80,9 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     }
 
     /**
-     * Clears all danmakus from the track.
-     * Before clearing each danmaku, the [onRemoveDanmaku] method is called to ensure
-     * related resources are released, preventing memory leaks.
+     * 清除轨道上的所有弹幕。
+     * 在清除每个弹幕之前，会调用 [onRemoveDanmaku] 方法以确保
+     * 相关资源被释放，防止内存泄漏。
      */
     override fun clearAll() {
         danmakuList.removeAll {
@@ -93,9 +92,8 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     }
 
     /**
-     * This method is called periodically during logic frames to check whether danmakus have moved
-     * off-screen. If a danmaku has moved off-screen, it will be removed from the track,
-     * and [onRemoveDanmaku] will be called to clean up resources.
+     * 该方法在逻辑帧期间定期调用，用于检查弹幕是否已经移出屏幕。
+     * 如果弹幕已移出屏幕，将从轨道中移除，并调用 [onRemoveDanmaku] 来清理资源。
      */
     override fun tick() {
         if (danmakuList.isEmpty()) return
@@ -109,22 +107,20 @@ internal class FloatingDanmakuTrack<T : SizeSpecifiedDanmaku>(
     }
 
     /**
-     * Checks whether the danmaku has completely moved off the screen.
+     * 检查弹幕是否已经完全移出屏幕。
      *
-     * @return `true` if the danmaku's X-axis position is less than its negative width
-     * (i.e., completely off-screen), otherwise `false`.
+     * @return 如果弹幕的 X 轴位置小于其负宽度（即完全移出屏幕），返回 `true`，否则返回 `false`。
      */
     private fun FloatingDanmaku<T>.isGone(): Boolean {
         return screenPosX <= -danmaku.danmakuWidth
     }
 
     /**
-     * Checks whether the danmaku is fully visible.
+     * 检查弹幕是否完全可见。
      *
-     * @return `true` if the danmaku's X-axis position is less than the track width
-     * minus the danmaku width and the safe separation, otherwise `false`.
+     * @return 如果弹幕的 X 轴位置小于轨道宽度减去弹幕宽度和安全间隔，返回 `true`，否则返回 `false`。
      */
-    internal fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
+    private fun FloatingDanmaku<T>.isFullyVisible(): Boolean {
         return screenPosX <= trackWidth - danmaku.danmakuWidth - safeSeparation
     }
 
@@ -161,9 +157,8 @@ internal class FloatingDanmaku<T : SizeSpecifiedDanmaku>(
 
     /**
      * 弹幕在屏幕上的 Y 坐标位置, 由轨道高度和轨道索引计算得出.
-     * 这是一个懒加载属性, 仅在第一次访问时计算.
      */
-    val screenPosY by lazy { trackHeight.toFloat() * trackIndex }
+    val screenPosY = trackHeight.toFloat() * trackIndex
 
     /**
      * 弹幕在屏幕上的 X 坐标位置. 初始位置为轨道宽度 (即弹幕刚好在屏幕右侧边缘).

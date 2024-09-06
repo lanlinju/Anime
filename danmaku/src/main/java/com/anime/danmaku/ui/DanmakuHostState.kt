@@ -24,22 +24,23 @@ import kotlin.math.floor
 
 
 @Composable
-fun rememberDanmakuHostState(danmakuConfig: DanmakuConfig = DanmakuConfig.Default): DanmakuHostState {
+fun rememberDanmakuHostState(
+    danmakuConfig: DanmakuConfig = DanmakuConfig.Default,
+    baseStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+): DanmakuHostState {
     val density = LocalDensity.current
-    val trackStubMeasurer = rememberTextMeasurer(1)
     val danmakuTextMeasurer = rememberTextMeasurer(200)
-    val baseStyle = MaterialTheme.typography.bodyMedium
     return remember {
-        DanmakuHostState(danmakuConfig, trackStubMeasurer, danmakuTextMeasurer, density, baseStyle)
+        DanmakuHostState(danmakuConfig, density, baseStyle, danmakuTextMeasurer)
     }
 }
 
 class DanmakuHostState(
     val config: DanmakuConfig = DanmakuConfig.Default,
-    val trackStubMeasurer: TextMeasurer,
-    val danmakuTextMeasurer: TextMeasurer,
     val density: Density,
     val baseStyle: TextStyle,
+    val danmakuTextMeasurer: TextMeasurer,
+    val trackStubMeasurer: TextMeasurer = danmakuTextMeasurer,
 ) {
     internal var hostWidth by mutableIntStateOf(0)
     internal var hostHeight by mutableIntStateOf(0)
@@ -230,10 +231,13 @@ class DanmakuHostState(
     }
 
     /**
-     * 清空屏幕弹幕
+     * 清空屏幕并以这些弹幕填充. 常见于快进/快退时
      * Todo: 将[list] 填充到屏幕.
+     *
+     * @param list 顺序为由距离当前时间近到远.
+     * @param playTimeMillis 当前播放器的时间
      */
-    suspend fun repopulate(list: List<DanmakuPresentation>) {
+    suspend fun repopulate(list: List<DanmakuPresentation>, playTimeMillis: Long) {
         clearPresentDanmaku()
     }
 
@@ -245,7 +249,6 @@ class DanmakuHostState(
      */
     suspend fun send(danmaku: DanmakuPresentation) {
         if (trySend(danmaku)) return
-
         val styledDanmaku = StyledDanmaku(
             presentation = danmaku,
             measurer = danmakuTextMeasurer,
@@ -267,10 +270,8 @@ class DanmakuHostState(
             selectedTrack.forbided = false
             return
         }
-
         // Calculate the remaining distance for the last danmaku to fully enter the screen
         val safeSeparation = 16.dp.toPx(density)
-        val remainingDistance = last.danmaku.danmakuWidth - last.distanceX
 
         // Place the new danmaku
         val sendDanmaku = selectedTrack.place(styledDanmaku)
@@ -286,12 +287,12 @@ class DanmakuHostState(
             // Set the new danmaku's position to avoid overtaking the last one
             sendDanmaku.placePosition = distance.coerceAtLeast(trackWidth.toFloat())
         } else {
+            // Calculate the remaining distance for the last danmaku to fully enter the screen
+            val remainingDistance = last.danmaku.danmakuWidth - last.distanceX
             // Place the new danmaku directly behind the last one
             sendDanmaku.placePosition += remainingDistance + safeSeparation
         }
-
         presentFloatingDanmaku.add(sendDanmaku)
-
         selectedTrack.forbided = false
     }
 
