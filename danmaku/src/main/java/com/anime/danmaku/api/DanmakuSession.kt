@@ -1,5 +1,6 @@
 package com.anime.danmaku.api
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -47,7 +49,7 @@ class TimeBasedDanmakuSession private constructor(
      */
     private val list: List<Danmaku>,
     private val flowCoroutineContext: CoroutineContext = EmptyCoroutineContext,
-    private val tickDelayTimeMs: Long = 200, // 轮询要发送弹幕的间隔，单位[MillisSeconds]毫秒
+    private val tickDelayTimeMs: Long = 400, // 轮询要发送弹幕的间隔，单位[MillisSeconds]毫秒
 ) : DanmakuSession {
     override val totalCount: Flow<Int?> = flowOf(list.size)
 
@@ -77,15 +79,6 @@ class TimeBasedDanmakuSession private constructor(
         )
         val algorithm = DanmakuSessionAlgorithm(state)
         return channelFlow {
-            // 一个单独协程收集当前进度
-            /*launch(start = CoroutineStart.UNDISPATCHED) {
-                progress.collect {
-                    state.curTimeShared = it
-                }
-                // progress finished, no need to calculate
-                this@channelFlow.channel.close()
-            }*/
-
             val sendItem: (DanmakuEvent) -> Boolean = {
                 trySend(it).isSuccess
             }
@@ -186,8 +179,8 @@ internal class DanmakuSessionAlgorithm(val state: DanmakuSessionFlowState) {
         }
     }
 
-    fun tick(sendEvent: (DanmakuEvent) -> Boolean) {
-        val curTime = state.curTimeMillis()
+    suspend fun tick(sendEvent: (DanmakuEvent) -> Boolean) {
+        val curTime = withContext(Dispatchers.Main) { state.curTimeMillis() }
         if (curTime == Duration.INFINITE) {
             return
         }
