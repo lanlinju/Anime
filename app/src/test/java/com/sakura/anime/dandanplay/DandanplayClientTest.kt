@@ -4,6 +4,9 @@ import com.anime.danmaku.api.DanmakuLocation
 import com.sakura.anime.data.remote.dandanplay.DandanplayClient
 import com.sakura.anime.data.remote.dandanplay.dto.DandanplayDanmaku
 import com.sakura.anime.data.remote.dandanplay.dto.DandanplayDanmakuListResponse
+import com.sakura.anime.data.remote.dandanplay.dto.DandanplaySearchEpisodeResponse
+import com.sakura.anime.data.remote.dandanplay.dto.SearchAnimeEpisodes
+import com.sakura.anime.data.remote.dandanplay.dto.SearchEpisodeDetails
 import com.sakura.anime.data.remote.dandanplay.dto.toDanmakuOrNull
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -19,6 +22,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DandanplayClientTest {
@@ -108,5 +112,102 @@ class DandanplayClientTest {
 
         // 验证无效数据返回 null
         assertEquals(null, result)
+    }
+
+    // 模拟的响应数据
+    private val testSearchResponse = DandanplaySearchEpisodeResponse(
+        hasMore = false,
+        animes = listOf(
+            SearchAnimeEpisodes(
+                animeId = 101,
+                animeTitle = "Test Anime",
+                type = "TV",
+                typeDescription = "TV Series",
+                episodes = listOf(
+                    SearchEpisodeDetails(
+                        episodeId = 201,
+                        episodeTitle = "Episode 1"
+                    ),
+                    SearchEpisodeDetails(
+                        episodeId = 202,
+                        episodeTitle = "Episode 2"
+                    )
+                )
+            )
+        ),
+        success = true
+    )
+
+    @Test
+    fun `test searchEpisode success`() = runBlocking {
+        // 使用 MockEngine 模拟 HTTP 请求
+        val mockEngine = MockEngine { request ->
+            assertEquals("Test Anime", request.url.parameters["anime"])
+            assertEquals("Episode 1", request.url.parameters["episode"])
+            respond(
+                content = Json.encodeToString(testSearchResponse),
+                headers = headersOf(
+                    HttpHeaders.ContentType,
+                    ContentType.Application.Json.toString()
+                )
+            )
+        }
+
+        val client = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+
+        // 实例化 DandanplayClient
+        val dandanplayClient = DandanplayClient(client)
+
+        // 调用 searchEpisode 方法
+        val result = dandanplayClient.searchEpisode("Test Anime", "Episode 1")
+
+        // 验证结果
+        assertTrue(result.success)
+        assertEquals(1, result.animes.size)
+        assertEquals("Test Anime", result.animes[0].animeTitle)
+        assertEquals(2, result.animes[0].episodes.size)
+        assertEquals("Episode 1", result.animes[0].episodes[0].episodeTitle)
+        assertEquals(201, result.animes[0].episodes[0].episodeId)
+    }
+
+    @Test
+    fun `test searchEpisode empty episode`() = runBlocking {
+        // 使用 MockEngine 模拟 HTTP 请求，不传递 episode 参数
+        val mockEngine = MockEngine { request ->
+            assertEquals("Test Anime", request.url.parameters["anime"])
+            assertEquals(null, request.url.parameters["episode"]) // 没有传递 episode
+            respond(
+                content = Json.encodeToString(testSearchResponse),
+                headers = headersOf(
+                    HttpHeaders.ContentType,
+                    ContentType.Application.Json.toString()
+                )
+            )
+        }
+
+        val client = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+
+        // 实例化 DandanplayClient
+        val dandanplayClient = DandanplayClient(client)
+
+        // 调用 searchEpisode 方法，不传递 episode 参数
+        val result = dandanplayClient.searchEpisode("Test Anime", null)
+
+        // 验证结果
+        assertTrue(result.success)
+        assertEquals(1, result.animes.size)
+        assertEquals("Test Anime", result.animes[0].animeTitle)
     }
 }
