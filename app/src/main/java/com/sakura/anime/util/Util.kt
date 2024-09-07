@@ -110,9 +110,6 @@ fun isTabletDevice(context: Context): Boolean {
  * 用于处理宽屏设备布局
  */
 fun isWideScreen(context: Context): Boolean {
-    /*val metrics = context.resources.displayMetrics
-    val aspectRatio = metrics.widthPixels.toFloat() / metrics.heightPixels.toFloat()
-    return aspectRatio > 1.33*/
     val configuration = context.resources.configuration
     val screenWidthDp = configuration.screenWidthDp
     val screenHeightDp = configuration.screenHeightDp
