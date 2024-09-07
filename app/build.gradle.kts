@@ -74,6 +74,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.layout.android)
 
+    // icons
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+    implementation("androidx.palette:palette-ktx:1.0.0")
+    implementation("com.google.android.material:material:1.12.0")
+
     // navigation component
     implementation("androidx.navigation:navigation-compose:2.5.3")
 
@@ -89,14 +95,6 @@ dependencies {
 
     // coil
     implementation("io.coil-kt:coil-compose:2.6.0")
-
-    implementation("com.google.android.material:material:1.12.0")
-
-    implementation("androidx.compose.material:material-icons-extended:1.6.8")
-
-    implementation("androidx.palette:palette-ktx:1.0.0")
-
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
 
     // room
     val room_version = "2.6.1"
@@ -115,6 +113,17 @@ dependencies {
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")
 
+    // ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
+    // serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    // test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
