@@ -16,6 +16,14 @@ import com.sakura.anime.BuildConfig
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.remote.parse.AnimeSource
 import com.sakura.download.utils.decrypt
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.Base64
 
@@ -109,4 +117,26 @@ fun isWideScreen(context: Context): Boolean {
     val screenWidthDp = configuration.screenWidthDp
     val screenHeightDp = configuration.screenHeightDp
     return screenWidthDp > screenHeightDp
+}
+
+/**
+ * Network util
+ */
+fun createDefaultHttpClient(
+    clientConfig: HttpClientConfig<*>.() -> Unit = {},
+) = HttpClient {
+    install(HttpRequestRetry) {
+        maxRetries = 1
+        delayMillis { 1000 }
+    }
+    install(HttpCookies)
+    install(HttpTimeout) {
+        requestTimeoutMillis = 5000
+    }
+    clientConfig()
+    install(ContentNegotiation) {
+        json(Json {
+            ignoreUnknownKeys = true
+        })
+    }
 }

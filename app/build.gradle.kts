@@ -64,6 +64,7 @@ android {
 dependencies {
     implementation(project(":video-player"))
     implementation(project(":download"))
+    implementation(project(":danmaku"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -119,6 +120,7 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.kotlinx.json)
 
     // serialization
