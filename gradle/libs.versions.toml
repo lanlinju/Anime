@@ -15,6 +15,7 @@ pagingVersion = "3.3.2"
 roomVersion = "2.6.1"
 serialization = "1.7.1"
 ktor = "2.3.12"
+slf4j = "2.0.13"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +58,10 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 
 # kotlinx
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+# Slf4j
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

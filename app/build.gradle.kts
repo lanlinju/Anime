@@ -126,6 +126,10 @@ dependencies {
     // serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Slf4j
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.simple)
+
     // test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
