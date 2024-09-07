@@ -10,7 +10,6 @@ import android.webkit.WebViewClient
 import androidx.annotation.CallSuper
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.util.log
-import com.sakura.download.utils.LOG_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -24,7 +23,10 @@ import kotlin.coroutines.resumeWithException
 
 @SuppressLint("StaticFieldLeak", "SetJavaScriptEnabled")
 class WebViewUtil {
-    private val LOG_TAG = "WebViewUtil"
+    companion object {
+        private val LOG_TAG = "WebViewUtil"
+    }
+
     private var webView: WebView? = null
 
     /**
@@ -155,7 +157,8 @@ class WebViewUtil {
         destroyWebView()
     }
 
-   private fun CharSequence.containStrs(vararg strs: CharSequence) = strs.find { contains(it) } != null
+    private fun CharSequence.containStrs(vararg strs: CharSequence) =
+        strs.find { contains(it) } != null
 
     private fun WebView.clear() {
         clearCache(true)

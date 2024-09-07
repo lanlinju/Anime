@@ -2,11 +2,11 @@ package com.sakura.download.utils
 
 import android.util.Log
 
-var LOG_ENABLE = false
+internal var LOG_ENABLE = false
 
-const val LOG_TAG = "Download"
+internal const val LOG_TAG = "Download"
 
-fun <T> T.log(prefix: String = ""): T {
+internal fun <T> T.log(prefix: String = ""): T {
     val prefixStr = if (prefix.isEmpty()) "" else "[$prefix] "
     if (LOG_ENABLE) {
         if (this is Throwable) {
