@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -73,12 +73,19 @@ class TimeBasedDanmakuSession private constructor(
         }
         val state = DanmakuSessionFlowState(
             list,
-            curTimeMillis = curTimeMillis,
             repopulateThreshold = 3.seconds,
             repopulateDistance = { 10.seconds },
         )
         val algorithm = DanmakuSessionAlgorithm(state)
         return channelFlow {
+            // 一个单独协程收集当前进度
+            launch(Dispatchers.Main) {
+                while (isActive) {
+                    state.curTimeShared = curTimeMillis()
+                    delay(tickDelayTimeMs)
+                }
+            }
+
             val sendItem: (DanmakuEvent) -> Boolean = {
                 trySend(it).isSuccess
             }
@@ -134,7 +141,9 @@ internal class DanmakuSessionFlowState(
     /**
      * 当前视频播放进度
      */
-    var curTimeMillis: () -> Duration = { Duration.INFINITE },
+    @Volatile
+    var curTimeShared: Duration = Duration.INFINITE,
+
     /**
      * 每当快进/快退超过这个阈值后, 重新装填整个屏幕弹幕
      */
@@ -180,7 +189,7 @@ internal class DanmakuSessionAlgorithm(val state: DanmakuSessionFlowState) {
     }
 
     suspend fun tick(sendEvent: (DanmakuEvent) -> Boolean) {
-        val curTime = withContext(Dispatchers.Main) { state.curTimeMillis() }
+        val curTime = state.curTimeShared
         if (curTime == Duration.INFINITE) {
             return
         }
