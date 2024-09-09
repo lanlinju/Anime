@@ -71,6 +71,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -310,23 +311,26 @@ private fun DanmakuHost(
         }
     }
 
+    val isPlayingFlow = remember { snapshotFlow { playerState.isPlaying.value } }
     LaunchedEffect(session) {
         danmakuHostState.clearPresentDanmaku()
-        session?.at { playerState.player.currentPosition.milliseconds }
-            ?.collect { danmakuEvent ->
-                when (danmakuEvent) {
-                    is DanmakuEvent.Add -> {
-                        danmakuHostState.trySend(
-                            DanmakuPresentation(
-                                danmakuEvent.danmaku,
-                                false
-                            )
+        session?.at(
+            curTimeMillis = { playerState.player.currentPosition.milliseconds },
+            isPlayingFlow = isPlayingFlow,
+        )?.collect { danmakuEvent ->
+            when (danmakuEvent) {
+                is DanmakuEvent.Add -> {
+                    danmakuHostState.trySend(
+                        DanmakuPresentation(
+                            danmakuEvent.danmaku,
+                            false
                         )
-                    }
-
-                    is DanmakuEvent.Repopulate -> danmakuHostState.repopulate()
+                    )
                 }
+                // 快进/快退
+                is DanmakuEvent.Repopulate -> danmakuHostState.repopulate()
             }
+        }
     }
 }
 

@@ -1,10 +1,12 @@
 package com.anime.danmaku.api
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
@@ -24,8 +26,12 @@ interface DanmakuSession {
      * 创建一个随视频进度 [curTimeMillis] 匹配到的弹幕数据流.
      *
      * [curTimeMillis] 当前的视频播放进度
+     * [isPlayingFlow] 表示当前视频是否处于播放/暂停状态，如果为暂停状态，将不会轮询发送弹幕
      */
-    fun at(curTimeMillis: () -> Duration): Flow<DanmakuEvent>
+    fun at(
+        curTimeMillis: () -> Duration,
+        isPlayingFlow: Flow<Boolean> = flowOf(true)
+    ): Flow<DanmakuEvent>
 }
 
 sealed class DanmakuEvent {
@@ -67,7 +73,11 @@ class TimeBasedDanmakuSession private constructor(
     /**
      * 接收一个视频的播放进度[Duration]. 和一个[List<DanmakuRegexFilter>]，根据视频进度和过滤后的弹幕列表，通过call [DanmakuSessionAlgorithm] 的 [tick] 函数发送弹幕
      */
-    override fun at(curTimeMillis: () -> Duration): Flow<DanmakuEvent> {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun at(
+        curTimeMillis: () -> Duration,
+        isPlayingFlow: Flow<Boolean>
+    ): Flow<DanmakuEvent> {
         if (list.isEmpty()) {
             return emptyFlow() // fast path
         }
@@ -77,24 +87,26 @@ class TimeBasedDanmakuSession private constructor(
             repopulateDistance = { 10.seconds },
         )
         val algorithm = DanmakuSessionAlgorithm(state)
-        return channelFlow {
-            // 一个单独协程收集当前进度
-            launch(Dispatchers.Main) {
-                while (isActive) {
-                    state.curTimeShared = curTimeMillis()
-                    delay(tickDelayTimeMs)
+        return isPlayingFlow.flatMapLatest { isPlaying ->
+            channelFlow {
+                // 一个单独协程收集当前进度
+                launch(Dispatchers.Main) {
+                    while (isActive && isPlaying) {
+                        state.curTimeShared = curTimeMillis()
+                        delay(tickDelayTimeMs)
+                    }
                 }
-            }
 
-            val sendItem: (DanmakuEvent) -> Boolean = {
-                trySend(it).isSuccess
-            }
+                val sendItem: (DanmakuEvent) -> Boolean = {
+                    trySend(it).isSuccess
+                }
 
-            while (isActive) {
-                algorithm.tick(sendItem)
-                delay(tickDelayTimeMs) // always check for cancellation
-            }
-        }.flowOn(flowCoroutineContext)
+                while (isActive && isPlaying) { // 只有当视频播放时才进行轮询发送弹幕
+                    algorithm.tick(sendItem)
+                    delay(tickDelayTimeMs) // always check for cancellation
+                }
+            }.flowOn(flowCoroutineContext)
+        }
     }
 
     // 下面的算法有 bug, 而且会创建大量协程影响性能
