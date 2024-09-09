@@ -237,7 +237,10 @@ class DanmakuHostState(
      * @param list 顺序为由距离当前时间近到远.
      * @param playTimeMillis 当前播放器的时间
      */
-    suspend fun repopulate(list: List<DanmakuPresentation>, playTimeMillis: Long) {
+    suspend fun repopulate(
+        list: List<DanmakuPresentation> = emptyList(),
+        playTimeMillis: Long = 0L
+    ) {
         clearPresentDanmaku()
     }
 

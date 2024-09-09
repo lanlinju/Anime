@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
  * 用于限制弹幕的最低和最高速度
  * 同时根据弹幕长度基于[baseSpeed]计算相应速度
  */
-internal val MaxSpeedMultiplier = 3f
+internal val MaxSpeedMultiplier = 2f
 internal val BaseTextLength = 80.dp
 internal val MaxTextLength = 620.dp
 
@@ -86,7 +86,7 @@ class DanmakuStyle(
     val fontWeight: FontWeight = FontWeight.W600,
     val alpha: Float = 0.8f,
     val strokeColor: Color = Color.Black,
-    val strokeWidth: Float = 2f,
+    val strokeWidth: Float = 4f,
     val shadow: Shadow? = null,
 ) {
     @Stable

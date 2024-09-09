@@ -6,7 +6,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.anime.danmaku.api.DanmakuSession
 import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.data.remote.dandanplay.DandanplayDanmakuProviderFactory
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetVideoFromRemoteUseCase
@@ -18,6 +20,7 @@ import com.sakura.anime.util.SourceMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,6 +35,10 @@ class VideoPlayViewModel @Inject constructor(
         MutableStateFlow(value = Resource.Loading)
     val videoState: StateFlow<Resource<Video?>>
         get() = _videoState
+
+    private val danmakuProvider = DandanplayDanmakuProviderFactory().create()
+    private val _danmakuSession = MutableStateFlow<DanmakuSession?>(null)
+    val danmakuSession = _danmakuSession.asStateFlow()
 
     private var isLocalVideo = false
     lateinit var mode: SourceMode
@@ -107,6 +114,12 @@ class VideoPlayViewModel @Inject constructor(
     private fun getVideoFromRemote(episodeUrl: String) {
         viewModelScope.launch {
             _videoState.value = getVideoFromRemoteUseCase(episodeUrl, mode)
+            if (_videoState.value is Resource.Success) { // 获取弹幕数据
+                _danmakuSession.value = danmakuProvider.fetch(
+                    _videoState.value.data!!.title,
+                    _videoState.value.data!!.episodeName
+                )
+            }
         }
     }
 

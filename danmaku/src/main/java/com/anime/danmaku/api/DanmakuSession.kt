@@ -188,7 +188,7 @@ internal class DanmakuSessionAlgorithm(val state: DanmakuSessionFlowState) {
         }
     }
 
-    suspend fun tick(sendEvent: (DanmakuEvent) -> Boolean) {
+    fun tick(sendEvent: (DanmakuEvent) -> Boolean) {
         val curTime = state.curTimeShared
         if (curTime == Duration.INFINITE) {
             return

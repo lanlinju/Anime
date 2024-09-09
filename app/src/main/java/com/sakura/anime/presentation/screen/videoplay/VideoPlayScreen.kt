@@ -99,6 +99,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.anime.danmaku.api.DanmakuEvent
+import com.anime.danmaku.api.DanmakuPresentation
+import com.anime.danmaku.api.DanmakuSession
+import com.anime.danmaku.ui.DanmakuHost
+import com.anime.danmaku.ui.DanmakuHostState
+import com.anime.danmaku.ui.rememberDanmakuHostState
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
@@ -202,6 +208,8 @@ fun VideoPlayScreen(
                 activity.preferences.getBoolean(KEY_ENABLE_AUTO_ORIENTATION, true)
             }
             val playerState = rememberVideoPlayerState(isAutoOrientation = isAutoOrientation)
+            val danmakuHostState = rememberDanmakuHostState()
+            val danmakuSession by viewModel.danmakuSession.collectAsState()
 
             val onBackHandle: () -> Unit = remember {
                 {
@@ -242,16 +250,18 @@ fun VideoPlayScreen(
                     )
                 }
 
+                DanmakuHost(danmakuHostState, playerState, danmakuSession)
+
                 VideoStateMessage(playerState)
 
                 VolumeBrightnessIndicator(playerState)
 
                 VideoSideSheet(video, playerState, viewModel)
-            }
 
-            DisposableEffect(Unit) {
-                onDispose {
-                    viewModel.saveVideoPosition(playerState.player.currentPosition)
+                DisposableEffect(Unit) {
+                    onDispose {
+                        viewModel.saveVideoPosition(playerState.player.currentPosition)
+                    }
                 }
             }
         }
@@ -262,6 +272,41 @@ fun VideoPlayScreen(
             view.keepScreenOn = false
             requestPortraitOrientation(view, activity)
         }
+    }
+}
+
+@Composable
+private fun DanmakuHost(
+    danmakuHostState: DanmakuHostState,
+    playerState: VideoPlayerState,
+    session: DanmakuSession?
+) {
+    DanmakuHost(state = danmakuHostState)
+
+    LaunchedEffect(playerState.isPlaying.value) {
+        if (playerState.isPlaying.value) {
+            danmakuHostState.play()
+        } else {
+            danmakuHostState.pause()
+        }
+    }
+
+    LaunchedEffect(session) {
+        session?.at { playerState.player.currentPosition.milliseconds }
+            ?.collect { danmakuEvent ->
+                when (danmakuEvent) {
+                    is DanmakuEvent.Add -> {
+                        danmakuHostState.trySend(
+                            DanmakuPresentation(
+                                danmakuEvent.danmaku,
+                                false
+                            )
+                        )
+                    }
+
+                    is DanmakuEvent.Repopulate -> danmakuHostState.repopulate()
+                }
+            }
     }
 }
 
@@ -355,7 +400,11 @@ private fun requestLandscapeOrientation(view: View, activity: Activity) {
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 }
 
-private fun Modifier.adaptiveSize(fullscreen: Boolean, view: View, activity: Activity): Modifier {
+private fun Modifier.adaptiveSize(
+    fullscreen: Boolean,
+    view: View,
+    activity: Activity
+): Modifier {
     return if (fullscreen) {
         requestLandscapeOrientation(view, activity)
         fillMaxSize()
@@ -713,7 +762,10 @@ private fun EpisodeSideSheet(
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
-            state = rememberLazyGridState(initialFirstVisibleItemIndex = selectedEpisodeIndex, -200)
+            state = rememberLazyGridState(
+                initialFirstVisibleItemIndex = selectedEpisodeIndex,
+                -200
+            )
         ) {
             itemsIndexed(episodes) { index, episode ->
 
