@@ -217,7 +217,7 @@ class DanmakuHostState(
      * 清除当前显示的所有弹幕。
      */
     @UiThread
-    private fun clearPresentDanmaku() {
+    fun clearPresentDanmaku() {
         floatingTracks.forEach { it.clearAll() }
         topTracks.forEach { it.clearAll() }
         bottomTracks.forEach { it.clearAll() }

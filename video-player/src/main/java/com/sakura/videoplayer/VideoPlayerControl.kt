@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.imherrera.videoplayer.icons.Fullscreen
@@ -46,6 +47,8 @@ import com.sakura.video_player.R
 import com.sakura.videoplayer.component.Slider
 import com.sakura.videoplayer.icons.ArrowBackIos
 import com.sakura.videoplayer.icons.Pause
+import com.sakura.videoplayer.icons.Subtitles
+import com.sakura.videoplayer.icons.SubtitlesOff
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -56,8 +59,10 @@ fun VideoPlayerControl(
     background: Color = Color.Black.copy(0.2f),
     contentColor: Color = Color.LightGray,
     progressLineColor: Color = MaterialTheme.colorScheme.inversePrimary,
+    enabledDanmaku: Boolean,
     onBackClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
+    onDanmakuClick: (Boolean) -> Unit = {},
     optionsContent: (@Composable () -> Unit)? = null,
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
@@ -66,59 +71,37 @@ fun VideoPlayerControl(
                 .fillMaxSize()
                 .background(background)
                 .padding(
-                    start = 8.dp + if (
-                        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-                    ) {
-                        WindowInsets.displayCutout
-                            .asPaddingValues()
-                            .calculateLeftPadding(LayoutDirection.Ltr)
-                    } else 0.dp, end = 28.dp, top = 18.dp
+                    start = getStartPadding(),
+                    end = 28.dp,
+                    top = 18.dp
                 )
         ) {
-
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-
                 ControlHeader(
                     modifier = Modifier.fillMaxWidth(),
                     title = title,
                     subtitle = subtitle,
                     isSeeking = state.isSeeking.value,
-                    optionsContent = optionsContent,
                     onBackClick = onBackClick,
+                    optionsContent = optionsContent,
                 )
 
                 Spacer(Modifier.size(1.dp))
 
-                TimelineControl(
+                BottomControlBar(
                     modifier = Modifier.fillMaxWidth(),
                     progressLineColor = progressLineColor,
-                    isFullScreen = state.isFullscreen.value,
-                    videoDurationMs = state.videoDurationMs.value,
-                    videoPositionMs = state.videoPositionMs.value,
-                    videoProgress = state.videoProgress.value,
-                    videoBufferedProgress = state.videoBufferedProgress.value,
-                    control = state.control,
-                    isSeeking = state.isSeeking.value,
-                    isPlaying = state.isPlaying.value,
-                    onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) },
-                    onClickSlider = { state.onClickSlider(it) },
-                    onDragSlider = { state.onSeeking(it) },
-                    onDragSliderFinished = { state.onSeeked() },
-                    speedText = state.speedText.value,
-                    resizeText = state.resizeText.value,
-                    onSpeedClick = { state.showSpeedUi() },
-                    onResizeClick = { state.showResizeUi() },
-                    onEpisodeClick = { state.showEpisodeUi() },
-                    onNextClick = onNextClick
+                    state = state,
+                    enabledDanmaku = enabledDanmaku,
+                    onNextClick = onNextClick,
+                    onDanmakuClick = onDanmakuClick
                 )
             }
         }
-
     }
 }
 
@@ -138,15 +121,14 @@ private fun ControlHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(modifier = Modifier
-            .size(BigIconButtonSize),
-            onClick = { onBackClick?.invoke() }) {
+        IconButton(
+            modifier = Modifier.size(BigIconButtonSize),
+            onClick = { onBackClick?.invoke() }
+        ) {
             Icon(imageVector = Icons.Rounded.ArrowBackIos, contentDescription = null)
         }
-        Column(
-            modifier = Modifier.weight(1F),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 color = LocalContentColor.current,
@@ -154,9 +136,10 @@ private fun ControlHeader(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (subtitle != null) {
+
+            subtitle?.let {
                 Text(
-                    text = subtitle,
+                    text = it,
                     color = LocalContentColor.current.copy(0.80f),
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
@@ -166,133 +149,182 @@ private fun ControlHeader(
         }
 
         optionsContent?.invoke()
+    }
+}
 
+@Composable
+private fun BottomControlBar(
+    modifier: Modifier,
+    progressLineColor: Color,
+    state: VideoPlayerState,
+    enabledDanmaku: Boolean,
+    onNextClick: () -> Unit,
+    onDanmakuClick: (Boolean) -> Unit
+) {
+    val timestamp =
+        remember(
+            state.videoDurationMs.value,
+            state.videoPositionMs.value.milliseconds.inWholeSeconds
+        ) {
+            prettyVideoTimestamp(
+                state.videoPositionMs.value.milliseconds,
+                state.videoDurationMs.value.milliseconds
+            )
+        }
+
+    Column(modifier = modifier) {
+        if (!state.isSeeking.value) {
+            TimelineControl(
+                timestamp = timestamp,
+                isFullScreen = state.isFullscreen.value,
+                onFullScreenToggle = { state.control.setFullscreen(!state.isFullscreen.value) }
+            )
+        }
+
+        Slider(
+            value = state.videoProgress.value.safeValue(),
+            secondValue = state.videoBufferedProgress.value.safeValue(),
+            onClick = { state.onClickSlider(it) },
+            onValueChange = { state.onSeeking(it) },
+            onValueChangeFinished = { state.onSeeked() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp),
+            isSeeking = state.isSeeking.value,
+            color = progressLineColor,
+        )
+
+        if (!state.isSeeking.value) {
+            PlaybackControl(
+                isPlaying = state.isPlaying.value,
+                enabledDanmaku = enabledDanmaku,
+                onPlayPause = { if (state.isPlaying.value) state.control.pause() else state.control.play() },
+                onNextClick = onNextClick,
+                onDanmakuClick = onDanmakuClick,
+                speedText = state.speedText.value,
+                resizeText = state.resizeText.value,
+                onSpeedClick = state::showSpeedUi,
+                onResizeClick = state::showResizeUi,
+                onEpisodeClick = state::showEpisodeUi
+            )
+        } else Spacer(modifier = Modifier.size(MediumIconButtonSize))
     }
 }
 
 @Composable
 private fun TimelineControl(
-    modifier: Modifier,
-    progressLineColor: Color,
+    timestamp: String,
     isFullScreen: Boolean,
-    videoDurationMs: Long,
-    videoPositionMs: Long,
-    videoProgress: Float,
-    videoBufferedProgress: Float,
-    isSeeking: Boolean,
+    onFullScreenToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = timestamp, style = MaterialTheme.typography.bodySmall)
+        Spacer(modifier = Modifier.weight(1.0f))
+        AdaptiveIconButton(
+            modifier = Modifier.size(SmallIconButtonSize),
+            onClick = onFullScreenToggle
+        ) {
+            Icon(
+                imageVector = if (isFullScreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlaybackControl(
     isPlaying: Boolean,
-    control: VideoPlayerControl,
-    onClickSlider: (Float) -> Unit,
-    onDragSlider: (Float) -> Unit,
-    onDragSliderFinished: () -> Unit,
-    onFullScreenToggle: () -> Unit,
+    enabledDanmaku: Boolean,
+    onPlayPause: () -> Unit,
+    onNextClick: () -> Unit,
+    onDanmakuClick: (Boolean) -> Unit,
     speedText: String,
     resizeText: String,
     onSpeedClick: () -> Unit,
     onResizeClick: () -> Unit,
-    onEpisodeClick: () -> Unit,
-    onNextClick: () -> Unit,
+    onEpisodeClick: () -> Unit
 ) {
-    val timestamp = remember(videoDurationMs, videoPositionMs.milliseconds.inWholeSeconds) {
-        prettyVideoTimestamp(videoPositionMs.milliseconds, videoDurationMs.milliseconds)
-    }
-
-    Column(
-        modifier = modifier
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!isSeeking) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = timestamp, style = MaterialTheme.typography.bodySmall)
-                Spacer(modifier = Modifier.weight(1.0f))
-                AdaptiveIconButton(
-                    modifier = Modifier.size(SmallIconButtonSize),
-                    onClick = onFullScreenToggle
-                ) {
-                    Icon(
-                        imageVector = if (isFullScreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen,
-                        contentDescription = null
-                    )
-                }
-
-            }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlayPauseButton(isPlaying, onPlayPause)
+            NextEpisodeIcon(onClick = onNextClick)
+            DanmakuIcon(onClick = onDanmakuClick, danmakuEnabled = enabledDanmaku)
         }
 
-        Slider(
-            value = if (videoProgress.isNaN()) 0f else videoProgress,
-            secondValue = if (videoBufferedProgress.isNaN()) 0f else videoBufferedProgress,
-            onClick = onClickSlider,
-            onValueChange = onDragSlider,
-            onValueChangeFinished = onDragSliderFinished,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp),
-            isSeeking = isSeeking,
-            color = progressLineColor,
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            AdaptiveTextButton(text = "选集", onClick = onEpisodeClick)
+            AdaptiveTextButton(text = speedText, onClick = onSpeedClick)
+            AdaptiveTextButton(text = resizeText, onClick = onResizeClick)
+        }
+    }
+}
+
+@Composable
+private fun PlayPauseButton(isPlaying: Boolean, onPlayPause: () -> Unit) {
+    AdaptiveIconButton(
+        modifier = Modifier.size(MediumIconButtonSize),
+        onClick = onPlayPause
+    ) {
+        Icon(
+            modifier = Modifier.fillMaxSize(),
+            imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+            contentDescription = null
         )
+    }
+}
 
-        if (isSeeking) {
-            Spacer(modifier = Modifier.size(MediumIconButtonSize))
+@Composable
+private fun getStartPadding(): Dp {
+    return if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        WindowInsets.displayCutout.asPaddingValues().calculateLeftPadding(LayoutDirection.Ltr)
+    } else 0.dp
+}
+
+private fun Float?.safeValue() = this?.takeIf { !it.isNaN() } ?: 0f
+
+@Composable
+private fun DanmakuIcon(
+    danmakuEnabled: Boolean,
+    onClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AdaptiveIconButton(
+        onClick = { onClick(!danmakuEnabled) },
+        modifier.size(MediumIconButtonSize),
+    ) {
+        if (danmakuEnabled) {
+            Icon(Icons.Rounded.Subtitles, contentDescription = "禁用弹幕")
         } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AdaptiveIconButton(
-                        modifier = Modifier.size(MediumIconButtonSize),
-                        onClick = { if (isPlaying) control.pause() else control.play() }
-                    ) {
-                        Icon(
-                            modifier = Modifier.fillMaxSize(),
-                            imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                            contentDescription = null
-                        )
-                    }
-
-                    AdaptiveIconButton(
-                        modifier = Modifier.size(MediumIconButtonSize),
-                        onClick = onNextClick
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_next),
-                            contentDescription = null
-                        )
-                    }
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-
-                    AdaptiveTextButton(
-                        text = "选集",
-                        modifier = Modifier.size(MediumIconButtonSize),
-                        onClick = onEpisodeClick
-                    )
-
-                    AdaptiveTextButton(
-                        text = speedText,
-                        modifier = Modifier.size(MediumIconButtonSize),
-                        onClick = onSpeedClick
-                    )
-
-                    AdaptiveTextButton(
-                        text = resizeText,
-                        modifier = Modifier.size(MediumIconButtonSize),
-                        onClick = onResizeClick
-                    )
-
-                }
-
-            }
-
+            Icon(Icons.Rounded.SubtitlesOff, contentDescription = "启用弹幕")
         }
+    }
+}
+
+@Composable
+private fun NextEpisodeIcon(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AdaptiveIconButton(
+        modifier = modifier.size(MediumIconButtonSize), // 下一集
+        onClick = onClick
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_next),
+            contentDescription = "下一集"
+        )
     }
 }
 
@@ -305,8 +337,7 @@ fun AdaptiveTextButton(
     style: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     AdaptiveIconButton(
-        modifier = modifier,
-        enabledIndication = false,
+        modifier = modifier.size(MediumIconButtonSize),
         onClick = onClick
     ) {
         Text(

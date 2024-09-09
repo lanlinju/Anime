@@ -99,18 +99,18 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anime.danmaku.api.DanmakuEvent
 import com.anime.danmaku.api.DanmakuPresentation
 import com.anime.danmaku.api.DanmakuSession
 import com.anime.danmaku.ui.DanmakuHost
-import com.anime.danmaku.ui.DanmakuHostState
 import com.anime.danmaku.ui.rememberDanmakuHostState
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.theme.AnimeTheme
-import com.sakura.anime.util.KEY_ENABLE_AUTO_ORIENTATION
+import com.sakura.anime.util.KEY_ENABLED_AUTO_ORIENTATION
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.isTabletDevice
 import com.sakura.anime.util.isWideScreen
@@ -152,72 +152,22 @@ fun VideoPlayScreen(
     activity: Activity
 ) {
     val animeVideoState by viewModel.videoState.collectAsState()
-
     val view = LocalView.current
+
+    // Handle screen orientation and screen-on state
+    ManageScreenState(view, activity)
 
     StateHandler(
         state = animeVideoState,
-        onLoading = {
-            view.keepScreenOn = true
-            requestLandscapeOrientation(view, activity)
-            Box(
-                modifier = Modifier
-                    .background(Color.Black)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        },
-        onFailure = {
-            // TODO(): Refactor this
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Info,
-                    tint = Color.White,
-                    contentDescription = ""
-                )
-                Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                Text(
-                    text = stringResource(id = R.string.txt_empty_result),
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                OutlinedButton(onClick = onBackClick) {
-                    Text(text = stringResource(id = R.string.back), color = Color.White)
-                }
-                Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                OutlinedButton(onClick = { viewModel.retry() }) {
-                    Text(
-                        text = stringResource(id = R.string.retry),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
+        onLoading = { ShowLoadingPage() },
+        onFailure = { ShowFailurePage(viewModel, onBackClick) }
     ) { resource ->
         resource.data?.let { video ->
-            val isAutoOrientation = remember {
-                activity.preferences.getBoolean(KEY_ENABLE_AUTO_ORIENTATION, true)
-            }
+            val isAutoOrientation =
+                activity.preferences.getBoolean(KEY_ENABLED_AUTO_ORIENTATION, true)
             val playerState = rememberVideoPlayerState(isAutoOrientation = isAutoOrientation)
-            val danmakuHostState = rememberDanmakuHostState()
-            val danmakuSession by viewModel.danmakuSession.collectAsState()
-
-            val onBackHandle: () -> Unit = remember {
-                {
-                    playerState.control.setFullscreen(false)
-                    requestPortraitOrientation(view, activity)
-                    onBackClick()
-                }
-            }
+            val enabledDanmaku by viewModel.enabledDanmaku.collectAsStateWithLifecycle()
+            val danmakuSession by viewModel.danmakuSession.collectAsStateWithLifecycle()
 
             Box(
                 modifier = Modifier
@@ -227,37 +177,37 @@ fun VideoPlayScreen(
                 contentAlignment = Alignment.Center
             ) {
 
+                // Video player composable
                 VideoPlayer(
                     url = video.url,
                     videoPosition = video.lastPosition,
                     playerState = playerState,
-                    onBackPress = onBackHandle,
+                    onBackPress = { handleBackPress(playerState, onBackClick, view, activity) },
                     modifier = Modifier
                         .focusable()
                         .defaultRemoteControlHandler(
                             playerState = playerState,
-                            onNextClick = {
-                                viewModel.nextEpisode(playerState.player.currentPosition)
-                            }
+                            onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) }
                         )
                 ) {
                     VideoPlayerControl(
                         state = playerState,
                         title = "${video.title}-${video.episodeName}",
-                        onBackClick = onBackHandle,
+                        enabledDanmaku = enabledDanmaku,
+                        onBackClick = { handleBackPress(playerState, onBackClick, view, activity) },
                         onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) },
-                        optionsContent = { OptionsContent(video) }
+                        optionsContent = { OptionsContent(video) },
+                        onDanmakuClick = { viewModel.setEnabledDanmaku(it) }
                     )
                 }
 
-                DanmakuHost(danmakuHostState, playerState, danmakuSession)
-
+                // Danmaku and additional UI components
+                DanmakuHost(playerState, danmakuSession, enabledDanmaku)
                 VideoStateMessage(playerState)
-
                 VolumeBrightnessIndicator(playerState)
-
                 VideoSideSheet(video, playerState, viewModel)
 
+                // Save video position on dispose
                 DisposableEffect(Unit) {
                     onDispose {
                         viewModel.saveVideoPosition(playerState.player.currentPosition)
@@ -266,8 +216,14 @@ fun VideoPlayScreen(
             }
         }
     }
+}
 
+// Helper to manage screen state and orientation
+@Composable
+private fun ManageScreenState(view: View, activity: Activity) {
     DisposableEffect(Unit) {
+        view.keepScreenOn = true
+        requestLandscapeOrientation(view, activity)
         onDispose {
             view.keepScreenOn = false
             requestPortraitOrientation(view, activity)
@@ -275,12 +231,75 @@ fun VideoPlayScreen(
     }
 }
 
+// Loading screen composable
+@Composable
+private fun ShowLoadingPage() {
+    Box(
+        modifier = Modifier
+            .background(Color.Black)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+// Failure screen composable
+@Composable
+private fun ShowFailurePage(viewModel: VideoPlayViewModel, onBackClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Info,
+            tint = Color.White,
+            contentDescription = ""
+        )
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        Text(
+            text = stringResource(id = R.string.txt_empty_result),
+            color = Color.White,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        OutlinedButton(onClick = onBackClick) {
+            Text(text = stringResource(id = R.string.back), color = Color.White)
+        }
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+        OutlinedButton(onClick = { viewModel.retry() }) {
+            Text(
+                text = stringResource(id = R.string.retry),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+// Back press handler
+private fun handleBackPress(
+    playerState: VideoPlayerState,
+    onBackClick: () -> Unit,
+    view: View,
+    activity: Activity
+) {
+    playerState.control.setFullscreen(false)
+    requestPortraitOrientation(view, activity)
+    onBackClick()
+}
+
 @Composable
 private fun DanmakuHost(
-    danmakuHostState: DanmakuHostState,
     playerState: VideoPlayerState,
-    session: DanmakuSession?
+    session: DanmakuSession?,
+    enabled: Boolean
 ) {
+    if (!enabled) return
+
+    val danmakuHostState = rememberDanmakuHostState()
     DanmakuHost(state = danmakuHostState)
 
     LaunchedEffect(playerState.isPlaying.value) {
@@ -292,6 +311,7 @@ private fun DanmakuHost(
     }
 
     LaunchedEffect(session) {
+        danmakuHostState.clearPresentDanmaku()
         session?.at { playerState.player.currentPosition.milliseconds }
             ?.collect { danmakuEvent ->
                 when (danmakuEvent) {

@@ -12,13 +12,16 @@ import androidx.core.content.edit
 
 const val KEY_SOURCE_MODE = "animeSourceMode"
 const val KEY_HOME_BACKGROUND_URI = "homeBackgroundUri"
-const val KEY_ENABLE_AUTO_ORIENTATION = "enableAutoOrientation"
+const val KEY_ENABLED_AUTO_ORIENTATION = "enabledAutoOrientation"
 
 // theme
 const val KEY_CUSTOM_COLOR = "customColor"
 const val KEY_THEME_MODE = "themeMode"
 const val KEY_DYNAMIC_COLOR = "dynamicColor"
 const val KEY_DYNAMIC_IMAGE_COLOR = "dynamicImageColor"
+
+// danmaku
+const val KEY_ENABLED_DANMAKU = "enabledDanmaku"
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,
@@ -84,8 +87,7 @@ inline fun <reified T : Enum<T>> rememberPreference(key: String, defaultValue: T
 inline fun <T> mutableStatePreferenceOf(
     value: T,
     crossinline onStructuralInequality: (newValue: T) -> Unit
-) =
-    mutableStateOf(
+) = mutableStateOf(
         value = value,
         policy = object : SnapshotMutationPolicy<T> {
             override fun equivalent(a: T, b: T): Boolean {
