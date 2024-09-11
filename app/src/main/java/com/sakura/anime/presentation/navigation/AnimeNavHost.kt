@@ -13,6 +13,7 @@ import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.main.MainScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.settings.AppearanceScreen
+import com.sakura.anime.presentation.screen.settings.DanmakuSettingsScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
 import com.sakura.anime.util.SourceMode
 
@@ -28,6 +29,7 @@ fun AnimeNavHost(
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToAppearance: () -> Unit,
+    onNavigateToDanmakuSettings: () -> Unit,
     onBackClick: () -> Unit,
     activity: Activity
 ) {
@@ -42,7 +44,8 @@ fun AnimeNavHost(
                 onNavigateToSearch = onNavigateToSearch,
                 onNavigateToHistory = onNavigateToHistory,
                 onNavigateToDownload = onNavigateToDownload,
-                onNavigateToAppearance = onNavigateToAppearance
+                onNavigateToAppearance = onNavigateToAppearance,
+                onNavigateToDanmakuSettings = onNavigateToDanmakuSettings,
             )
         }
         composable(Screen.AnimeDetailScreen.route) {
@@ -83,6 +86,11 @@ fun AnimeNavHost(
         }
         composable(Screen.AppearanceScreen.route) {
             AppearanceScreen(
+                onBackClick = onBackClick
+            )
+        }
+        composable(Screen.DanmakuSettingsScreen.route) {
+            DanmakuSettingsScreen(
                 onBackClick = onBackClick
             )
         }

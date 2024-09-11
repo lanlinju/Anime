@@ -301,7 +301,9 @@ private fun DanmakuHost(
     if (!enabled) return
 
     val danmakuHostState = rememberDanmakuHostState()
-    DanmakuHost(state = danmakuHostState)
+    if (session != null) {
+        DanmakuHost(state = danmakuHostState)
+    }
 
     LaunchedEffect(playerState.isPlaying.value) {
         if (playerState.isPlaying.value) {

@@ -35,6 +35,7 @@ fun MainScreen(
     onNavigateToDownload: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToAppearance: () -> Unit,
+    onNavigateToDanmakuSettings: () -> Unit,
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(NavigationBarPath.Home.route) }
     val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.entries.size }
@@ -70,7 +71,8 @@ fun MainScreen(
                     onNavigateToSearch = onNavigateToSearch,
                     onNavigateToHistory = onNavigateToHistory,
                     onNavigateToDownload = onNavigateToDownload,
-                    onNavigateToAppearance = onNavigateToAppearance
+                    onNavigateToAppearance = onNavigateToAppearance,
+                    onNavigateToDanmakuSettings = onNavigateToDanmakuSettings
                 )
                 1 -> HomeScreen(onNavigateToAnimeDetail)
                 2 -> FavouriteScreen(onNavigateToAnimeDetail)

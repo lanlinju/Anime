@@ -19,6 +19,7 @@ sealed class Screen(
     object HistoryScreen : Screen(route = "history")
     object DownloadScreen : Screen(route = "download")
     object AppearanceScreen : Screen(route = "Appearance")
+    object DanmakuSettingsScreen : Screen(route = "danmakuSettings")
 
     object DownloadDetailScreen :
         Screen(route = "downloadDetail/{$ROUTE_ARGUMENT_DETAIL_URL}/{$ROUTE_ARGUMENT_ANIME_TITLE}") {
