@@ -10,8 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.anime.danmaku.api.DanmakuSession
 import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.application.AnimeApplication
-import com.sakura.anime.data.remote.dandanplay.DandanplayDanmakuProviderFactory
 import com.sakura.anime.domain.model.Video
+import com.sakura.anime.domain.repository.DanmakuRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetVideoFromRemoteUseCase
 import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
@@ -32,6 +32,7 @@ import javax.inject.Inject
 class VideoPlayViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val roomRepository: RoomRepository,
+    private val danmakuRepository: DanmakuRepository,
     private val getVideoFromRemoteUseCase: GetVideoFromRemoteUseCase,
 ) : ViewModel() {
 
@@ -45,8 +46,6 @@ class VideoPlayViewModel @Inject constructor(
         MutableStateFlow(preferences.getBoolean(KEY_ENABLED_DANMAKU, false))
     val enabledDanmaku = _enabledDanmaku.asStateFlow()
 
-    // 创建弹幕提供器和弹幕会话的流
-    private val danmakuProvider = DandanplayDanmakuProviderFactory().create()
     private val _danmakuSession = MutableStateFlow<DanmakuSession?>(null)
     val danmakuSession = _danmakuSession.asStateFlow()
 
@@ -146,7 +145,7 @@ class VideoPlayViewModel @Inject constructor(
     private suspend fun fetchDanmakuSession(): DanmakuSession? {
         return _videoState.value.data?.let { video ->
             // 使用视频的标题和集数名获取对应的弹幕
-            danmakuProvider.fetch(video.title, video.episodeName)
+            danmakuRepository.fetchDanmakuSession(video.title, video.episodeName)
         }
     }
 

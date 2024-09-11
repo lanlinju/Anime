@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RoomRepositoryImpl @Inject constructor(
     private val database: AnimeDatabase
 ) : RoomRepository {

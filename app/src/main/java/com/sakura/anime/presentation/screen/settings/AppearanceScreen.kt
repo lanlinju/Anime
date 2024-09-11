@@ -9,28 +9,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Colorize
 import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -68,7 +61,6 @@ import com.sakura.anime.presentation.theme.AnimeTheme
 import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.catpucchinLatte
-import com.sakura.anime.util.getSchemeFromSeed
 import com.sakura.anime.util.rememberPreference
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -311,7 +303,7 @@ private fun SwitchPrefPreview() {
     }
 }
 
-@Composable
+/*@Composable
 fun ColorButtonRow(
     modifier: Modifier = Modifier,
     selectedColor: Int,
@@ -424,4 +416,4 @@ fun RowScope.ColorButton(
             }
         }
     }
-}
+}*/

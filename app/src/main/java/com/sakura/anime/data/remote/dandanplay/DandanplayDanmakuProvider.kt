@@ -4,14 +4,12 @@ import com.anime.danmaku.api.DanmakuSession
 import com.anime.danmaku.api.TimeBasedDanmakuSession
 import com.sakura.anime.data.remote.dandanplay.DandanplayDanmakuProvider.Companion.ID
 import com.sakura.anime.data.remote.dandanplay.dto.toDanmakuOrNull
+import com.sakura.anime.di.DandanplayHttpClient
 import com.sakura.anime.util.createDefaultHttpClient
-import com.sakura.anime.util.log
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * A [DanmakuProvider] provides a stream of danmaku for a specific episode.
@@ -37,36 +35,16 @@ interface DanmakuProviderFactory { // SPI 接口
     fun create(): DanmakuProvider
 }
 
-class DandanplayDanmakuProvider() : DanmakuProvider {
+@Singleton
+class DandanplayDanmakuProvider @Inject constructor(
+    @DandanplayHttpClient private val client: HttpClient
+) : DanmakuProvider {
 
     companion object {
         const val ID = "弹弹play"
     }
 
     override val id: String get() = ID
-
-    private val client = createDefaultHttpClient {
-        configureClient()
-    }
-
-    private fun HttpClientConfig<*>.configureClient() {
-        install(HttpRequestRetry) {
-            maxRetries = 1
-            delayMillis { 2000 }
-        }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30_000 // 弹弹服务器请求比较慢
-            connectTimeoutMillis = 10_000 // 弹弹服务器请求比较慢
-        }
-        Logging {
-            logger = object : io.ktor.client.plugins.logging.Logger {
-                override fun log(message: String) {
-                    message.log("DandanplayDanmakuProvider")
-                }
-            }
-            level = LogLevel.INFO
-        }
-    }
 
     private val dandanplayClient = DandanplayClient(client)
     private val moviePattern = Regex("全集|HD|正片")
@@ -113,14 +91,16 @@ class DandanplayDanmakuProvider() : DanmakuProvider {
     }
 
     override fun close() {
-        client.close()
+        //client.close()
     }
 }
 
 class DandanplayDanmakuProviderFactory : DanmakuProviderFactory {
     override val id: String get() = ID
 
-    override fun create(): DandanplayDanmakuProvider = DandanplayDanmakuProvider()
+    override fun create(): DandanplayDanmakuProvider {
+        return DandanplayDanmakuProvider(createDefaultHttpClient())
+    }
 }
 
 

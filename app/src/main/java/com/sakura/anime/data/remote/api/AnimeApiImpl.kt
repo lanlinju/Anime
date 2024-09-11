@@ -7,7 +7,9 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AnimeApiImpl @Inject constructor() : AnimeApi {
     override suspend fun getHomeAllData(): List<HomeBean> {
         val animeSource = SourceHolder.currentSource

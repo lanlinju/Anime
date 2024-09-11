@@ -16,7 +16,9 @@ import com.sakura.anime.util.SEARCH_PAGE_SIZE
 import com.sakura.anime.util.SourceMode
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AnimeRepositoryImpl @Inject constructor(
     private val animeApi: AnimeApi
 ) : AnimeRepository, BaseRepository() {
