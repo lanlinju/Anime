@@ -14,7 +14,7 @@ import org.jsoup.select.Elements
 
 object MxdmSource : AnimeSource {
 
-    override val DEFAULT_DOMAIN = "https://www.mxdm6.com"
+    override val DEFAULT_DOMAIN = "https://www.mxdm.tv"
     override var baseUrl = getDefaultDomain()
 
     override suspend fun getHomeData(): List<HomeBean> {

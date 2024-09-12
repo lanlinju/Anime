@@ -15,7 +15,7 @@ object SourceHolder {
     /**
      * 默认动漫源
      */
-    val DEFAULT_ANIME_SOURCE = SourceMode.Silisili
+    val DEFAULT_ANIME_SOURCE = SourceMode.Mxdm
 
     val currentSource: AnimeSource
         get() = _currentSource
