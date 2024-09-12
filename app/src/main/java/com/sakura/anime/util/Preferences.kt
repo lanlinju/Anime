@@ -9,10 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
 const val KEY_SOURCE_MODE = "animeSourceMode"
 const val KEY_HOME_BACKGROUND_URI = "homeBackgroundUri"
-const val KEY_ENABLED_AUTO_ORIENTATION = "enabledAutoOrientation"
+const val KEY_AUTO_ORIENTATION_ENABLED = "autoOrientationEnabled"
 
 // theme
 const val KEY_CUSTOM_COLOR = "customColor"
@@ -21,7 +23,32 @@ const val KEY_DYNAMIC_COLOR = "dynamicColor"
 const val KEY_DYNAMIC_IMAGE_COLOR = "dynamicImageColor"
 
 // danmaku
-const val KEY_ENABLED_DANMAKU = "enabledDanmaku"
+const val KEY_DANMAKU_ENABLED = "danmakuEnabled"
+const val KEY_DANMAKU_CONFIG_DATA = "danmakuConfigData"
+
+
+fun <T> SharedPreferences.getObject(
+    key: String,
+    defaultValue: T,
+    serializer: KSerializer<T>
+): T {
+    val json = getString(key, null) ?: return defaultValue
+    return try {
+        Json.decodeFromString(serializer, json)
+    } catch (e: Exception) {
+        defaultValue
+    }
+}
+
+fun <T> SharedPreferences.Editor.putObject(
+    key: String,
+    value: T,
+    serializer: KSerializer<T>
+): SharedPreferences.Editor {
+    val json = Json.encodeToString(serializer, value)
+    return putString(key, json)
+}
+
 
 inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,
@@ -80,6 +107,20 @@ inline fun <reified T : Enum<T>> rememberPreference(key: String, defaultValue: T
     return remember {
         mutableStatePreferenceOf(context.preferences.getEnum(key, defaultValue)) {
             context.preferences.edit { putEnum(key, it) }
+        }
+    }
+}
+
+@Composable
+fun <T> rememberPreference(
+    key: String,
+    defaultValue: T,
+    serializer: KSerializer<T>
+): MutableState<T> {
+    val context = LocalContext.current
+    return remember {
+        mutableStatePreferenceOf(context.preferences.getObject(key, defaultValue, serializer)) {
+            context.preferences.edit { putObject(key, it, serializer) }
         }
     }
 }

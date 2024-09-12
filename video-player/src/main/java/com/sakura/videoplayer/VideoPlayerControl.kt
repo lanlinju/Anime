@@ -287,8 +287,12 @@ private fun PlayPauseButton(isPlaying: Boolean, onPlayPause: () -> Unit) {
 
 @Composable
 private fun getStartPadding(): Dp {
-    return if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        WindowInsets.displayCutout.asPaddingValues().calculateLeftPadding(LayoutDirection.Ltr)
+    return 8.dp + if (
+        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    ) {
+        val paddingValues = WindowInsets.displayCutout.asPaddingValues()
+        val start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+        if (start == 0.dp) 16.dp else start
     } else 0.dp
 }
 

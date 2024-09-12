@@ -16,7 +16,7 @@ import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetVideoFromRemoteUseCase
 import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
 import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_VIDEO_EPISODE_URL
-import com.sakura.anime.util.KEY_ENABLED_DANMAKU
+import com.sakura.anime.util.KEY_DANMAKU_ENABLED
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.Resource
 import com.sakura.anime.util.SourceMode
@@ -43,7 +43,7 @@ class VideoPlayViewModel @Inject constructor(
     // 获取保存的偏好设置，初始化弹幕启用状态
     private val preferences = AnimeApplication.getInstance().preferences
     private val _enabledDanmaku =
-        MutableStateFlow(preferences.getBoolean(KEY_ENABLED_DANMAKU, false))
+        MutableStateFlow(preferences.getBoolean(KEY_DANMAKU_ENABLED, false))
     val enabledDanmaku = _enabledDanmaku.asStateFlow()
 
     private val _danmakuSession = MutableStateFlow<DanmakuSession?>(null)
@@ -155,7 +155,7 @@ class VideoPlayViewModel @Inject constructor(
      */
     fun setEnabledDanmaku(enabled: Boolean) {
         _enabledDanmaku.value = enabled
-        preferences.edit { putBoolean(KEY_ENABLED_DANMAKU, enabled) }
+        preferences.edit { putBoolean(KEY_DANMAKU_ENABLED, enabled) }
         viewModelScope.launch {
             // 如果启用了弹幕且当前弹幕会话为空，则获取弹幕会话
             if (enabled && _danmakuSession.value == null) {

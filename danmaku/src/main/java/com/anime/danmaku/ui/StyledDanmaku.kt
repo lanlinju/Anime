@@ -86,7 +86,7 @@ data class StyledDanmaku(
  * 降低`4% - %6`左右
  * 测试用的CPU: `snapdragon870`, 非release模式下
  */
-internal fun DrawScope.drawDanmakuText(
+fun DrawScope.drawDanmakuText(
     state: StyledDanmaku,
     screenPosX: () -> Float,
     screenPosY: () -> Float,

@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.material.color.DynamicColors
@@ -154,10 +155,10 @@ fun AppearanceScreen(
 private fun ThemeModeSettings(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         val options =
-            SettingsPreferences.ThemeMode.values().map { stringResource(id = it.resId) }
+            SettingsPreferences.ThemeMode.entries.map { stringResource(id = it.resId) }
         var selectedIndex by remember {
             mutableIntStateOf(
-                SettingsPreferences.ThemeMode.values().indexOf(SettingsPreferences.themeMode.value)
+                SettingsPreferences.ThemeMode.entries.indexOf(SettingsPreferences.themeMode.value)
             )
         }
 
@@ -244,8 +245,14 @@ fun SwitchPref(
     summary: String? = null,
     checked: Boolean,
     painter: Painter? = null,
+    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     onCheckedChange: (Boolean) -> Unit = {}
 ) {
+    val leadingContent: @Composable (() -> Unit)? = if (painter != null) {
+        { Icon(painter = painter, contentDescription = null) }
+    } else {
+        null
+    }
     ListItem(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,15 +262,8 @@ fun SwitchPref(
             ) {
                 onCheckedChange(!checked)
             },
-        headlineContent = { Text(text = title, style = MaterialTheme.typography.titleLarge) },
-        leadingContent = {
-            if (painter != null) {
-                Icon(
-                    painter = painter,
-                    contentDescription = null,
-                )
-            }
-        },
+        headlineContent = { Text(text = title, style = titleStyle) },
+        leadingContent = leadingContent,
         supportingContent = {
             if (summary != null) {
                 Text(text = summary)

@@ -81,7 +81,7 @@ data class DanmakuConfig(
 }
 
 @Immutable
-class DanmakuStyle(
+data class DanmakuStyle(
     val fontSize: TextUnit = 18.sp,
     val fontWeight: FontWeight = FontWeight.W600,
     val alpha: Float = 0.8f,
@@ -122,7 +122,7 @@ class DanmakuStyle(
 }
 
 @Immutable
-class DanmakuTrackProperties(
+data class DanmakuTrackProperties(
     /**
      * Shift of the danmaku to be considered as fully out of the screen.
      */

@@ -110,13 +110,16 @@ import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
+import com.sakura.anime.presentation.screen.settings.DanmakuConfigData
 import com.sakura.anime.presentation.theme.AnimeTheme
-import com.sakura.anime.util.KEY_ENABLED_AUTO_ORIENTATION
+import com.sakura.anime.util.KEY_AUTO_ORIENTATION_ENABLED
+import com.sakura.anime.util.KEY_DANMAKU_CONFIG_DATA
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.isTabletDevice
 import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.openExternalPlayer
 import com.sakura.anime.util.preferences
+import com.sakura.anime.util.rememberPreference
 import com.sakura.videoplayer.AdaptiveTextButton
 import com.sakura.videoplayer.ResizeMode
 import com.sakura.videoplayer.VideoPlayer
@@ -165,7 +168,7 @@ fun VideoPlayScreen(
     ) { resource ->
         resource.data?.let { video ->
             val isAutoOrientation =
-                activity.preferences.getBoolean(KEY_ENABLED_AUTO_ORIENTATION, true)
+                activity.preferences.getBoolean(KEY_AUTO_ORIENTATION_ENABLED, true)
             val playerState = rememberVideoPlayerState(isAutoOrientation = isAutoOrientation)
             val enabledDanmaku by viewModel.enabledDanmaku.collectAsStateWithLifecycle()
             val danmakuSession by viewModel.danmakuSession.collectAsStateWithLifecycle()
@@ -299,8 +302,13 @@ private fun DanmakuHost(
     enabled: Boolean
 ) {
     if (!enabled) return
-
-    val danmakuHostState = rememberDanmakuHostState()
+    val danmakuConfigData by rememberPreference(
+        KEY_DANMAKU_CONFIG_DATA,
+        DanmakuConfigData(),
+        DanmakuConfigData.serializer()
+    )
+    val danmakuHostState =
+        rememberDanmakuHostState(danmakuConfig = danmakuConfigData.toDanmakuConfig())
     if (session != null) {
         DanmakuHost(state = danmakuHostState)
     }

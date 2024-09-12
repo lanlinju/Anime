@@ -83,7 +83,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDRESS
 import com.sakura.anime.util.GITHUB_RELEASE_ADDRESS
-import com.sakura.anime.util.KEY_ENABLED_AUTO_ORIENTATION
+import com.sakura.anime.util.KEY_AUTO_ORIENTATION_ENABLED
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
@@ -480,7 +480,7 @@ private fun SwitchSourceDialog(
 private fun SettingsDialog(
     onDismissRequest: () -> Unit,
 ) {
-    var isAutoOrientation by rememberPreference(KEY_ENABLED_AUTO_ORIENTATION, true)
+    var isAutoOrientation by rememberPreference(KEY_AUTO_ORIENTATION_ENABLED, true)
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
