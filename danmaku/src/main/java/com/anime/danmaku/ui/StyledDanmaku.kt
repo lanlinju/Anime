@@ -72,13 +72,20 @@ data class StyledDanmaku(
         softWrap = false,
     )
 
-    internal val imageBitmap = createDanmakuImageBitmap(solidTextLayout, borderTextLayout)
+    internal var imageBitmap: ImageBitmap? = null
 
     override val danmakuWidth: Int = solidTextLayout.size.width
     override val danmakuHeight: Int = solidTextLayout.size.height
+
+    fun DrawScope.draw(screenPosX: () -> Float, screenPosY: () -> Float) {
+        val cachedImage = imageBitmap ?: createDanmakuImageBitmap(solidTextLayout, borderTextLayout)
+            .also { imageBitmap = it }
+
+        drawImage(cachedImage, Offset(screenPosX(), screenPosY()))
+    }
 }
 
-
+/*
 /**
  *
  * Source: https://github.com/open-ani/ani/blob/92690b0505f6596da0ebe1bbad01dd865020fc6f/danmaku/ui/commonMain/StyledDanmaku.kt#L80
@@ -86,13 +93,13 @@ data class StyledDanmaku(
  * 降低`4% - %6`左右
  * 测试用的CPU: `snapdragon870`, 非release模式下
  */
-fun DrawScope.drawDanmakuText(
+internal fun DrawScope.drawDanmakuText(
     state: StyledDanmaku,
     screenPosX: () -> Float,
     screenPosY: () -> Float,
 ) {
     drawImage(state.imageBitmap, Offset(screenPosX(), screenPosY()))
-}
+}*/
 
 /**
  * draw text

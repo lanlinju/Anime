@@ -46,7 +46,6 @@ import com.anime.danmaku.api.DanmakuPresentation
 import com.anime.danmaku.ui.DanmakuConfig
 import com.anime.danmaku.ui.DanmakuStyle
 import com.anime.danmaku.ui.StyledDanmaku
-import com.anime.danmaku.ui.drawDanmakuText
 import com.sakura.anime.R
 import com.sakura.anime.presentation.screen.settings.DanmakuConfigData.Companion.Default
 import com.sakura.anime.util.KEY_DANMAKU_CONFIG_DATA
@@ -150,11 +149,12 @@ fun DanmakuFontPreview(
             enableColor = false,
             isDebug = false
         )
-        drawDanmakuText(
-            styledDanmaku,
-            { (size.width - styledDanmaku.danmakuWidth) / 2f },
-            { (size.height - styledDanmaku.danmakuHeight) / 2f }
-        )
+        with(styledDanmaku) {
+            draw(
+                screenPosX = { (size.width - styledDanmaku.danmakuWidth) / 2f },
+                screenPosY = { (size.height - styledDanmaku.danmakuHeight) / 2f }
+            )
+        }
     }
 }
 

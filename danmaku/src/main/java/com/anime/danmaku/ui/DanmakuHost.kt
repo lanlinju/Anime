@@ -62,18 +62,20 @@ fun DanmakuHost(
 
         DanmakuCanvas {
             for (danmaku in state.presentFloatingDanmaku) {
-                drawDanmakuText(
-                    state = danmaku.danmaku,
-                    screenPosX = { danmaku.screenPosX },
-                    screenPosY = { danmaku.screenPosY },
-                )
+                with(danmaku.danmaku) {
+                    draw(
+                        screenPosX = { danmaku.screenPosX },
+                        screenPosY = { danmaku.screenPosY },
+                    )
+                }
             }
             for (danmaku in state.presentFixedDanmaku) {
-                drawDanmakuText(
-                    state = danmaku.danmaku,
-                    screenPosX = { danmaku.screenPosX },
-                    screenPosY = { danmaku.screenPosY },
-                )
+                with(danmaku.danmaku) {
+                    draw(
+                        screenPosX = { danmaku.screenPosX },
+                        screenPosY = { danmaku.screenPosY },
+                    )
+                }
             }
         }
     }
