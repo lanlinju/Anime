@@ -11,6 +11,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.sakura.anime.BuildConfig
 import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.domain.repository.AnimeRepository
@@ -18,7 +19,6 @@ import com.sakura.anime.util.CHECK_UPDATE_ADDRESS
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.KEY_DOWNLOAD_UPDATE_URL
 import com.sakura.anime.util.Resource
-import com.sakura.anime.util.getVersionName
 import com.sakura.anime.work.UpdateWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,7 +79,7 @@ class WeekViewModel @Inject constructor(
                 this@WeekViewModel.versionName = obj.getString("tag_name")
 
                 val latestVersionName = obj.getString("name")
-                val curVersionName = getVersionName(context)
+                val curVersionName = BuildConfig.VERSION_NAME
                 val isUpdateVersion = !latestVersionName.equals(curVersionName)
 
                 _isCheckingUpdate.value = false

@@ -292,7 +292,8 @@ private fun getStartPadding(): Dp {
     ) {
         val paddingValues = WindowInsets.displayCutout.asPaddingValues()
         val start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
-        if (start == 0.dp) 16.dp else start
+//        if (start == 0.dp) 8.dp else start
+        start
     } else 0.dp
 }
 

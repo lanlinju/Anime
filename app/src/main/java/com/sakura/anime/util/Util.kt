@@ -46,9 +46,10 @@ fun AnimeSource.getDefaultDomain(): String {
     return preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN) ?: DEFAULT_DOMAIN
 }
 
+/*
 fun getVersionName(context: Context): String {
     return context.packageManager.getPackageInfo(context.packageName, 0).versionName
-}
+}*/
 
 fun Context.installApk(file: File) {
     val intent = Intent(ACTION_VIEW)

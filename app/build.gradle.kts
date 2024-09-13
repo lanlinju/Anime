@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.sakura.anime"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.sakura.anime"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 22
         versionName = "1.2.1"
 
@@ -99,7 +99,6 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     // room
-    val room_version = "2.6.1"
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
