@@ -815,8 +815,8 @@ private fun EpisodeSideSheet(
                         ) else Color.Unspecified
                     ),
                     border = BorderStroke(
-                        if (isFocused && isAndroidTV) 2.dp else ButtonDefaults.outlinedButtonBorder.width,
-                        ButtonDefaults.outlinedButtonBorder.brush
+                        if (isFocused && isAndroidTV) 2.dp else ButtonDefaults.outlinedButtonBorder().width,
+                        ButtonDefaults.outlinedButtonBorder().brush
                     ),
                     modifier = Modifier
                         .onFocusChanged(onFocusChanged = { isFocused = it.isFocused })
@@ -940,7 +940,7 @@ fun SideSheetPreview() {
                                 border = if (isSelected) BorderStroke(
                                     1.dp,
                                     MaterialTheme.colorScheme.primary
-                                ) else ButtonDefaults.outlinedButtonBorder
+                                ) else ButtonDefaults.outlinedButtonBorder()
                             ) {
                                 Text(
                                     text = "第2${num}集",

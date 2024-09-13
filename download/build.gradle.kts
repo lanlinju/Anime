@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.sakura.download"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.activity:activity-compose:1.9.1")
-    implementation(api("com.squareup.okhttp3:okhttp:4.12.0")!!)
-    implementation(api("com.squareup.retrofit2:retrofit:2.11.0")!!)
+    implementation("androidx.activity:activity-compose:1.9.2")
+    api("com.squareup.okhttp3:okhttp:4.12.0")
+    api("com.squareup.retrofit2:retrofit:2.11.0")
 }
