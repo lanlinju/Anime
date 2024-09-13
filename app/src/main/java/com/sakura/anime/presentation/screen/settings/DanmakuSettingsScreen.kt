@@ -240,7 +240,6 @@ fun DanmakuSliders(
             onConfigChange(config.copy(strokeWidth = strokeWidth * defaultDanmakuStyle.strokeWidth))
         },
         valueRange = 0f..2f,
-        steps = ((2f - 0f) / 0.1f).toInt() - 1,
         title = stringResource(R.string.danmaku_stroke_width),
         valueLabel = "${(strokeWidth * 100).roundToInt()}%",
     )
@@ -255,7 +254,6 @@ fun DanmakuSliders(
             onConfigChange(config.copy(fontWeight = fontWeight.toInt()))
         },
         valueRange = 100f..900f,
-        steps = ((900 - 100) / 100) - 1,
         title = stringResource(R.string.danmaku_font_weight),
         valueLabel = "${fontWeight.toInt()}",
     )
@@ -270,7 +268,6 @@ fun DanmakuSliders(
             onConfigChange(config.copy(speed = speed * defaultDanmakuConfig.baseSpeed))
         },
         valueRange = 0.2f..3f,
-        steps = ((3f - 0.2f) / 0.1f).toInt() - 1,
         title = stringResource(R.string.danmaku_speed),
         valueLabel = "${(speed * 100).roundToInt()}%",
     )

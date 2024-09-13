@@ -77,7 +77,7 @@ object GirigiriSource : AnimeSource {
         val imgUrl = main.select("img").attr("data-src").padDomain()
         val tags =
             main.select("div.slide-info").last()?.select("a")?.map { it.text() }?.toMutableList()
-                ?.also { it.removeLast() } ?: emptyList()
+                ?.also { it.removeAt(it.lastIndex) } ?: emptyList()
         val updateTime = main.select("span.slide-info-remarks")[1].text()
         val episodes = getAnimeEpisodes(document.select("div.anthology-list").select("ul"))
         val relatedAnimes =

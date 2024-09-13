@@ -313,7 +313,7 @@ private fun <D : SizeSpecifiedDanmaku, DT, T : DanmakuTrack<D, DT>>
     when {
         size == count -> return
         // 清除 track 的同时要把 track 里的 danmaku 也要清除
-        count < size -> repeat(size - count) { removeLast().clearAll() }
+        count < size -> repeat(size - count) { removeAt(lastIndex).clearAll() }
         else -> addAll(List(count - size) { newInstance(size + it) })
     }
 }
