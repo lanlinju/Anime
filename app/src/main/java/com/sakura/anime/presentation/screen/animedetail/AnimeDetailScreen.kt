@@ -168,6 +168,15 @@ fun AnimeDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(
+                            Color(
+                                ColorUtils.blendARGB(
+                                    MaterialTheme.colorScheme.background.toArgb(),
+                                    MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                                    0.05f
+                                )
+                            )
+                        )
                         .verticalScroll(scrollState)
                 ) {
 
@@ -193,16 +202,7 @@ fun AnimeDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = bannerHeight)
-                            .background(
-                                Color(
-                                    ColorUtils.blendARGB(
-                                        MaterialTheme.colorScheme.background.toArgb(),
-                                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                        0.05f
-                                    )
-                                )
-                            ),
+                            .padding(top = bannerHeight),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
