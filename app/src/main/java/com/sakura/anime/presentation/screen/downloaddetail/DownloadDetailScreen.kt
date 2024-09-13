@@ -248,10 +248,10 @@ private fun DownloadInfo(state: DownloaderState) {
 private fun DownloadProgress(isStarted: Boolean, progress: Float) {
     if (isStarted) {
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier
                 .height(2.dp),
-            strokeCap = StrokeCap.Round
+            strokeCap = StrokeCap.Round,
         )
     } else {
         Spacer(modifier = Modifier.height(2.dp))

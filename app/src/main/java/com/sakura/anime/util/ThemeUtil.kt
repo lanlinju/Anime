@@ -5,16 +5,15 @@ import android.graphics.Bitmap
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
-import com.google.android.material.color.utilities.Scheme
+import com.google.android.material.color.utilities.DynamicScheme
+import com.google.android.material.color.utilities.Hct
+import com.google.android.material.color.utilities.SchemeVibrant
 
 // 参考 https://github.com/you-apps/VibeYou/blob/c5c7eb3e9a2228b715689d9524cdc98db139287d/app/src/main/java/app/suhasdissa/vibeyou/utils/ThemeUtil.kt#L10
 @SuppressLint("RestrictedApi")
 fun getSchemeFromSeed(color: Int, dark: Boolean): ColorScheme {
-    return if (dark) {
-        Scheme.dark(color).toColorScheme()
-    } else {
-        Scheme.light(color).toColorScheme()
-    }
+    val hct = Hct.fromInt(color)
+    return SchemeVibrant(hct, dark, 0.0).toColorScheme()
 }
 
 val catpucchinLatte = arrayOf(
@@ -35,7 +34,7 @@ val catpucchinLatte = arrayOf(
 )
 
 @SuppressLint("RestrictedApi")
-fun Scheme.toColorScheme() = ColorScheme(
+fun DynamicScheme.toColorScheme() = ColorScheme(
     primary = Color(primary),
     onPrimary = Color(onPrimary),
     primaryContainer = Color(primaryContainer),
@@ -55,7 +54,7 @@ fun Scheme.toColorScheme() = ColorScheme(
     onSurface = Color(onSurface),
     surfaceVariant = Color(surfaceVariant),
     onSurfaceVariant = Color(onSurfaceVariant),
-    surfaceTint = Color(primary),
+    surfaceTint = Color(surfaceTint),
     inverseSurface = Color(inverseSurface),
     inverseOnSurface = Color(inverseOnSurface),
     error = Color(error),
@@ -65,6 +64,13 @@ fun Scheme.toColorScheme() = ColorScheme(
     outline = Color(outline),
     outlineVariant = Color(outlineVariant),
     scrim = Color(scrim),
+    surfaceBright = Color(surfaceBright),
+    surfaceDim = Color(surfaceDim),
+    surfaceContainer = Color(surfaceContainer),
+    surfaceContainerHigh = Color(surfaceContainerHigh),
+    surfaceContainerHighest = Color(surfaceContainerHighest),
+    surfaceContainerLow = Color(surfaceContainerLow),
+    surfaceContainerLowest = Color(surfaceContainerLowest),
 )
 
 suspend fun dynamicColorOf(bitmap: Bitmap): Color? {

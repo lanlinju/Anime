@@ -1,7 +1,6 @@
 package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +65,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -76,6 +74,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.presentation.component.LoadingIndicator
@@ -94,7 +93,7 @@ import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekScreen(
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
@@ -422,7 +421,7 @@ private fun SwitchSourceDialog(
 ) {
     var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE)
 
-    val radioOptions = SourceMode.values().map { it.name }
+    val radioOptions = SourceMode.entries.map { it.name }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
     Dialog(onDismissRequest = {
         val isRefresh = if (selectedOption != currentSourceMode.name) {
