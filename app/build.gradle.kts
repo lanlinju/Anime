@@ -77,26 +77,26 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
 
     // icons
-    implementation("androidx.compose.material:material-icons-extended:1.6.8")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
-    implementation("androidx.palette:palette-ktx:1.0.0")
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.palette.ktx)
     implementation("com.google.android.material:material:1.12.0")
 
     // navigation component
     implementation("androidx.navigation:navigation-compose:2.5.3")
 
     // jsoup
-    implementation("org.jsoup:jsoup:1.17.2")
+    implementation(libs.jsoup)
 
     // hilt
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.android)
 
     // hilt navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // coil
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.compose)
 
     // room
     implementation(libs.androidx.room.runtime)
@@ -109,7 +109,7 @@ dependencies {
     implementation(libs.androidx.paging.compose.android)
 
     // splash screen
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.splashscreen)
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")
