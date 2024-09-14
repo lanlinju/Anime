@@ -38,7 +38,7 @@
 - [x] 倍速播放
 - [x] 外部播放器播放
 - [ ] 选择下载目录
-- [ ] 弹幕功能
+- [x] 弹幕功能
 - [ ] BT资源下载
 
 ## Architecture
@@ -46,10 +46,13 @@
 使用的是[Google应用架构指南](https://developer.android.com/topic/architecture), MVVM 和 Clean
 Architecture
 
-## 参考开源
+## 参考来源
+
+视频弹幕源来自于[弹弹play](https://www.dandanplay.com)开放API
 
 - [SakuraAnime](https://github.com/670848654/SakuraAnime)：樱花动漫网站数据解析参考实现来源
 - [Animite](https://github.com/imashnake0/Animite)：应用UI设计参考实现来源
 - [compose-video-player](https://github.com/imherrera/compose-video-player)：Exoplayer视频播放器封装参考实现来源
 - [FreeToPlay](https://github.com/qababadr/FreeToPlay)：应用MVVM架构参考实现来源
 - [DownloadX](https://github.com/ssseasonnn/DownloadX)：视频文件下载功能参考实现来源
+- [Ani](https://github.com/open-ani/ani)：视频弹幕功能参考实现来源
