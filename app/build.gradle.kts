@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.sakura.anime"
-        minSdk = 26
+        minSdk = 21
         targetSdk = 35
         versionCode = 23
         versionName = "1.2.2"
