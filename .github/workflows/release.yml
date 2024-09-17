@@ -26,7 +26,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@4
+        uses: gradle/actions/setup-gradle@v4
 
         # Decode and write the signing key from secrets
       - name: Decode signing key
