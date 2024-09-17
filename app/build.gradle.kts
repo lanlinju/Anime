@@ -28,9 +28,21 @@ android {
         }
     }
 
+    signingConfigs {
+        kotlin.runCatching { System.getenv("KEY_STORE_PASSWORD") }.getOrNull()?.let {
+            create("release") {
+                storeFile = file("../keystore.jks")
+                storePassword = it
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -1,0 +1,52 @@
+name: Android CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20  # 设置超时时间为20分钟
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Decode and write the signing key from secrets
+      - name: Decode signing key
+        run: echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 -di > keystore.jks
+
+      # Build the APK
+      - name: Build APK
+        run: ./gradlew assembleRelease
+        env:
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+
+      # Sign the APK (Already handled by Gradle)
+      # Upload APK as artifact
+      - name: Upload Signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-release
+          path: app/build/outputs/apk/release/*.apk
