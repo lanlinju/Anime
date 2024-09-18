@@ -2,7 +2,6 @@ package com.sakura.anime.presentation.screen.animedetail
 
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.text.Html
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
@@ -207,9 +206,7 @@ fun AnimeDetailScreen(
                     ) {
                         AnimeDetails(
                             title = animeDetail.title,
-                            description = Html
-                                .fromHtml(animeDetail.desc, Html.FROM_HTML_MODE_COMPACT)
-                                .toString(),
+                            description = animeDetail.desc,
                             modifier = Modifier
                                 .padding(
                                     start = dimensionResource(Res.dimen.large_padding)

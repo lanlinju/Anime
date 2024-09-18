@@ -2,6 +2,7 @@ package com.sakura.anime.data.remote.parse.util
 
 import android.annotation.SuppressLint
 import android.net.http.SslError
+import android.os.Build
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -98,8 +99,7 @@ class WebViewUtil {
 
     abstract class BlockedResWebViewClient(
         private val blockRes: Array<String> = arrayOf(
-            ".css",
-            ".mp4", ".ts",
+            ".css", ".ts",
             ".mp3", ".m4a",
             ".gif", ",jpg", ".png", ".webp"
         )
@@ -130,8 +130,11 @@ class WebViewUtil {
         ) = run {
             val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
             if (blockRes.any { url.contains(it) }) {
-                "intercept load".log(LOG_TAG)
-                view.post { view.webViewClient.onLoadResource(view, url) }
+                view.post {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        view.webViewClient.onLoadResource(view, url)
+                    }
+                }
                 blockWebResourceRequest
             }
             super.shouldInterceptRequest(view, request)

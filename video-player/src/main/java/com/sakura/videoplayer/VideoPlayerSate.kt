@@ -3,8 +3,6 @@ package com.sakura.videoplayer
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.view.OrientationEventListener
 import android.view.Window
@@ -308,18 +306,6 @@ class VideoPlayerStateImpl(
         }
     }
 
-    private val focusRequest =
-        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT).run {
-            setAudioAttributes(AudioAttributes.Builder().run {
-                setUsage(AudioAttributes.USAGE_MEDIA)
-                setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                build()
-            })
-            setAcceptsDelayedFocusGain(true)
-            setOnAudioFocusChangeListener(audioFocusChangeListener)
-            build()
-        }
-
     private val orientationEventListener = object : OrientationEventListener(context) {
         private var currentOrientation = 270
         private val activity = context as Activity
@@ -368,14 +354,12 @@ class VideoPlayerStateImpl(
         if (isAutoOrientation) {
             orientationEventListener.enable()
         }
-        audioManager.requestAudioFocus(focusRequest)
     }
 
     override fun unregisterListener() {
         if (isAutoOrientation) {
             orientationEventListener.disable()
         }
-        audioManager.abandonAudioFocusRequest(focusRequest)
     }
 
 }

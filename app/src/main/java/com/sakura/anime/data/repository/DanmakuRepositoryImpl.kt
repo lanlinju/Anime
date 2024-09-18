@@ -3,6 +3,8 @@ package com.sakura.anime.data.repository
 import com.anime.danmaku.api.DanmakuSession
 import com.sakura.anime.data.remote.dandanplay.DanmakuProvider
 import com.sakura.anime.domain.repository.DanmakuRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,6 +15,12 @@ class DanmakuRepositoryImpl @Inject constructor(private val danmakuProvider: Dan
         subjectName: String,
         episodeName: String?
     ): DanmakuSession? {
-        return danmakuProvider.fetch(subjectName, episodeName)
+        return withContext(Dispatchers.IO) {
+            try {
+                danmakuProvider.fetch(subjectName, episodeName)
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }

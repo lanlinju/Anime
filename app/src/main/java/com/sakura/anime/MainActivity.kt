@@ -23,6 +23,7 @@ import com.sakura.anime.util.getEnum
 import com.sakura.anime.util.preferences
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -30,11 +31,11 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
         //https://github.com/android/compose-samples/issues/1256
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, insets -> insets }
 
         SourceHolder.setDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE))
-
         setContent {
             AnimeTheme {
                 NavHost(activity = this)

@@ -56,11 +56,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
@@ -129,7 +129,8 @@ dependencies {
     // ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.okhttp)
+//    implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.kotlinx.json)
@@ -139,7 +140,8 @@ dependencies {
 
     // Slf4j
     implementation(libs.slf4j.api)
-    implementation(libs.slf4j.simple)
+//    implementation(libs.slf4j.simple)
+
 
     // test
     testImplementation(libs.junit)

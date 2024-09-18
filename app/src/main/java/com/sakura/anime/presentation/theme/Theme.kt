@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.sakura.anime.util.SettingsPreferences
-import com.sakura.anime.util.getSchemeFromSeed
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -98,7 +97,7 @@ fun AnimeTheme(content: @Composable () -> Unit) {
 
     AnimeTheme(
         darkTheme = darkTheme,
-        customColorScheme = getSchemeFromSeed(customColor, darkTheme),
+        //customColorScheme = getSchemeFromSeed(customColor, darkTheme),
         dynamicColor = dynamicColor,
         content = content
     )

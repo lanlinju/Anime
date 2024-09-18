@@ -91,7 +91,7 @@ import com.sakura.anime.util.TABS
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +110,15 @@ fun WeekScreen(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
+    val dayOfWeek = remember {
+        val calendar = Calendar.getInstance()
+        var day = calendar.get(Calendar.DAY_OF_WEEK) - 2
+        if (day == -1) {
+            day = 6
+        }
+        day
+    }
+
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
     Box(
@@ -283,7 +291,7 @@ fun WeekScreen(
             ) {
                 TABS.forEachIndexed { index, title ->
                     Tab(
-                        text = { Text(title, style = MaterialTheme.typography.labelSmall) },
+                        text = { Text(title, style = MaterialTheme.typography.bodyMedium) },
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.scrollToPage(index) } },
                     )

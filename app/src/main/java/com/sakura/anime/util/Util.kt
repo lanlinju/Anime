@@ -10,6 +10,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider.getUriForFile
 import com.sakura.anime.BuildConfig
@@ -18,22 +19,43 @@ import com.sakura.anime.data.remote.parse.AnimeSource
 import com.sakura.download.utils.decrypt
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.Base64
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.X509TrustManager
+
 
 /**
  * 先Base64解码数据，然后再AES解密
  */
 fun AnimeSource.decryptData(data: String, key: String, iv: String): String {
-    val bytes = Base64.getDecoder().decode(data.toByteArray())
+    // 解码 Base64 编码的数据
+    val bytes = Base64.decode(data, Base64.DEFAULT)
+
+    // 进行解密
     val debytes = bytes.decrypt(key, iv)
-    return debytes.decodeToString()
+
+    // 将解密后的字节数组转换为字符串
+    return debytes.toString(Charsets.UTF_8)
+}
+
+private fun ByteArray.decrypt(key: String, iv: String): ByteArray {
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+    val secretKey = SecretKeySpec(key.toByteArray(Charsets.UTF_8), "AES")
+    val ivSpec = IvParameterSpec(iv.toByteArray(Charsets.UTF_8))
+
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
+    return cipher.doFinal(this)
 }
 
 val AnimeSource.preferences: SharedPreferences
@@ -122,19 +144,58 @@ fun isWideScreen(context: Context): Boolean {
  */
 fun createDefaultHttpClient(
     clientConfig: HttpClientConfig<*>.() -> Unit = {},
-) = HttpClient {
-    install(HttpRequestRetry) {
-        maxRetries = 1
-        delayMillis { 1000 }
-    }
-    install(HttpCookies)
-    install(HttpTimeout) {
-        requestTimeoutMillis = 5000
+) = HttpClient(OkHttp) {
+    engine {
+        config {
+            connectTimeout(30, TimeUnit.SECONDS)
+            readTimeout(1, TimeUnit.MINUTES)
+//            followRedirects(true)
+//            followSslRedirects(true)
+            sslSocketFactory(createSSLSocketFactory(), TrustAllCerts())
+            hostnameVerifier { _, _ -> true }
+        }
     }
     clientConfig()
     install(ContentNegotiation) {
         json(Json {
+            prettyPrint = true
+            isLenient = true
             ignoreUnknownKeys = true
         })
+    }
+}
+
+fun createSSLSocketFactory(): SSLSocketFactory {
+    return runCatching {
+        SSLContext.getInstance("TLS").let {
+            it.init(null, arrayOf(TrustAllManager()), SecureRandom())
+            it.socketFactory
+        }
+    }.getOrElse {
+        throw it
+    }
+}
+
+class TrustAllManager : X509TrustManager {
+    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate> {
+        return emptyArray()
+    }
+}
+
+class TrustAllCerts : X509TrustManager {
+    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate?> {
+        return arrayOfNulls(0)
     }
 }
