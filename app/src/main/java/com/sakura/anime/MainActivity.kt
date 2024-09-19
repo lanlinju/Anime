@@ -75,7 +75,7 @@ fun NavHost(modifier: Modifier = Modifier, activity: Activity) {
             navController.navigate(Screen.SearchScreen.route)
         },
         onNavigateToAppearance = {
-            navController.navigate(Screen.AppearanceScreen.route)
+            //navController.navigate(Screen.AppearanceScreen.route)
         },
         onNavigateToDanmakuSettings = {
             navController.navigate(Screen.DanmakuSettingsScreen.route)

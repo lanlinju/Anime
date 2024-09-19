@@ -12,7 +12,6 @@ import com.sakura.anime.presentation.screen.downloaddetail.DownloadDetailScreen
 import com.sakura.anime.presentation.screen.history.HistoryScreen
 import com.sakura.anime.presentation.screen.main.MainScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
-import com.sakura.anime.presentation.screen.settings.AppearanceScreen
 import com.sakura.anime.presentation.screen.settings.DanmakuSettingsScreen
 import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
 import com.sakura.anime.util.SourceMode
@@ -84,11 +83,11 @@ fun AnimeNavHost(
                 onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
-        composable(Screen.AppearanceScreen.route) {
+        /*composable(Screen.AppearanceScreen.route) {
             AppearanceScreen(
                 onBackClick = onBackClick
             )
-        }
+        }**/
         composable(Screen.DanmakuSettingsScreen.route) {
             DanmakuSettingsScreen(
                 onBackClick = onBackClick

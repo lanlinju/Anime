@@ -86,7 +86,7 @@ fun AnimeTheme(
 @Composable
 fun AnimeTheme(content: @Composable () -> Unit) {
     val themeModeState by SettingsPreferences.themeMode.collectAsState()
-    val customColor by SettingsPreferences.customColor.collectAsState()
+    //val customColor by SettingsPreferences.customColor.collectAsState()
     val dynamicColor by SettingsPreferences.dynamicColor.collectAsState()
 
     val darkTheme = when (themeModeState) {
@@ -97,7 +97,7 @@ fun AnimeTheme(content: @Composable () -> Unit) {
 
     AnimeTheme(
         darkTheme = darkTheme,
-        //customColorScheme = getSchemeFromSeed(customColor, darkTheme),
+//        customColorScheme = getSchemeFromSeed(customColor, darkTheme),
         dynamicColor = dynamicColor,
         content = content
     )

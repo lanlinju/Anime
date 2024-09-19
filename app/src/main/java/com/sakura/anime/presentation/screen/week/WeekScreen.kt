@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material.icons.rounded.MoreVert
@@ -100,7 +99,7 @@ fun WeekScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToAppearance: () -> Unit,
+    onNavigateToAppearance: () -> Unit = {},
     onNavigateToDanmakuSettings: () -> Unit,
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
@@ -225,7 +224,7 @@ fun WeekScreen(
                                 }
                             )
 
-                            DropdownMenuItem(
+                            /*DropdownMenuItem(
                                 text = { Text(stringResource(id = R.string.appearance_settings)) },
                                 onClick = {
                                     expanded = false
@@ -237,7 +236,7 @@ fun WeekScreen(
                                         contentDescription = null
                                     )
                                 }
-                            )
+                            )*/
 
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.danmaku_settings)) },
