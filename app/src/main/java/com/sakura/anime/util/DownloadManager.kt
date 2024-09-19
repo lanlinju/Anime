@@ -15,8 +15,6 @@ object DownloadManager {
     private val httpClient = HttpClient(OkHttp) {
         engine {
             config {
-//                followRedirects(true)
-//                followSslRedirects(true)
                 readTimeout(1L, TimeUnit.MINUTES)
                 sslSocketFactory(createSSLSocketFactory(), TrustAllCerts())
                 hostnameVerifier { _, _ -> true }

@@ -24,7 +24,7 @@ object AgedmSource : AnimeSource {
 
     private const val LOG_TAG = "AgedmSource"
 
-    override val DEFAULT_DOMAIN: String = "https://www.agedm.org"
+    override val DEFAULT_DOMAIN: String = "http://www.agedm.org"
 
     override var baseUrl: String = getDefaultDomain()
 

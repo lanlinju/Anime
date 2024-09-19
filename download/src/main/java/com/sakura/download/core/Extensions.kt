@@ -1,6 +1,8 @@
 package com.sakura.download.core
 
+import com.sakura.download.utils.TrustAllCerts
 import com.sakura.download.utils.contentLength
+import com.sakura.download.utils.createSSLSocketFactory
 import com.sakura.download.utils.isSupportRange
 import com.sakura.download.utils.log
 import okhttp3.OkHttpClient
@@ -21,6 +23,8 @@ object DefaultHttpClientFactory : HttpClientFactory {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(120, TimeUnit.SECONDS)
             .writeTimeout(120, TimeUnit.SECONDS)
+            .sslSocketFactory(createSSLSocketFactory(), TrustAllCerts())
+            .hostnameVerifier { _, _ -> true }
             .build()
     }
 }

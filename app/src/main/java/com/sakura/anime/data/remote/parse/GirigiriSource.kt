@@ -19,7 +19,7 @@ object GirigiriSource : AnimeSource {
 
     private const val LOG_TAG = "GirigiriSource"
 
-    override val DEFAULT_DOMAIN: String = "https://anime.girigirilove.com"
+    override val DEFAULT_DOMAIN: String = "http://anime.girigirilove.com"
     override var baseUrl: String = getDefaultDomain()
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
 

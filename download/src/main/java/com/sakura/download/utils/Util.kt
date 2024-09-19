@@ -1,13 +1,22 @@
 package com.sakura.download.utils
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.math.RoundingMode
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.atomic.AtomicInteger
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.X509TrustManager
 
 fun String.toLongOrDefault(defaultValue: Long): Long {
     return try {
@@ -93,4 +102,39 @@ fun ByteArray.decrypt(key: String, iv: String): ByteArray {
     val keySpec = SecretKeySpec(key.toByteArray(), "AES")
     cipher.init(Cipher.DECRYPT_MODE, keySpec, IvParameterSpec(iv.toByteArray()))
     return  cipher.doFinal(this)
+}
+
+internal fun createSSLSocketFactory(): SSLSocketFactory {
+    return runCatching {
+        SSLContext.getInstance("TLS").let {
+            it.init(null, arrayOf(TrustAllManager()), SecureRandom())
+            it.socketFactory
+        }
+    }.getOrElse {
+        throw it
+    }
+}
+
+internal class TrustAllManager : X509TrustManager {
+    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate> {
+        return emptyArray()
+    }
+}
+
+internal class TrustAllCerts : X509TrustManager {
+    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate?> {
+        return arrayOfNulls(0)
+    }
 }

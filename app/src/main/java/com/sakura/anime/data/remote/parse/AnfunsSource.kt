@@ -21,7 +21,7 @@ object AnfunsSource : AnimeSource {
 
     private const val LOG_TAG = "AnfunsSource"
 
-    override val DEFAULT_DOMAIN: String = "https://www.anfuns.cc"
+    override val DEFAULT_DOMAIN: String = "http://www.anfuns.cc"
     override var baseUrl = getDefaultDomain()
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }
 
