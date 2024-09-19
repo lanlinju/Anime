@@ -1,11 +1,13 @@
 # Anime
 
-基于樱花动漫网站数据的一个简洁的播放动漫的App，使用[Jetpack Compose](https://developer.android.com/jetpack?hl=zh-cn)进行开发
+基于樱花动漫网站数据的一个简洁的播放动漫的App，支持下载，弹幕等功能，使用[Jetpack Compose](https://developer.android.com/jetpack?hl=zh-cn)
+进行开发
 
 ## 如何下载安装
 
-点击此链接[下载地址](https://github.com/Lanlinju/Anime/releases/latest)前往下载页面，然后选择下载以`.apk`结尾的文件
-
+点击此链接[下载地址](https://github.com/Lanlinju/Anime/releases/latest)
+前往下载页面，然后选择下载以`.apk`结尾的文件，Android
+TV设备版本低于安卓8.0的，请点击查看[这里](https://github.com/lanlinju/Anime/releases/tag/v1.2.1)
 ## 应用截图
 
 <table>
