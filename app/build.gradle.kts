@@ -95,7 +95,7 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0-alpha05")
 
     // navigation component
-    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.navigation:navigation-compose:2.8.1")
 
     // jsoup
     implementation(libs.jsoup)

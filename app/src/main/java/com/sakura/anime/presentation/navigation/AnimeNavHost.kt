@@ -1,6 +1,9 @@
 package com.sakura.anime.presentation.navigation
 
 import android.app.Activity
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -55,7 +58,11 @@ fun AnimeNavHost(
                 onBackClick = onBackClick
             )
         }
-        composable(Screen.VideoPlayScreen.route) {
+        composable(
+            Screen.VideoPlayScreen.route,
+            enterTransition = { fadeIn() },
+            popExitTransition = { fadeOut(animationSpec = tween(durationMillis = 35)) }
+        ) {
             VideoPlayScreen(activity = activity, onBackClick = onBackClick)
         }
         composable(Screen.SearchScreen.route) {
