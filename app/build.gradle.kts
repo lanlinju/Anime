@@ -92,10 +92,10 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.palette.ktx)
-    implementation("com.google.android.material:material:1.13.0-alpha05")
+    implementation(libs.material)
 
     // navigation component
-    implementation("androidx.navigation:navigation-compose:2.8.1")
+    implementation(libs.androidx.navigation.compose)
 
     // jsoup
     implementation(libs.jsoup)
@@ -124,7 +124,7 @@ dependencies {
     implementation(libs.androidx.splashscreen)
 
     // WorkManager
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation(libs.androidx.work.runtime.ktx)
 
     // ktor
     implementation(libs.ktor.client.core)
