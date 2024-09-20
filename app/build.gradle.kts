@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.sakura.anime"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.sakura.anime"

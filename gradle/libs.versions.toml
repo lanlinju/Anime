@@ -7,7 +7,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
-composeBom = "2024.09.01"
+composeBom = "2024.08.00"
 
 ksp = "2.0.20-1.0.24"
 hilt = "2.50"

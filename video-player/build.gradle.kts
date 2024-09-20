@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.sakura.video_player"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21
