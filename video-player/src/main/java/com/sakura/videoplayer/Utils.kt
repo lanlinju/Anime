@@ -1,12 +1,14 @@
 package com.sakura.videoplayer
 
 import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.compose.ui.unit.Constraints
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.util.MimeTypes
-import com.google.android.exoplayer2.video.VideoSize
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.LoadControl
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -149,6 +151,7 @@ internal fun mediaItemCreator(uri: String): MediaItem {
     return builder.build()
 }
 
+@OptIn(UnstableApi::class)
 internal fun loadControlCreator(): LoadControl {
     return DefaultLoadControl.Builder()
         .setBufferDurationsMs(360000, 600000, 1000, 5000)
