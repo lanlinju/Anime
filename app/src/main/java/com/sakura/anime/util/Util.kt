@@ -1,5 +1,6 @@
 package com.sakura.anime.util
 
+import android.annotation.SuppressLint
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider.getUriForFile
+import coil.ImageLoader
 import com.sakura.anime.BuildConfig
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.remote.parse.AnimeSource
@@ -23,6 +25,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
 import java.io.File
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -32,6 +35,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 
@@ -198,4 +202,38 @@ class TrustAllCerts : X509TrustManager {
     override fun getAcceptedIssuers(): Array<X509Certificate?> {
         return arrayOfNulls(0)
     }
+}
+
+@SuppressLint("CustomX509TrustManager")
+fun initUntrustImageLoader(): ImageLoader {
+    // Create a trust manager that does not validate certificate chains
+    val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+        @SuppressLint("TrustAllX509TrustManager")
+        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+        }
+
+        @SuppressLint("TrustAllX509TrustManager")
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+        }
+
+        override fun getAcceptedIssuers(): Array<X509Certificate> {
+            return arrayOf()
+        }
+    })
+
+    // Install the all-trusting trust manager
+    val sslContext = SSLContext.getInstance("SSL")
+    sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+
+    // Create an ssl socket factory with our all-trusting manager
+    val sslSocketFactory = sslContext.socketFactory
+
+    val client = OkHttpClient.Builder()
+        .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+        .hostnameVerifier { _, _ -> true }.build()
+
+
+    return ImageLoader.Builder(AnimeApplication.getInstance())
+        .okHttpClient(client)
+        .build()
 }
