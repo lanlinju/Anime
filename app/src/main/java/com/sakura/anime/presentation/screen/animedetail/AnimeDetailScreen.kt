@@ -97,7 +97,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.componentsui.anime.domain.model.Anime
@@ -119,9 +118,9 @@ import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.sakura.anime.util.SettingsPreferences
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.UntrustImageLoader
 import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.dynamicColorOf
-import com.sakura.anime.util.initUntrustImageLoader
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.log
@@ -467,7 +466,6 @@ fun AnimeBanner(
     modifier: Modifier = Modifier
 ) {
     if (!imageUrl.isNullOrEmpty()) {
-        val untrustImageLoader: ImageLoader = remember { initUntrustImageLoader() }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
@@ -475,7 +473,7 @@ fun AnimeBanner(
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            imageLoader = untrustImageLoader,
+            imageLoader = UntrustImageLoader,
             modifier = modifier
                 .blur(if (isWideScreen(LocalContext.current)) 24.dp else 0.dp),
             alignment = Alignment.Center,

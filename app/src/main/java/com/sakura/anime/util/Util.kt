@@ -204,8 +204,12 @@ class TrustAllCerts : X509TrustManager {
     }
 }
 
-@SuppressLint("CustomX509TrustManager")
+/*@SuppressLint("CustomX509TrustManager")
 fun initUntrustImageLoader(): ImageLoader {
+    return UntrustImageLoader
+}*/
+
+val UntrustImageLoader: ImageLoader by lazy {
     // Create a trust manager that does not validate certificate chains
     val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
         @SuppressLint("TrustAllX509TrustManager")
@@ -233,7 +237,8 @@ fun initUntrustImageLoader(): ImageLoader {
         .hostnameVerifier { _, _ -> true }.build()
 
 
-    return ImageLoader.Builder(AnimeApplication.getInstance())
+    ImageLoader.Builder(AnimeApplication.getInstance())
         .okHttpClient(client)
         .build()
 }
+

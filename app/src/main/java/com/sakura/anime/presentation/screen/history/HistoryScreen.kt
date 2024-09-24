@@ -44,6 +44,7 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.LOW_CONTENT_ALPHA
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.UntrustImageLoader
 import com.sakura.anime.util.VIDEO_ASPECT_RATIO
 
 @Composable
@@ -127,6 +128,7 @@ fun HistoryItem(
                         .crossfade(CROSSFADE_DURATION)
                         .build(),
                     contentDescription = stringResource(id = R.string.lbl_anime_img),
+                    imageLoader = UntrustImageLoader,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxHeight()
