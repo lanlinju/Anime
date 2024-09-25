@@ -43,7 +43,7 @@ class VideoPlayViewModel @Inject constructor(
     // 获取保存的偏好设置，初始化弹幕启用状态
     private val preferences = AnimeApplication.getInstance().preferences
     private val _enabledDanmaku =
-        MutableStateFlow(preferences.getBoolean(KEY_DANMAKU_ENABLED, false))
+        MutableStateFlow(preferences.getBoolean(KEY_DANMAKU_ENABLED, true))
     val enabledDanmaku = _enabledDanmaku.asStateFlow()
 
     private val _danmakuSession = MutableStateFlow<DanmakuSession?>(null)

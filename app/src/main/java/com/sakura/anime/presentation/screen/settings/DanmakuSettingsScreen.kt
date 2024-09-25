@@ -86,7 +86,7 @@ fun DanmakuSettingsScreen(onBackClick: () -> Unit = {}) {
         ) {
             val defaultDanmakuConfig = remember { DanmakuConfig.Default }
             val defaultDanmakuStyle = remember { DanmakuStyle.Default }
-            var danmakuEnabled by rememberPreference(KEY_DANMAKU_ENABLED, false)
+            var danmakuEnabled by rememberPreference(KEY_DANMAKU_ENABLED, true)
             var config by rememberPreference(
                 KEY_DANMAKU_CONFIG_DATA,
                 Default,
