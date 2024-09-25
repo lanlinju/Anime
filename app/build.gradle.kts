@@ -52,7 +52,7 @@ android {
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "${rootProject.name}-v$versionName-$name.apk"
+                "${rootProject.name}-v$versionName-TV.apk"
         }
     }
     compileOptions {
