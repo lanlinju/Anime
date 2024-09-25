@@ -180,7 +180,7 @@ fun VideoPlayScreen(
                     .adaptiveSize(playerState.isFullscreen.value, view, activity),
                 contentAlignment = Alignment.Center
             ) {
-
+                val focusRequester = remember { FocusRequester() }
                 // Video player composable
                 VideoPlayer(
                     url = video.url,
@@ -188,11 +188,13 @@ fun VideoPlayScreen(
                     playerState = playerState,
                     onBackPress = { handleBackPress(playerState, onBackClick, view, activity) },
                     modifier = Modifier
-                        .focusable()
                         .defaultRemoteControlHandler(
                             playerState = playerState,
                             onNextClick = { viewModel.nextEpisode(playerState.player.currentPosition) }
                         )
+                        .focusRequester(focusRequester)
+                        .focusable()
+
                 ) {
                     VideoPlayerControl(
                         state = playerState,
@@ -210,6 +212,13 @@ fun VideoPlayScreen(
                 VideoStateMessage(playerState)
                 VolumeBrightnessIndicator(playerState)
                 VideoSideSheet(video, playerState, viewModel)
+
+                LaunchedEffect(Unit) {
+                    // 页面加载时请求焦点
+                    if (isAndroidTV) {
+                        focusRequester.requestFocus()
+                    }
+                }
 
                 // Save video position on dispose
                 DisposableEffect(Unit) {

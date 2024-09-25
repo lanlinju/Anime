@@ -125,6 +125,8 @@ fun isAndroidTV(context: Context): Boolean {
     return isTV || hasLeanbackFeature
 }
 
+val isAndroidTV: Boolean = isAndroidTV(AnimeApplication.getInstance())
+
 // 判断是否为平板或大屏设备
 fun isTabletDevice(context: Context): Boolean {
     val configuration = context.resources.configuration
