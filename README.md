@@ -7,7 +7,8 @@
 
 点击此链接[下载地址](https://github.com/Lanlinju/Anime/releases/latest)
 前往下载页面，然后选择下载以`.apk`结尾的文件，Android
-TV设备版本低于安卓8.0的，请点击查看[这里](https://github.com/lanlinju/Anime/releases/tag/v1.2.1)
+TV或者系统版本低于安卓8.0的，请点击查看[这里](https://github.com/lanlinju/Anime/releases/tag/v1.2.1)
+
 ## 应用截图
 
 <table>
