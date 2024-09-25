@@ -405,7 +405,9 @@ private fun UpdateVersionDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
+            TextButton(
+                enabled = !isAndroidTV,
+                onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
                 Text(text = stringResource(id = R.string.download_software))
             }
         },
