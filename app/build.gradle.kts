@@ -88,9 +88,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.layout.android)
 
-    // Material components optimized for TV apps
-    implementation(libs.androidx.tv.material)
-
     // icons
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.runtime.compose)

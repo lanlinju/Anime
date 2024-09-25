@@ -1,6 +1,7 @@
 package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material.icons.rounded.MoreVert
@@ -122,7 +124,13 @@ fun WeekScreen(
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
 
     Box(
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(
+                top = if (isAndroidTV) {
+                    8.dp
+                } else 0.dp
+            )
     ) {
         val openSwitchSourceDialog = remember { mutableStateOf(false) }
         val openSettingsDialog = remember { mutableStateOf(false) }
@@ -225,19 +233,22 @@ fun WeekScreen(
                                 }
                             )
 
-                            /*DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.appearance_settings)) },
-                                onClick = {
-                                    expanded = false
-                                    onNavigateToAppearance()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Palette,
-                                        contentDescription = null
-                                    )
-                                }
-                            )*/
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(id = R.string.appearance_settings)) },
+                                    onClick = {
+                                        expanded = false
+                                        onNavigateToAppearance()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Palette,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            }
+
 
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.danmaku_settings)) },

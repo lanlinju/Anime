@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sakura.anime.presentation.navigation.Screen
+import com.sakura.anime.util.isAndroidTV
 import java.util.Locale
 import com.sakura.anime.R as Res
 
@@ -143,6 +145,11 @@ fun AdaptiveNavigationBar(
         NavigationRail(
             modifier = modifier
                 .fillMaxHeight()
+                .padding(
+                    top = if (isAndroidTV) {
+                        8.dp
+                    } else 0.dp
+                )
         ) {
             destinations.forEachIndexed { index, destination ->
                 val selected = destination.route == currentDestination
