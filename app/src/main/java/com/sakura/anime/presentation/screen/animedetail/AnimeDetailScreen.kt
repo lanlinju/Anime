@@ -79,6 +79,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -123,7 +124,6 @@ import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.dynamicColorOf
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.isWideScreen
-import com.sakura.anime.util.log
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.io.File
@@ -434,8 +434,19 @@ private fun FavouriteIcon(
     val msg = stringResource(
         id = if (!isFavourite) Res.string.add_favourite else Res.string.remove_favourite
     )
-
+    val isAndroidTV = isAndroidTV(LocalContext.current)
+    val focusRequester = remember { FocusRequester() }
+    val interactionSource = remember { MutableInteractionSource() }
     IconButton(
+        modifier = Modifier.run {
+            if (isAndroidTV) {
+                clip(CircleShape)
+                    .indication(interactionSource, LocalIndication.current)
+                    .hoverable(interactionSource)
+                    .focusRequester(focusRequester)
+                    .focusable(interactionSource = interactionSource)
+            } else this
+        },
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
                 alpha = 0.45f
@@ -454,8 +465,11 @@ private fun FavouriteIcon(
         Icon(
             if (isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
             contentDescription = stringResource(id = Res.string.favourite),
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.primary,
         )
+    }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
 
@@ -533,6 +547,9 @@ fun AnimeGenres(
     ) {
         items(genres) { genre ->
             SuggestionChip(
+                modifier = Modifier.focusProperties {
+                    canFocus = false
+                }, // 不参与焦点系统 https://stackoverflow.com/questions/75258408/how-to-make-compose-component-non-focusable,
                 label = {
                     Text(
                         text = genre.uppercase(),
@@ -572,7 +589,7 @@ fun AnimeEpisodes(
         initialFirstVisibleItemScrollOffset = if (lastPosition < 3) 0 else -200
     )
 
-    val isAndroidTV = isAndroidTV(LocalContext.current)
+    //val isAndroidTV = isAndroidTV(LocalContext.current)
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.medium_padding)),
@@ -587,7 +604,7 @@ fun AnimeEpisodes(
             FilledTonalButton(
                 onClick = { onEpisodeClick(episode) },
                 colors = ButtonDefaults.filledTonalButtonColors(containerColor = color.copy(0.5f)),
-                modifier = Modifier.run {
+                /*modifier = Modifier.run {
                     if (isAndroidTV) {
 //                        onFocusChanged { if (it.isFocused) focusIndex = index }
                         clip(CircleShape)
@@ -596,7 +613,7 @@ fun AnimeEpisodes(
                             .focusRequester(focusRequester)
                             .focusable(interactionSource = interactionSource)
                     } else this
-                }
+                }*/
             ) {
                 Text(
                     text = episode.name,
@@ -608,12 +625,12 @@ fun AnimeEpisodes(
                 )
             }
 
-            LaunchedEffect(Unit) {
+            /*LaunchedEffect(Unit) {
                 if (index == lastPosition && isAndroidTV) {
                     "focusRequester: ${lastPosition + 1}".log("AnimeDetailScreen")
                     focusRequester.requestFocus()
                 }
-            }
+            }*/
         }
     }
 }

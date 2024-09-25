@@ -1,12 +1,13 @@
 package com.sakura.anime.presentation.screen.main
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,13 +25,12 @@ import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
-import com.sakura.anime.util.disableScrolling
-import com.sakura.anime.util.enableScrolling
 import com.sakura.anime.util.isWideScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
@@ -112,3 +112,22 @@ fun MainScreen(
         }
     }
 }
+
+//@see https://github.com/google/accompanist/issues/756#issuecomment-953605256
+private fun PagerState.disableScrolling(scope: CoroutineScope) {
+    scope.launch {
+        scroll(scrollPriority = MutatePriority.PreventUserInput) {
+            // Await indefinitely, blocking scrolls
+            awaitCancellation()
+        }
+    }
+}
+
+private fun PagerState.enableScrolling(scope: CoroutineScope) {
+    scope.launch {
+        scroll(scrollPriority = MutatePriority.PreventUserInput) {
+            // Do nothing, just cancel the previous indefinite "scroll"
+        }
+    }
+}
+
