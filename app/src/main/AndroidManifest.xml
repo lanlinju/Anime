@@ -29,7 +29,7 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Anime"
-        tools:targetApi="35">
+        tools:targetApi="34">
         <activity
             android:name=".MainActivity"
             android:exported="true"

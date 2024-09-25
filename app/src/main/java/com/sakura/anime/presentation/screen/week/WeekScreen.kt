@@ -87,6 +87,7 @@ import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
+import com.sakura.anime.util.disableHorizontalPointerInputScroll
 import com.sakura.anime.util.isAndroidTV
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
@@ -296,11 +297,17 @@ fun WeekScreen(
                     )
                 }
             }
-
+            val isAndroidTV = isAndroidTV(LocalContext.current)
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                userScrollEnabled = !isAndroidTV(LocalContext.current)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .run {
+                        if (isAndroidTV) {
+                            disableHorizontalPointerInputScroll()
+                        } else this
+                    },
+                userScrollEnabled = !isAndroidTV
             ) { page ->
                 StateHandler(
                     state = weekDataState,
@@ -617,6 +624,7 @@ fun WeekList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(8.dp),
+        userScrollEnabled = false
     ) {
         items(list, key = { it.url }) { anime ->
             WeekItem(

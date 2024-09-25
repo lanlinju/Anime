@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.sakura.anime"
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 23
         versionName = "1.2.2"
 
@@ -87,6 +87,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.layout.android)
+
+    // Material components optimized for TV apps
+    implementation(libs.androidx.tv.material)
 
     // icons
     implementation(libs.androidx.material.icons.extended)

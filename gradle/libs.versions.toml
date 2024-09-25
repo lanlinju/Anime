@@ -22,6 +22,7 @@ coil = "2.6.0"
 hiltNavigation = "1.2.0"
 splashscreen = "1.0.1"
 jsoup = "1.15.4"
+tv-material = "1.0.0-beta01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +40,8 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-foundation-layout-android = { module = "androidx.compose.foundation:foundation-layout-android" }
+
+androidx-tv-material = { module = "androidx.tv:tv-material", version.ref = "tv-material" }
 
 # splash screen
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splashscreen" }

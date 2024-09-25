@@ -24,7 +24,10 @@ import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
 import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
+import com.sakura.anime.util.disableScrolling
+import com.sakura.anime.util.enableScrolling
 import com.sakura.anime.util.isWideScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -40,6 +43,7 @@ fun MainScreen(
     var currentDestination by rememberSaveable { mutableStateOf(NavigationBarPath.Home.route) }
     val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.entries.size }
     val scope = rememberCoroutineScope()
+    pagerState.disableScrolling(scope)
 
     val configuration = LocalConfiguration.current // 屏幕方向改变会触发 recompose
     val context = LocalContext.current
@@ -53,7 +57,12 @@ fun MainScreen(
             currentDestination = currentDestination,
             onNavigateToDestination = {
                 currentDestination = NavigationBarPath.entries[it].route
-                scope.launch { pagerState.scrollToPage(it) }
+                scope.launch {
+                    pagerState.enableScrolling(this)
+                    delay(100)
+                    pagerState.scrollToPage(it)
+                    pagerState.disableScrolling(this)
+                }
             },
             isWideScreen = isWideScreen,
         )
@@ -63,8 +72,9 @@ fun MainScreen(
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
-            modifier = modifier
+            modifier = modifier,
         ) { page ->
+
             when (page) {
                 0 -> WeekScreen(
                     onNavigateToAnimeDetail = onNavigateToAnimeDetail,
@@ -74,9 +84,11 @@ fun MainScreen(
                     onNavigateToAppearance = onNavigateToAppearance,
                     onNavigateToDanmakuSettings = onNavigateToDanmakuSettings
                 )
+
                 1 -> HomeScreen(onNavigateToAnimeDetail)
                 2 -> FavouriteScreen(onNavigateToAnimeDetail)
             }
+
         }
     }
 
@@ -86,14 +98,16 @@ fun MainScreen(
             pagerContent(
                 Modifier
                     .fillMaxHeight()
-                    .weight(1f))
+                    .weight(1f)
+            )
         }
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
             pagerContent(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f))
+                    .weight(1f)
+            )
             navigationBar()
         }
     }

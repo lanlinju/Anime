@@ -13,6 +13,8 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.pager.PagerState
 import androidx.core.content.FileProvider.getUriForFile
 import coil.ImageLoader
 import com.sakura.anime.BuildConfig
@@ -24,6 +26,9 @@ import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import java.io.File
@@ -240,5 +245,22 @@ val UntrustImageLoader: ImageLoader by lazy {
     ImageLoader.Builder(AnimeApplication.getInstance())
         .okHttpClient(client)
         .build()
+}
+
+fun PagerState.disableScrolling(scope: CoroutineScope) {
+    scope.launch {
+        scroll(scrollPriority = MutatePriority.PreventUserInput) {
+            // Await indefinitely, blocking scrolls
+            awaitCancellation()
+        }
+    }
+}
+
+fun PagerState.enableScrolling(scope: CoroutineScope) {
+    scope.launch {
+        scroll(scrollPriority = MutatePriority.PreventUserInput) {
+            // Do nothing, just cancel the previous indefinite "scroll"
+        }
+    }
 }
 
