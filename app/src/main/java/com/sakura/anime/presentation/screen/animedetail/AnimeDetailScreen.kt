@@ -165,10 +165,18 @@ fun AnimeDetailScreen(
                 var showBottomSheet by remember { mutableStateOf(false) }
                 var showDownloadBottomSheet by remember { mutableStateOf(false) }
 
+                val background = Color(
+                    ColorUtils.blendARGB(
+                        MaterialTheme.colorScheme.background.toArgb(),
+                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                        0.05f
+                    )
+                )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
+                        .background(background)
                 ) {
 
                     val isDynamicImageColor by rememberPreference(
@@ -194,15 +202,7 @@ fun AnimeDetailScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = bannerHeight)
-                            .background(
-                                Color(
-                                    ColorUtils.blendARGB(
-                                        MaterialTheme.colorScheme.background.toArgb(),
-                                        MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                        0.05f
-                                    )
-                                )
-                            ),
+                            .background(background),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding))
                     ) {
                         AnimeDetails(
@@ -469,7 +469,9 @@ private fun FavouriteIcon(
         )
     }
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        if (isAndroidTV) {
+            focusRequester.requestFocus()
+        }
     }
 }
 
