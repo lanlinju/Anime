@@ -71,7 +71,7 @@ fun VideoPlayerControl(
                 .fillMaxSize()
                 .background(background)
                 .padding(
-                    start = getStartPadding(),
+                    start = 28.dp,
                     end = 28.dp,
                     top = 18.dp
                 )

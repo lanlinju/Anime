@@ -74,9 +74,9 @@ fun FavouriteScreen(
             LazyVerticalGrid(
                 modifier = Modifier
                     .padding(paddingValues),
-                columns = if (isWideScreen(context)) GridCells.Adaptive(dimensionResource(R.dimen.media_card_width)) else GridCells.Fixed(
-                    3
-                ),
+                columns = if (isWideScreen(context)) {
+                    GridCells.Adaptive(dimensionResource(R.dimen.min_media_card_width))
+                } else GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(8.dp)
