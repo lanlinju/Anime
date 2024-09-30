@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.security.MessageDigest
 
+
 /**
  * 嘶哩嘶哩域名发布地址：https://weibass.github.io
  */
@@ -138,8 +139,10 @@ object SilisiliSource : AnimeSource {
             dayElements[i].select("li").forEach { li ->
                 val title = li.select("a.item-cover").attr("title")
                 val url = li.select("a.item-cover").attr("href")
+                val spanStyle = li.select("span[style]").attr("style")
+                val img = getImgUrl(spanStyle)
                 val episodeName = li.select("p.num").text()
-                dayList.add(AnimeBean(title, "", url, episodeName))
+                dayList.add(AnimeBean(title, img, url, episodeName))
             }
 
             weekMap[i % 7]?.addAll(dayList) ?: weekMap.set(i, dayList)
@@ -193,7 +196,7 @@ object SilisiliSource : AnimeSource {
 
     private fun getImgUrl(urlTarget: String): String {
         val urlRegex = """url\((.*?)\)""".toRegex()
-        return urlRegex.find(urlTarget)!!.groupValues[1]
+        return urlRegex.find(urlTarget)?.groupValues?.get(1) ?: ""
     }
 
     private suspend fun getHtml(url: String): String {
