@@ -1,6 +1,5 @@
 package com.sakura.anime
 
-import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,11 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import com.sakura.anime.presentation.navigation.AnimeNavHost
 import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.presentation.theme.AnimeTheme
-import com.sakura.anime.util.KEY_SOURCE_MODE
-import com.sakura.anime.util.SourceHolder
-import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
-import com.sakura.anime.util.getEnum
-import com.sakura.anime.util.preferences
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,18 +27,16 @@ class MainActivity : ComponentActivity() {
         //https://github.com/android/compose-samples/issues/1256
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, insets -> insets }
 
-        SourceHolder.setDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE))
-
         setContent {
             AnimeTheme {
-                NavHost(activity = this)
+                NavHost()
             }
         }
     }
 }
 
 @Composable
-fun NavHost(modifier: Modifier = Modifier, activity: Activity) {
+private fun NavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     AnimeNavHost(
@@ -79,7 +71,6 @@ fun NavHost(modifier: Modifier = Modifier, activity: Activity) {
         onNavigateToDanmakuSettings = {
             navController.navigate(Screen.DanmakuSettingsScreen.route)
         },
-        activity = activity
     )
 }
 

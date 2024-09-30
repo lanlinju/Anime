@@ -1,5 +1,6 @@
 package com.sakura.anime.util
 
+import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.data.remote.parse.AgedmSource
 import com.sakura.anime.data.remote.parse.AnfunsSource
 import com.sakura.anime.data.remote.parse.AnimeSource
@@ -25,10 +26,15 @@ object SourceHolder {
 
     var isSourceChanged = false
 
+    init {
+        val preferences = AnimeApplication.getInstance().preferences
+        initDefaultSource(preferences.getEnum(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE))
+    }
+
     /**
-     *当启动应用时调用，设置默认的数据源，切换数据源请用方法[SourceHolder].switchSource()
+     * 初始化加载默认的数据源，切换数据源请用方法[SourceHolder].switchSource()
      */
-    fun setDefaultSource(mode: SourceMode) {
+    private fun initDefaultSource(mode: SourceMode) {
         _currentSource = getSource(mode)
         _currentSourceMode = mode
         _currentSource.onEnter()
