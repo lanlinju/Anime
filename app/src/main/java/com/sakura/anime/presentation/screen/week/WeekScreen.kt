@@ -283,7 +283,7 @@ fun WeekScreen(
             ) {
                 TABS.forEachIndexed { index, title ->
                     Tab(
-                        text = { Text(title, style = MaterialTheme.typography.labelSmall) },
+                        text = { Text(text = title) },
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.scrollToPage(index) } },
                     )
@@ -606,7 +606,7 @@ fun WeekList(
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
-        columns = GridCells.Adaptive(dimensionResource(id = R.dimen.week_item_width)),
+        columns = GridCells.Adaptive(minSize = dimensionResource(id = R.dimen.week_item_width)),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(8.dp),
@@ -615,7 +615,8 @@ fun WeekList(
             WeekItem(
                 title = anime.title,
                 subtitle = anime.episodeName,
-                onClick = { onItemClicked(anime) })
+                onClick = { onItemClicked(anime) }
+            )
         }
     }
 }

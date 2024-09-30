@@ -37,12 +37,10 @@ class WeekViewModel @Inject constructor(
         get() = _weekDataMap
 
     private val _isUpdateVersion: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    val isUpdateVersion: StateFlow<Boolean>
-        get() = _isUpdateVersion
+    val isUpdateVersion: StateFlow<Boolean> get() = _isUpdateVersion
 
     private val _isCheckingUpdate: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    val isCheckingUpdate: StateFlow<Boolean>
-        get() = _isCheckingUpdate
+    val isCheckingUpdate: StateFlow<Boolean> get() = _isCheckingUpdate
 
     private lateinit var downloadUpdateUrl: String
     lateinit var updateMessage: String
