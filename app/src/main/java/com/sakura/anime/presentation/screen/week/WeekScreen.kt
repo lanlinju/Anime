@@ -79,6 +79,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.presentation.component.LoadingIndicator
+import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.GITHUB_ADDRESS
@@ -91,6 +92,7 @@ import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.TABS
 import com.sakura.anime.util.disableHorizontalPointerInputScroll
 import com.sakura.anime.util.isAndroidTV
+import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.rememberPreference
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -318,6 +320,7 @@ fun WeekScreen(
                             disableHorizontalPointerInputScroll()
                         } else this
                     },
+                beyondViewportPageCount = 1,
                 userScrollEnabled = !isAndroidTV
             ) { page ->
                 StateHandler(
@@ -631,19 +634,45 @@ fun WeekList(
     onItemClicked: (AnimeBean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val isWideScreen = isWideScreen(context)
+
+    val useWeekItem = list.isEmpty() || list.first().img.isEmpty()
+
+    // 判断使用的列数和布局宽度
+    val columns = if (useWeekItem) {
+        GridCells.Adaptive(minSize = dimensionResource(id = R.dimen.week_item_width))
+    } else {
+        if (isWideScreen) {
+            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
+        } else {
+            GridCells.Fixed(3)
+        }
+    }
+
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
-        columns = GridCells.Adaptive(dimensionResource(id = R.dimen.week_item_width)),
+        columns = columns,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(8.dp),
-        userScrollEnabled = false
+        contentPadding = PaddingValues(8.dp)
     ) {
-        items(list, key = { it.url }) { anime ->
-            WeekItem(
-                title = anime.title,
-                subtitle = anime.episodeName,
-                onClick = { onItemClicked(anime) })
+        if (useWeekItem) {
+            items(list) { anime ->
+                WeekItem(
+                    title = anime.title,
+                    subtitle = anime.episodeName,
+                    onClick = { onItemClicked(anime) }
+                )
+            }
+        } else {
+            items(list) { anime ->
+                MediaSmall(
+                    image = anime.img,
+                    label = anime.title,
+                    onClick = { onItemClicked(anime) },
+                )
+            }
         }
     }
 }
