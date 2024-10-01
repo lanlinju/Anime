@@ -54,6 +54,7 @@ fun HistoryScreen(
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyListState by viewModel.historyList.collectAsState()
+
     StateHandler(state = historyListState,
         onLoading = { LoadingIndicator() },
         onFailure = {}
@@ -73,21 +74,20 @@ fun HistoryScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
                 ) {
-                    items(histories, key = { item -> item.detailUrl }) { history ->
-
+                    items(histories) { history ->
                         PopupMenuListItem(
                             content = {
                                 HistoryItem(
                                     history = history,
-                                    onPlayClick = onNavigateToVideoPlay
+                                    onPlayClick = { episodeUrl, mode ->
+                                        viewModel.updateHistoryDate(history.detailUrl)
+                                        onNavigateToVideoPlay(episodeUrl, mode)
+                                    }
                                 )
                             },
                             menuText = stringResource(id = R.string.delete),
                             onClick = {
-                                onNavigateToAnimeDetail(
-                                    history.detailUrl,
-                                    history.sourceMode
-                                )
+                                onNavigateToAnimeDetail(history.detailUrl, history.sourceMode)
                             },
                             onMenuItemClick = { viewModel.deleteHistory(history.detailUrl) }
                         )
