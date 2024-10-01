@@ -244,7 +244,9 @@ private fun ShowLoadingPage() {
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(
+
+        )
     }
 }
 
@@ -610,6 +612,8 @@ private fun VolumeBrightnessIndicator(
                         .padding(dimensionResource(id = R.dimen.medium_padding))
                         .height(2.dp),
                     strokeCap = StrokeCap.Round,
+                    gapSize = 2.dp,
+                    drawStopIndicator = {},
                 )
             }
         }
