@@ -24,6 +24,8 @@ interface RoomRepository {
 
     suspend fun deleteHistory(detailUrl: String)
 
+    suspend fun updateHistoryDate(detailUrl: String)
+
     suspend fun getEpisodes(detailUrl: String): Flow<List<Episode>>
 
     suspend fun getEpisode(episodeUrl: String): Flow<Episode?>

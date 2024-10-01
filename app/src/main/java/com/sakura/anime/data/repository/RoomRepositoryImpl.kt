@@ -88,6 +88,10 @@ class RoomRepositoryImpl @Inject constructor(
         historyDao.deleteHistory(detailUrl)
     }
 
+    override suspend fun updateHistoryDate(detailUrl: String) {
+        historyDao.updateHistoryDate(detailUrl)
+    }
+
     override suspend fun getEpisodes(detailUrl: String): Flow<List<Episode>> {
         val history = historyDao.getHistory(detailUrl).first()
         return episodeDao.getEpisodes(history.historyId).map {
