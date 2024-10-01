@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.imherrera.videoplayer.icons.Fullscreen
 import com.imherrera.videoplayer.icons.FullscreenExit
@@ -71,8 +67,8 @@ fun VideoPlayerControl(
                 .fillMaxSize()
                 .background(background)
                 .padding(
-                    start = getStartPadding(),
-                    end = 28.dp,
+                    start = horizontalPadding(),
+                    end = horizontalPadding(),
                     top = 18.dp
                 )
         ) {
@@ -286,14 +282,9 @@ private fun PlayPauseButton(isPlaying: Boolean, onPlayPause: () -> Unit) {
 }
 
 @Composable
-private fun getStartPadding(): Dp {
-    return 8.dp + if (
-        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    ) {
-        val paddingValues = WindowInsets.displayCutout.asPaddingValues()
-        val start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
-//        if (start == 0.dp) 8.dp else start
-        start
+private fun horizontalPadding(): Dp {
+    return 8.dp + if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        24.dp
     } else 0.dp
 }
 
