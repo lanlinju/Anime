@@ -5,6 +5,9 @@ import androidx.compose.ui.unit.Constraints
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.LoadControl
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.video.VideoSize
 import kotlin.time.Duration
@@ -147,6 +150,13 @@ internal fun mediaItemCreator(uri: String): MediaItem {
         builder.setMimeType(MimeTypes.APPLICATION_M3U8)
     }
     return builder.build()
+}
+
+internal fun mediaSourceCreator(url: String, headers: Map<String, String>): MediaSource {
+    val dataSourceFactory = DefaultHttpDataSource.Factory().setDefaultRequestProperties(headers)
+    val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(mediaItemCreator(url))
+    return videoSource
 }
 
 internal fun loadControlCreator(): LoadControl {

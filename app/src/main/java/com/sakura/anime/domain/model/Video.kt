@@ -9,5 +9,6 @@ data class Video(
     val episodeUrl: String,    /* 当前播放的剧集url */
     val lastPosition: Long = 0L,
     val currentEpisodeIndex: Int, /* 当前播放剧集索引，根据[episodeName]计算得出*/
-    val episodes: List<Episode>
+    val episodes: List<Episode>,
+    val headers: Map<String, String> = emptyMap() /* 用于配置Referer, User-Agent等*/
 )

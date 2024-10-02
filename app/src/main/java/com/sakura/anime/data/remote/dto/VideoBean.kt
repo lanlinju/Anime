@@ -6,7 +6,8 @@ data class VideoBean(
     val title: String,
     val url: String,            /* 视频播放地址 */
     val episodeName: String,    /* 当前播放的剧集数名 */
-    val episodes: List<EpisodeBean>
+    val episodes: List<EpisodeBean>,
+    val headers: Map<String, String> = emptyMap()
 ) {
     fun toVideo(): Video {
         val index = episodes.indexOfFirst { it.name == episodeName }
@@ -17,7 +18,8 @@ data class VideoBean(
             episodeName = episodeName,
             episodeUrl = episodeUrl,
             currentEpisodeIndex = index,
-            episodes = episodes.map { it.toEpisode() }
+            episodes = episodes.map { it.toEpisode() },
+            headers = headers,
         )
     }
 }

@@ -224,6 +224,7 @@ fun VideoPlayer(
     url: String,
     videoPosition: Long,
     playerState: VideoPlayerState,
+    headers: Map<String, String> = emptyMap(),
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onBackPress: () -> Unit,
     controller: @Composable () -> Unit,
@@ -252,7 +253,7 @@ fun VideoPlayer(
     }
 
     LaunchedEffect(url) {
-        playerState.player.setMediaItem(mediaItemCreator(url))
+        playerState.player.setMediaSource(mediaSourceCreator(url, headers))
         playerState.player.prepare()
         playerState.player.seekTo(videoPosition)
         playerState.player.playWhenReady = true
