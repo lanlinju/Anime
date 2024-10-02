@@ -74,7 +74,6 @@ class WebViewUtil {
                         }
                     }
                 }
-
             }
 
             webView?.loadUrl(url) // 加载视频播放所在的Web网页

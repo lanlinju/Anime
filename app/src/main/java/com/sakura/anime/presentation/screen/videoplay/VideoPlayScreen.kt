@@ -186,6 +186,7 @@ fun VideoPlayScreen(
                     url = video.url,
                     videoPosition = video.lastPosition,
                     playerState = playerState,
+                    headers = video.headers,
                     onBackPress = { handleBackPress(playerState, onBackClick, view, activity) },
                     modifier = Modifier
                         .defaultRemoteControlHandler(

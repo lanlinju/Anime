@@ -7,8 +7,11 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -149,6 +152,14 @@ internal fun mediaItemCreator(uri: String): MediaItem {
         builder.setMimeType(MimeTypes.APPLICATION_M3U8)
     }
     return builder.build()
+}
+
+@OptIn(UnstableApi::class)
+internal fun mediaSourceCreator(url: String, headers: Map<String, String>): MediaSource {
+    val dataSourceFactory = DefaultHttpDataSource.Factory().setDefaultRequestProperties(headers)
+    val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(mediaItemCreator(url))
+    return videoSource
 }
 
 @OptIn(UnstableApi::class)
