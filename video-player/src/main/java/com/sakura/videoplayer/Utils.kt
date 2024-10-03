@@ -3,6 +3,7 @@ package com.sakura.videoplayer
 import android.widget.FrameLayout
 import androidx.compose.ui.unit.Constraints
 import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.LoadControl
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.MediaSource
@@ -157,6 +158,14 @@ internal fun mediaSourceCreator(url: String, headers: Map<String, String>): Medi
     val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
         .createMediaSource(mediaItemCreator(url))
     return videoSource
+}
+
+internal fun ExoPlayer.setVideoUrl(url: String, headers: Map<String, String>) {
+    if (headers.isEmpty()) {
+        setMediaItem(mediaItemCreator(url))
+    } else {
+        setMediaSource(mediaSourceCreator(url, headers))
+    }
 }
 
 internal fun loadControlCreator(): LoadControl {

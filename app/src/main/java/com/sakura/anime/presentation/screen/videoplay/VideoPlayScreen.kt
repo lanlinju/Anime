@@ -245,9 +245,7 @@ private fun ShowLoadingPage() {
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(
-
-        )
+        CircularProgressIndicator()
     }
 }
 
