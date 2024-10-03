@@ -253,7 +253,7 @@ fun VideoPlayer(
     }
 
     LaunchedEffect(url) {
-        playerState.player.setMediaSource(mediaSourceCreator(url, headers))
+        playerState.player.setVideoUrl(url, headers)
         playerState.player.prepare()
         playerState.player.seekTo(videoPosition)
         playerState.player.playWhenReady = true

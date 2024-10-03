@@ -9,6 +9,7 @@ import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
@@ -160,6 +161,15 @@ internal fun mediaSourceCreator(url: String, headers: Map<String, String>): Medi
     val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
         .createMediaSource(mediaItemCreator(url))
     return videoSource
+}
+
+@OptIn(UnstableApi::class)
+internal fun ExoPlayer.setVideoUrl(url: String, headers: Map<String, String>) {
+    if (headers.isEmpty()) {
+        setMediaItem(mediaItemCreator(url))
+    } else {
+        setMediaSource(mediaSourceCreator(url, headers))
+    }
 }
 
 @OptIn(UnstableApi::class)
