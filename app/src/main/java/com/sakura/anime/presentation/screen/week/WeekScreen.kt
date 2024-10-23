@@ -1,6 +1,6 @@
 package com.sakura.anime.presentation.screen.week
 
-import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material.icons.rounded.MoreVert
@@ -63,6 +62,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -74,6 +75,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sakura.anime.R
 import com.sakura.anime.data.remote.dto.AnimeBean
@@ -106,11 +108,15 @@ fun WeekScreen(
     onNavigateToDanmakuSettings: () -> Unit,
 ) {
     val viewModel = hiltViewModel<WeekViewModel>()
-    val weekDataState by viewModel.weeKDataMap.collectAsState()
-    val isUpdateVersion by viewModel.isUpdateVersion.collectAsState()
-    val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
+    val weekDataState by viewModel.weekDataMap.collectAsState()
+    val isUpdateAvailable by viewModel.isUpdateAvailable.collectAsState()
+    val isUpdateCheckInProgress by viewModel.isUpdateCheckInProgress.collectAsState()
+    var showSourceSwitchDialog by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
+    var showDomainChangeDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     val dayOfWeek = remember { LocalDate.now().dayOfWeek.value - 1 }
     val pagerState = rememberPagerState(initialPage = dayOfWeek, pageCount = { TABS.size })
@@ -118,17 +124,11 @@ fun WeekScreen(
     Box(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        val openSwitchSourceDialog = remember { mutableStateOf(false) }
-        val openSettingsDialog = remember { mutableStateOf(false) }
-        val openChangeDomainDialog = remember { mutableStateOf(false) }
-
         Column {
-            var expanded by remember { mutableStateOf(false) }
-            val uriHandler = LocalUriHandler.current
             TopAppBar(
                 title = {
                     Column(modifier = Modifier.clickable {
-                        openSwitchSourceDialog.value = true
+                        showSourceSwitchDialog = true
                     }) {
                         Text(
                             text = stringResource(id = R.string.lbl_schedule),
@@ -142,143 +142,20 @@ fun WeekScreen(
 
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToHistory) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_history),
-                            contentDescription = stringResource(id = R.string.history)
-                        )
-                    }
+                    AppBarAction(
+                        onNavigateToHistory = onNavigateToHistory,
+                        onNavigateToSearch = onNavigateToSearch,
+                        onNavigateToDownload = onNavigateToDownload,
+                        onNavigateToAppearance = onNavigateToAppearance,
+                        onNavigateToDanmakuSettings = onNavigateToDanmakuSettings,
+                        onSourceSwitch = { showSourceSwitchDialog = true },
+                        onDomainChange = { showDomainChangeDialog = true },
+                        onCheckUpdate = { viewModel.checkVersionUpdate(context) },
+                        onOpenGithub = { uriHandler.openUri(it) }
+                    )
 
-                    IconButton(onClick = onNavigateToSearch) {
-                        Icon(
-                            imageVector = Icons.Rounded.Search,
-                            contentDescription = stringResource(id = R.string.search)
-                        )
-                    }
-
-                    IconButton(onClick = onNavigateToDownload) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                            modifier = Modifier.rotate(90f),
-                            contentDescription = stringResource(id = R.string.download_list)
-                        )
-                    }
-
-                    Box {
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(
-                                imageVector = Icons.Rounded.MoreVert,
-                                contentDescription = stringResource(id = R.string.more)
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.switch_source)) },
-                                onClick = {
-                                    expanded = false
-                                    openSwitchSourceDialog.value = true
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Refresh,
-                                        modifier = Modifier.rotate(90f),
-                                        contentDescription = stringResource(id = R.string.switch_source)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.modifier_domain)) },
-                                onClick = {
-                                    expanded = false
-                                    openChangeDomainDialog.value = true
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_domain),
-                                        contentDescription = stringResource(id = R.string.modifier_domain)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.default_settings)) },
-                                onClick = {
-                                    expanded = false
-                                    openSettingsDialog.value = true
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Settings,
-                                        contentDescription = stringResource(id = R.string.default_settings)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.appearance_settings)) },
-                                onClick = {
-                                    expanded = false
-                                    onNavigateToAppearance()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Palette,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.danmaku_settings)) },
-                                onClick = {
-                                    expanded = false
-                                    onNavigateToDanmakuSettings()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Subtitles,
-                                        contentDescription = stringResource(R.string.danmaku_settings)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.check_update)) },
-                                onClick = {
-                                    expanded = false
-                                    viewModel.checkUpdate(context)
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                                        modifier = Modifier.rotate(-90f),
-                                        contentDescription = stringResource(id = R.string.check_update)
-                                    )
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.github_repo)) },
-                                onClick = {
-                                    expanded = false
-                                    uriHandler.openUri(GITHUB_ADDRESS)
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        modifier = Modifier.size(24.dp),
-                                        painter = painterResource(id = R.drawable.ic_github),
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                        }
-                    }
-                })
+                }
+            )
 
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
@@ -322,56 +199,334 @@ fun WeekScreen(
             }
         }
 
-        if (openSwitchSourceDialog.value) {
-            SwitchSourceDialog(
-                onDismissRequest = { isRefresh ->
-                    openSwitchSourceDialog.value = false
-                    if (isRefresh) {
-                        viewModel.refresh()
-                    }
-                })
-        }
-
-        if (openSettingsDialog.value) {
-            SettingsDialog(onDismissRequest = { openSettingsDialog.value = false })
-        }
-
-        if (isUpdateVersion) {
-            UpdateVersionDialog(viewModel, context)
-        }
-
-        if (isCheckingUpdate) {
-            LoadingIndicationDialog(onDismissRequest = { viewModel.closeLoadingIndicationDialog() })
-        }
-
-        if (openChangeDomainDialog.value) {
-            ChangeDomainDialog { isRefresh ->
-                openChangeDomainDialog.value = false
-                if (isRefresh) {
-                    viewModel.refresh()
-                }
-            }
-        }
+        Dialogs(
+            updateVersionName = { viewModel.updateVersionName },
+            updateDescription = { viewModel.updateDescription },
+            showVersionUpdateDialog = isUpdateAvailable,
+            showLoadingIndicationDialog = isUpdateCheckInProgress,
+            showSourceSwitchDialog = showSourceSwitchDialog,
+            showSettingsDialog = showSettingsDialog,
+            showDomainChangeDialog = showDomainChangeDialog,
+            onDismissSourceSwitchDialog = { showSourceSwitchDialog = false },
+            onDismissSettingsDialog = { showSettingsDialog = false },
+            onDismissDomainChangeDialog = { showDomainChangeDialog = false },
+            onDismissUpdateDialog = { viewModel.dismissVersionUpdateDialog() },
+            onDismissLoadingIndicationDialog = { viewModel.dismissLoadingIndicationDialog() },
+            onRefresh = { viewModel.refresh() },
+            onDownloadUpdate = { lifecycleOwner ->
+                viewModel.downloadVersionUpdate(
+                    context,
+                    lifecycleOwner
+                )
+            },
+        )
     }
 
 }
 
 @Composable
-private fun UpdateVersionDialog(
-    viewModel: WeekViewModel,
-    context: Context,
+fun WeekList(
+    list: List<AnimeBean>,
+    onItemClicked: (AnimeBean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val isWideScreen = isWideScreen(context)
+
+    val useWeekItem = list.isEmpty() || list.first().img.isEmpty()
+
+    // 判断使用的列数和布局宽度
+    val columns = if (useWeekItem) {
+        GridCells.Adaptive(minSize = dimensionResource(id = R.dimen.week_item_width))
+    } else {
+        if (isWideScreen) {
+            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
+        } else {
+            GridCells.Fixed(3)
+        }
+    }
+
+    LazyVerticalGrid(
+        modifier = modifier.fillMaxSize(),
+        columns = columns,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        if (useWeekItem) {
+            items(list) { anime ->
+                WeekItem(
+                    title = anime.title,
+                    subtitle = anime.episodeName,
+                    onClick = { onItemClicked(anime) }
+                )
+            }
+        } else {
+            items(list) { anime ->
+                MediaSmall(
+                    image = anime.img,
+                    label = anime.title,
+                    onClick = { onItemClicked(anime) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WeekItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+
+    ElevatedCard(
+        modifier = modifier.height(80.dp),
+        onClick = onClick,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.5.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = title,
+                modifier = Modifier.align(Alignment.TopStart),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                text = subtitle,
+                modifier = Modifier.align(Alignment.BottomEnd),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppBarAction(
+    onNavigateToHistory: () -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToDownload: () -> Unit,
+    onNavigateToAppearance: () -> Unit,
+    onNavigateToDanmakuSettings: () -> Unit,
+    onSourceSwitch: () -> Unit,
+    onDomainChange: () -> Unit,
+    onCheckUpdate: () -> Unit,
+    onOpenGithub: (String) -> Unit,
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    AppBarNavigation(
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToSearch = onNavigateToSearch,
+        onNavigateToDownload = onNavigateToDownload
+    )
+
+    Box {
+        IconButton(onClick = { menuExpanded = true }) {
+            Icon(
+                imageVector = Icons.Rounded.MoreVert,
+                contentDescription = stringResource(id = R.string.more)
+            )
+        }
+
+        DropdownMenu(
+            expanded = menuExpanded,
+            onDismissMenu = { menuExpanded = false },
+            onSourceSwitch = onSourceSwitch,
+            onDomainChange = onDomainChange,
+            onCheckUpdate = onCheckUpdate,
+            onOpenGithub = onOpenGithub,
+            onNavigateToAppearance = onNavigateToAppearance,
+            onNavigateToDanmakuSettings = onNavigateToDanmakuSettings
+        )
+    }
+}
+
+@Composable
+private fun AppBarNavigation(
+    onNavigateToHistory: () -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToDownload: () -> Unit
+) {
+    IconButton(onClick = onNavigateToHistory) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_history),
+            contentDescription = stringResource(id = R.string.history)
+        )
+    }
+
+    IconButton(onClick = onNavigateToSearch) {
+        Icon(
+            imageVector = Icons.Rounded.Search,
+            contentDescription = stringResource(id = R.string.search)
+        )
+    }
+
+    IconButton(onClick = onNavigateToDownload) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+            modifier = Modifier.rotate(90f),
+            contentDescription = stringResource(id = R.string.download_list)
+        )
+    }
+}
+
+@Composable
+private fun DropdownMenu(
+    expanded: Boolean,
+    onDismissMenu: () -> Unit,
+    onSourceSwitch: () -> Unit,
+    onDomainChange: () -> Unit,
+    onNavigateToAppearance: () -> Unit,
+    onNavigateToDanmakuSettings: () -> Unit,
+    onCheckUpdate: () -> Unit,
+    onOpenGithub: (String) -> Unit
+) {
+    val menuItems = listOf(
+        MenuItemData(
+            textId = R.string.switch_source,
+            icon = Icons.Rounded.Refresh,
+            iconRotation = 90f,
+            action = onSourceSwitch
+        ),
+        MenuItemData(
+            textId = R.string.modifier_domain,
+            iconPainter = painterResource(id = R.drawable.ic_domain),
+            action = onDomainChange
+        ),
+        MenuItemData(
+            textId = R.string.default_settings,
+            icon = Icons.Outlined.Settings,
+            action = onNavigateToAppearance
+        ),
+        MenuItemData(
+            textId = R.string.danmaku_settings,
+            icon = Icons.Outlined.Subtitles,
+            action = onNavigateToDanmakuSettings
+        ),
+        MenuItemData(
+            textId = R.string.check_update,
+            icon = Icons.AutoMirrored.Rounded.ArrowForward,
+            iconRotation = -90f,
+            action = onCheckUpdate
+        ),
+        MenuItemData(
+            textId = R.string.github_repo,
+            iconPainter = painterResource(id = R.drawable.ic_github),
+            action = { onOpenGithub(GITHUB_ADDRESS) }
+        )
+    )
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismissMenu) {
+        menuItems.forEach { item ->
+            DropdownMenuItem(
+                text = { Text(stringResource(id = item.textId)) },
+                onClick = {
+                    onDismissMenu()
+                    item.action()
+                },
+                leadingIcon = {
+                    item.icon?.let { icon ->
+                        Icon(
+                            imageVector = icon,
+                            modifier = Modifier.rotate(item.iconRotation),
+                            contentDescription = stringResource(id = item.textId)
+                        )
+                    }
+                    item.iconPainter?.let { iconPainter ->
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            painter = iconPainter,
+                            contentDescription = stringResource(id = item.textId)
+                        )
+                    }
+                }
+            )
+        }
+    }
+}
+
+private data class MenuItemData(
+    @StringRes val textId: Int,
+    val icon: ImageVector? = null,
+    val iconPainter: Painter? = null,
+    val iconRotation: Float = 0f,
+    val action: () -> Unit
+)
+
+@Composable
+fun Dialogs(
+    updateVersionName: () -> String,
+    updateDescription: () -> String,
+    showSourceSwitchDialog: Boolean,
+    showSettingsDialog: Boolean,
+    showDomainChangeDialog: Boolean,
+    showVersionUpdateDialog: Boolean,
+    showLoadingIndicationDialog: Boolean,
+    onDismissSourceSwitchDialog: () -> Unit,
+    onDismissSettingsDialog: () -> Unit,
+    onDismissDomainChangeDialog: () -> Unit,
+    onDismissUpdateDialog: () -> Unit,
+    onDismissLoadingIndicationDialog: () -> Unit,
+    onDownloadUpdate: (LifecycleOwner) -> Unit,
+    onRefresh: () -> Unit,
+) {
+    if (showSourceSwitchDialog) {
+        SourceSwitchDialog(
+            onDismissRequest = { isRefresh ->
+                onDismissSourceSwitchDialog()
+                if (isRefresh) {
+                    onRefresh()
+                }
+            }
+        )
+    }
+    if (showSettingsDialog) {
+        SettingsDialog(onDismissRequest = onDismissSettingsDialog)
+    }
+    if (showDomainChangeDialog) {
+        DomainChangeDialog { isRefresh ->
+            onDismissDomainChangeDialog()
+            if (isRefresh) {
+                onRefresh()
+            }
+        }
+    }
+    if (showVersionUpdateDialog) {
+        VersionUpdateDialog(
+            updateVersionName = updateVersionName(),
+            updateDescription = updateDescription(),
+            onDismissUpdateDialog = onDismissUpdateDialog,
+            onDownloadUpdate = onDownloadUpdate
+        )
+    }
+    if (showLoadingIndicationDialog) {
+        LoadingIndicationDialog(onDismissRequest = onDismissLoadingIndicationDialog)
+    }
+}
+
+@Composable
+private fun VersionUpdateDialog(
+    updateVersionName: String,
+    updateDescription: String,
+    onDismissUpdateDialog: () -> Unit,
+    onDownloadUpdate: (LifecycleOwner) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     AlertDialog(
-        onDismissRequest = { viewModel.closeUpdateDialog() },
+        onDismissRequest = onDismissUpdateDialog,
         title = {
             Text(text = stringResource(id = R.string.software_updates))
         },
         text = {
             val uriHandler = LocalUriHandler.current
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Text(text = viewModel.versionName + "\n" + viewModel.updateMessage)
+                Text(text = updateVersionName + "\n" + updateDescription)
                 Text(
                     text = stringResource(R.string.github_release_address),
                     color = MaterialTheme.colorScheme.primary,
@@ -383,12 +538,12 @@ private fun UpdateVersionDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { viewModel.downloadUpdate(context, lifecycleOwner) }) {
+            TextButton(onClick = { onDownloadUpdate(lifecycleOwner) }) {
                 Text(text = stringResource(id = R.string.download_software))
             }
         },
         dismissButton = {
-            TextButton(onClick = { viewModel.closeUpdateDialog() }) {
+            TextButton(onClick = onDismissUpdateDialog) {
                 Text(text = stringResource(id = R.string.cancel))
             }
         }
@@ -419,7 +574,7 @@ private fun LoadingIndicationDialog(
 }
 
 @Composable
-private fun SwitchSourceDialog(
+private fun SourceSwitchDialog(
     onDismissRequest: (Boolean) -> Unit,
 ) {
     var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE)
@@ -518,7 +673,7 @@ private fun SettingsDialog(
 }
 
 @Composable
-private fun ChangeDomainDialog(
+private fun DomainChangeDialog(
     onDismissRequest: (Boolean) -> Unit = { s -> },
 ) {
     var currentDomain by rememberPreference(
@@ -599,86 +754,4 @@ private fun ChangeDomainDialog(
             }
         }
     )
-}
-
-@Composable
-fun WeekList(
-    list: List<AnimeBean>,
-    onItemClicked: (AnimeBean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val isWideScreen = isWideScreen(context)
-
-    val useWeekItem = list.isEmpty() || list.first().img.isEmpty()
-
-    // 判断使用的列数和布局宽度
-    val columns = if (useWeekItem) {
-        GridCells.Adaptive(minSize = dimensionResource(id = R.dimen.week_item_width))
-    } else {
-        if (isWideScreen) {
-            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
-        } else {
-            GridCells.Fixed(3)
-        }
-    }
-
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize(),
-        columns = columns,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        if (useWeekItem) {
-            items(list) { anime ->
-                WeekItem(
-                    title = anime.title,
-                    subtitle = anime.episodeName,
-                    onClick = { onItemClicked(anime) }
-                )
-            }
-        } else {
-            items(list) { anime ->
-                MediaSmall(
-                    image = anime.img,
-                    label = anime.title,
-                    onClick = { onItemClicked(anime) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun WeekItem(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
-
-    ElevatedCard(
-        modifier = modifier.height(80.dp),
-        onClick = onClick,
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = title,
-                modifier = Modifier.align(Alignment.TopStart),
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text(
-                text = subtitle,
-                modifier = Modifier.align(Alignment.BottomEnd),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-    }
 }

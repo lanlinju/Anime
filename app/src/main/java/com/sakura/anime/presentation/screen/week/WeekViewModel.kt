@@ -33,18 +33,18 @@ class WeekViewModel @Inject constructor(
 ) : ViewModel() {
     private val _weekDataMap: MutableStateFlow<Resource<Map<Int, List<AnimeBean>>>> =
         MutableStateFlow(value = Resource.Loading)
-    val weeKDataMap: StateFlow<Resource<Map<Int, List<AnimeBean>>>>
-        get() = _weekDataMap
+    val weekDataMap: StateFlow<Resource<Map<Int, List<AnimeBean>>>> get() = _weekDataMap
 
-    private val _isUpdateVersion: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    val isUpdateVersion: StateFlow<Boolean> get() = _isUpdateVersion
+    private val _isUpdateAvailable: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
+    val isUpdateAvailable: StateFlow<Boolean> get() = _isUpdateAvailable
 
-    private val _isCheckingUpdate: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    val isCheckingUpdate: StateFlow<Boolean> get() = _isCheckingUpdate
+    private val _isUpdateCheckInProgress: MutableStateFlow<Boolean> =
+        MutableStateFlow(value = false)
+    val isUpdateCheckInProgress: StateFlow<Boolean> get() = _isUpdateCheckInProgress
 
-    private lateinit var downloadUpdateUrl: String
-    lateinit var updateMessage: String
-    lateinit var versionName: String
+    private lateinit var updateDownloadUrl: String
+    lateinit var updateDescription: String
+    lateinit var updateVersionName: String
 
     init {
         getWeekData()
@@ -61,9 +61,9 @@ class WeekViewModel @Inject constructor(
         getWeekData()
     }
 
-    fun checkUpdate(context: Context) {
+    fun checkVersionUpdate(context: Context) {
 
-        _isCheckingUpdate.value = true
+        _isUpdateCheckInProgress.value = true
 
         viewModelScope.launch {
             try {
@@ -72,22 +72,22 @@ class WeekViewModel @Inject constructor(
                 val downloadUpdateUrl =
                     obj.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
 
-                this@WeekViewModel.downloadUpdateUrl = downloadUpdateUrl
-                this@WeekViewModel.updateMessage = obj.getString("body")
-                this@WeekViewModel.versionName = obj.getString("tag_name")
+                this@WeekViewModel.updateDownloadUrl = downloadUpdateUrl
+                this@WeekViewModel.updateDescription = obj.getString("body")
+                this@WeekViewModel.updateVersionName = obj.getString("tag_name")
 
                 val latestVersionName = obj.getString("name")
                 val curVersionName = BuildConfig.VERSION_NAME
                 val isUpdateVersion = !latestVersionName.equals(curVersionName)
 
-                _isCheckingUpdate.value = false
-                _isUpdateVersion.value = isUpdateVersion
+                _isUpdateCheckInProgress.value = false
+                _isUpdateAvailable.value = isUpdateVersion
                 if (!isUpdateVersion) {
                     val msg = context.getString(R.string.no_new_version)
                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 }
-            } catch (e: Exception) {
-                _isCheckingUpdate.value = false
+            } catch (_: Exception) {
+                _isUpdateCheckInProgress.value = false
                 val msg = context.getString(R.string.check_updates_failed)
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
@@ -95,12 +95,12 @@ class WeekViewModel @Inject constructor(
 
     }
 
-    fun downloadUpdate(context: Context, lifecycleOwner: LifecycleOwner) {
-        closeUpdateDialog()
+    fun downloadVersionUpdate(context: Context, lifecycleOwner: LifecycleOwner) {
+        dismissVersionUpdateDialog()
 
         val updateWorkRequest = OneTimeWorkRequestBuilder<UpdateWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(workDataOf(KEY_DOWNLOAD_UPDATE_URL to downloadUpdateUrl))
+            .setInputData(workDataOf(KEY_DOWNLOAD_UPDATE_URL to updateDownloadUrl))
             .build()
 
         val workManager = WorkManager.getInstance(context)
@@ -127,11 +127,11 @@ class WeekViewModel @Inject constructor(
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
-    fun closeUpdateDialog() {
-        _isUpdateVersion.value = false
+    fun dismissVersionUpdateDialog() {
+        _isUpdateAvailable.value = false
     }
 
-    fun closeLoadingIndicationDialog() {
-        _isCheckingUpdate.value = false
+    fun dismissLoadingIndicationDialog() {
+        _isUpdateCheckInProgress.value = false
     }
 }

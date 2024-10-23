@@ -4,8 +4,9 @@ enum class SourceMode {
     Mxdm,
     Silisili,
     Girigiri,
-    Anfuns,
-    Nyafun,
     Agedm,
-    Yhdm
+    Yhdm,
+    Nyafun,
+    Anfuns
 }
+
