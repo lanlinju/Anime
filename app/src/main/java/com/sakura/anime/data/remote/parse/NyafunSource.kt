@@ -13,7 +13,8 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 object NyafunSource : AnimeSource {
-    override val DEFAULT_DOMAIN = "https://www.nyacg.net"
+    // Release page: https://www.nyadm.link/
+    override val DEFAULT_DOMAIN = "https://www.nyadm.net/"
     override var baseUrl: String = getDefaultDomain()
 
     private val webViewUtil: WebViewUtil by lazy { WebViewUtil() }

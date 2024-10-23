@@ -129,7 +129,7 @@ class WebViewUtil {
         ) = run {
             val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
             if (blockRes.any { url.contains(it) }) {
-                "intercept load".log(LOG_TAG)
+                "intercept load: $url".log(LOG_TAG)
                 view.post { view.webViewClient.onLoadResource(view, url) }
                 blockWebResourceRequest
             }
