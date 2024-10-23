@@ -12,15 +12,12 @@
     <!-- search   -->
     <string name="lbl_search_placeholder">请输入动漫名</string>
     <string name="lbl_search_empty">什么都没找到啊T T</string>
-    
-    <!-- week  -->
-    <string name="lbl_schedule">时间表</string>
-    <string name="github_repo">GitHub仓库</string>
 
     <string name="my_favourite">我的收藏</string>
     <string name="add_favourite">添加收藏成功！</string>
     <string name="remove_favourite">移除收藏成功！</string>
     <string name="anime_detail">动漫详情页</string>
+    <string name="website_address">网址</string>
 
     <string name="home">Home</string>
     <string name="profile">Profile</string>
@@ -49,6 +46,7 @@
     <string name="external_play">外部播放</string>
     <string name="reload">重新加载</string>
 
+    <!-- download  -->
     <string name="complete">完成</string>
     <string name="unstart">未开始</string>
     <string name="waiting">等待中</string>
@@ -56,6 +54,9 @@
     <string name="retry">重试</string>
     <string name="resume">继续</string>
 
+    <!-- week  -->
+    <string name="lbl_schedule">时间表</string>
+    <string name="github_repo">GitHub仓库</string>
     <string name="switch_source">切换动漫源</string>
     <string name="check_update">检查更新</string>
     <string name="no_new_version">已是最新版本，无需更新</string>

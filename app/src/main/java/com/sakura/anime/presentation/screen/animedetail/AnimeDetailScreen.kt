@@ -88,6 +88,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -118,6 +119,7 @@ import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.CROSSFADE_DURATION
 import com.sakura.anime.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.sakura.anime.util.SettingsPreferences
+import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.UntrustImageLoader
 import com.sakura.anime.util.bannerParallax
@@ -193,7 +195,9 @@ fun AnimeDetailScreen(
                             .bannerParallax(scrollState)
                     )
 
+
                     TopAppBar(
+                        detailUrl = "${SourceHolder.currentSource.baseUrl}${viewModel.detailUrl}",
                         onBackClick = onBackClick,
                         onDownloadClick = { showDownloadBottomSheet = true }
                     )
@@ -373,8 +377,9 @@ fun AnimeDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopAppBar(
+    detailUrl: String = "",
     onBackClick: () -> Unit,
-    onDownloadClick: () -> Unit
+    onDownloadClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     TopAppBar(
@@ -416,7 +421,22 @@ private fun TopAppBar(
                                     .rotate(90f),
                                 contentDescription = stringResource(id = R.string.download)
                             )
-                        })
+                        }
+                    )
+                    val uriHandler = LocalUriHandler.current
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = R.string.website_address)) },
+                        onClick = {
+                            expanded = false
+                            uriHandler.openUri(detailUrl)
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_domain),
+                                contentDescription = stringResource(id = R.string.website_address)
+                            )
+                        }
+                    )
                 }
             }
         },
