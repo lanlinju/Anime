@@ -1,16 +1,18 @@
 package com.sakura.videoplayer
 
 import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.compose.ui.unit.Constraints
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.util.MimeTypes
-import com.google.android.exoplayer2.video.VideoSize
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -153,6 +155,7 @@ internal fun mediaItemCreator(uri: String): MediaItem {
     return builder.build()
 }
 
+@OptIn(UnstableApi::class)
 internal fun mediaSourceCreator(url: String, headers: Map<String, String>): MediaSource {
     val dataSourceFactory = DefaultHttpDataSource.Factory().setDefaultRequestProperties(headers)
     val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
@@ -160,6 +163,7 @@ internal fun mediaSourceCreator(url: String, headers: Map<String, String>): Medi
     return videoSource
 }
 
+@OptIn(UnstableApi::class)
 internal fun ExoPlayer.setVideoUrl(url: String, headers: Map<String, String>) {
     if (headers.isEmpty()) {
         setMediaItem(mediaItemCreator(url))
@@ -168,6 +172,7 @@ internal fun ExoPlayer.setVideoUrl(url: String, headers: Map<String, String>) {
     }
 }
 
+@OptIn(UnstableApi::class)
 internal fun loadControlCreator(): LoadControl {
     return DefaultLoadControl.Builder()
         .setBufferDurationsMs(360000, 600000, 1000, 5000)
