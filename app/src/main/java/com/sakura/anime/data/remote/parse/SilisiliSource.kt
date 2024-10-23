@@ -64,7 +64,7 @@ object SilisiliSource : AnimeSource {
         val source = getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
 
-        val animeTitle = document.select("h1.entry-title").text()
+        val animeTitle = document.select("h1.entry-title").text().split(" ").first()
         val img = document.select("div.v_sd_l > img").attr("src")
         val tags = document.select("p.data").select("a")
 
@@ -100,7 +100,7 @@ object SilisiliSource : AnimeSource {
         val source = getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
 
-        val title = document.select("h1").text()
+        val title = document.select("h1 > a").text()
         val episodeName = document.select("span.nidname").text()
         val videoUrl = getVideoUrl("$baseUrl/$episodeUrl")
         val episodes = getAnimeEpisodes(document)
