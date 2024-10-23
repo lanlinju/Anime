@@ -7,7 +7,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -38,13 +37,13 @@ import com.sakura.anime.presentation.navigation.Screen
 import java.util.Locale
 import com.sakura.anime.R as Res
 
-@Deprecated("Use NavigationBar(destinations) instead")
+@Deprecated("Use AdaptiveNavigationBar instead")
 @Composable
 fun BottomNavigationBar(modifier: Modifier, navController: NavHostController) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val isNavBarVisible = remember(currentBackStackEntry) {
         val currentDestination = currentBackStackEntry?.destination
-        NavigationBarPath.values().any { it.route == currentDestination?.route }
+        NavigationBarPath.entries.any { it.route == currentDestination?.route }
     }
 
     AnimatedVisibility(
@@ -57,7 +56,7 @@ fun BottomNavigationBar(modifier: Modifier, navController: NavHostController) {
     }
 }
 
-@Deprecated("Use NavigationBar(destinations) instead")
+@Deprecated("Use AdaptiveNavigationBar instead")
 @Composable
 fun NavigationBar(
     navController: NavController
@@ -81,7 +80,7 @@ fun NavigationBar(
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
-        NavigationBarPath.values().forEach { destination ->
+        NavigationBarPath.entries.forEach { destination ->
             NavigationBarItem(
                 modifier = Modifier.navigationBarsPadding(),
                 selected = currentDestination?.hierarchy?.any { it.route == destination.route } == true,
@@ -100,6 +99,7 @@ fun NavigationBar(
     }
 }
 
+@Deprecated("Use AdaptiveNavigationBar instead")
 @Composable
 fun NavigationBar(
     destinations: List<NavigationBarPath>,
@@ -140,10 +140,7 @@ fun AdaptiveNavigationBar(
 ) {
     if (isWideScreen) {
         // 使用 NavigationRail 适配宽屏
-        NavigationRail(
-            modifier = modifier
-                .fillMaxHeight()
-        ) {
+        NavigationRail(modifier) {
             destinations.forEachIndexed { index, destination ->
                 val selected = destination.route == currentDestination
                 NavigationRailItem(
@@ -156,21 +153,14 @@ fun AdaptiveNavigationBar(
         }
     } else {
         // 使用 NavigationBar 适配普通屏幕
-        NavigationBar(
-            modifier = modifier
-                .height(
-                    dimensionResource(Res.dimen.navigation_bar_height) + WindowInsets
-                        .navigationBars
-                        .asPaddingValues()
-                        .calculateBottomPadding()
-                ),
-        ) {
+        NavigationBar(modifier) {
             destinations.forEachIndexed { index, destination ->
                 val selected = destination.route == currentDestination
                 NavigationBarItem(
                     selected = selected,
                     onClick = { onNavigateToDestination(index) },
                     icon = destination.icon,
+                    label = { Text(destination.label()) },
                 )
             }
         }
@@ -179,42 +169,38 @@ fun AdaptiveNavigationBar(
 
 enum class NavigationBarPath(
     val route: String,
-    val icon: @Composable () -> Unit
+    val icon: @Composable () -> Unit,
+    val label: @Composable () -> String,
 ) {
     RSlash(
-        Screen.WeekScreen.route.capitalize(),
-        {
+        route = Screen.WeekScreen.route.capitalize(),
+        icon = {
             Icon(
-                imageVector = ImageVector.vectorResource(
-                    id = Res.drawable.rslash
-                ),
-                contentDescription = stringResource(
-                    id = Res.string.rslash
-                )
+                imageVector = ImageVector.vectorResource(id = Res.drawable.rslash),
+                contentDescription = stringResource(id = Res.string.rslash)
             )
-        }
+        },
+        label = { stringResource(Res.string.navbar_week) }
     ),
     Home(
-        Screen.HomeScreen.route.capitalize(),
-        {
+        route = Screen.HomeScreen.route.capitalize(),
+        icon = {
             Icon(
-                imageVector = ImageVector.vectorResource(
-                    id = Res.drawable.home
-                ),
-                contentDescription = stringResource(
-                    id = Res.string.home
-                )
+                imageVector = ImageVector.vectorResource(id = Res.drawable.home),
+                contentDescription = stringResource(id = Res.string.home)
             )
-        }
+        },
+        label = { stringResource(Res.string.navbar_home) }
     ),
     Favourite(
-        Screen.FavouriteScreen.route.capitalize(),
-        {
+        route = Screen.FavouriteScreen.route.capitalize(),
+        icon = {
             Icon(
                 imageVector = Icons.Rounded.Star,
                 contentDescription = stringResource(id = Res.string.favourite)
             )
-        }
+        },
+        label = { stringResource(Res.string.navbar_favourite) }
     )
 }
 

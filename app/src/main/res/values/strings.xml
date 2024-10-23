@@ -87,7 +87,7 @@
     <string name="dynamic_image_color_description">根据动漫封面动态更改主题颜色</string>
     <string name="github_release_address">Github发布页</string>
 
-    <!--danmaku settings-->
+    <!-- danmaku settings-->
     <string name="danmaku_settings">弹幕设置</string>
     <string name="enable_danmaku">启用弹幕</string>
     <string name="danmaku_font_preview">弹幕字体预览</string>
@@ -98,4 +98,9 @@
     <string name="danmaku_display_area">显示区域</string>
     <string name="danmaku_font_weight">弹幕字重</string>
     <string name="danmaku_opacity">不透明度</string>
+
+    <!-- 底部导航标签 -->
+    <string name="navbar_week">时间表</string>
+    <string name="navbar_home">"主页"</string>
+    <string name="navbar_favourite">追番</string>
 </resources>
