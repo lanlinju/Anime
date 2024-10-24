@@ -470,6 +470,7 @@ private fun SwitchSourceDialog(
                 Modifier
                     .padding(vertical = dimensionResource(id = R.dimen.large_padding))
                     .selectableGroup()
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
