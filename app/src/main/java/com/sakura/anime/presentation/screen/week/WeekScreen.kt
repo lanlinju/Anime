@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material.icons.rounded.MoreVert
@@ -143,17 +144,17 @@ fun WeekScreen(
                 },
                 actions = {
                     AppBarAction(
+                        onSourceSwitch = { showSourceSwitchDialog = true },
+                        onDomainChange = { showDomainChangeDialog = true },
+                        onCheckUpdate = { viewModel.checkVersionUpdate(context) },
+                        onOpenGithub = { uriHandler.openUri(it) },
+                        onDefaultSettingsClick = { showSettingsDialog = true },
                         onNavigateToHistory = onNavigateToHistory,
                         onNavigateToSearch = onNavigateToSearch,
                         onNavigateToDownload = onNavigateToDownload,
                         onNavigateToAppearance = onNavigateToAppearance,
                         onNavigateToDanmakuSettings = onNavigateToDanmakuSettings,
-                        onSourceSwitch = { showSourceSwitchDialog = true },
-                        onDomainChange = { showDomainChangeDialog = true },
-                        onCheckUpdate = { viewModel.checkVersionUpdate(context) },
-                        onOpenGithub = { uriHandler.openUri(it) }
                     )
-
                 }
             )
 
@@ -214,10 +215,7 @@ fun WeekScreen(
             onDismissLoadingIndicationDialog = { viewModel.dismissLoadingIndicationDialog() },
             onRefresh = { viewModel.refresh() },
             onDownloadUpdate = { lifecycleOwner ->
-                viewModel.downloadVersionUpdate(
-                    context,
-                    lifecycleOwner
-                )
+                viewModel.downloadVersionUpdate(context, lifecycleOwner)
             },
         )
     }
@@ -308,15 +306,16 @@ fun WeekItem(
 
 @Composable
 private fun AppBarAction(
+    onSourceSwitch: () -> Unit,
+    onDomainChange: () -> Unit,
+    onCheckUpdate: () -> Unit,
+    onOpenGithub: (String) -> Unit,
+    onDefaultSettingsClick: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToAppearance: () -> Unit,
     onNavigateToDanmakuSettings: () -> Unit,
-    onSourceSwitch: () -> Unit,
-    onDomainChange: () -> Unit,
-    onCheckUpdate: () -> Unit,
-    onOpenGithub: (String) -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -341,6 +340,7 @@ private fun AppBarAction(
             onDomainChange = onDomainChange,
             onCheckUpdate = onCheckUpdate,
             onOpenGithub = onOpenGithub,
+            onDefaultSettingsClick = onDefaultSettingsClick,
             onNavigateToAppearance = onNavigateToAppearance,
             onNavigateToDanmakuSettings = onNavigateToDanmakuSettings
         )
@@ -382,6 +382,7 @@ private fun DropdownMenu(
     onDismissMenu: () -> Unit,
     onSourceSwitch: () -> Unit,
     onDomainChange: () -> Unit,
+    onDefaultSettingsClick: () -> Unit,
     onNavigateToAppearance: () -> Unit,
     onNavigateToDanmakuSettings: () -> Unit,
     onCheckUpdate: () -> Unit,
@@ -400,14 +401,19 @@ private fun DropdownMenu(
             action = onDomainChange
         ),
         MenuItemData(
-            textId = R.string.default_settings,
-            icon = Icons.Outlined.Settings,
+            textId = R.string.appearance_settings,
+            icon = Icons.Outlined.Palette,
             action = onNavigateToAppearance
         ),
         MenuItemData(
             textId = R.string.danmaku_settings,
             icon = Icons.Outlined.Subtitles,
             action = onNavigateToDanmakuSettings
+        ),
+        MenuItemData(
+            textId = R.string.default_settings,
+            icon = Icons.Outlined.Settings,
+            action = onDefaultSettingsClick
         ),
         MenuItemData(
             textId = R.string.check_update,
