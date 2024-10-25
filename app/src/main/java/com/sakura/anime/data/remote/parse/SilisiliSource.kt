@@ -19,7 +19,7 @@ import java.security.MessageDigest
 
 
 /**
- * 嘶哩嘶哩域名发布地址：https://weibass.github.io
+ * 嘶哩嘶哩域名发布地址：https://silisili-link.github.io/
  */
 object SilisiliSource : AnimeSource {
 

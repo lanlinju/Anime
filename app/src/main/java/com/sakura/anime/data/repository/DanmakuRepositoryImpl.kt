@@ -7,12 +7,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DanmakuRepositoryImpl @Inject constructor(private val danmakuProvider: DanmakuProvider) :
-    DanmakuRepository {
+class DanmakuRepositoryImpl @Inject constructor(
+    private val danmakuProvider: DanmakuProvider
+) : DanmakuRepository {
     override suspend fun fetchDanmakuSession(
         subjectName: String,
         episodeName: String?
     ): DanmakuSession? {
-        return danmakuProvider.fetch(subjectName, episodeName)
+        return try {
+            danmakuProvider.fetch(subjectName, episodeName)
+        } catch (_: Exception) {
+            null
+        }
     }
 }
