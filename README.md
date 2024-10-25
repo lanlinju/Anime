@@ -1,6 +1,6 @@
 # Anime
 
-基于樱花动漫网站数据的一个简洁的播放动漫的App，支持下载，弹幕等功能，使用[Jetpack Compose](https://developer.android.com/jetpack?hl=zh-cn)
+一个简洁的播放动漫的App，支持下载，弹幕，多数据源等功能，使用[Jetpack Compose](https://developer.android.com/jetpack?hl=zh-cn)
 进行开发
 
 ## 如何下载安装
