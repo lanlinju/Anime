@@ -291,8 +291,10 @@ private fun handleBackPress(
     view: View,
     activity: Activity
 ) {
-    playerState.control.setFullscreen(false)
-    requestPortraitOrientation(view, activity)
+    // 由于在竖屏模式下返回会导致SystemBars的Padding丢失，所以调用hideSystemBars()临时解决
+    if (!playerState.isFullscreen.value) {
+        hideSystemBars(view, activity)
+    }
     onBackClick()
 }
 
@@ -845,6 +847,8 @@ private fun EpisodeSideSheet(
     }
 }
 
+// https://googlesamples.github.io/android-custom-lint-rules/checks/UnusedBoxWithConstraintsScope.md.html
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun SideSheet(
     onDismissRequest: () -> Unit,
