@@ -15,8 +15,8 @@ android {
         applicationId = "com.sakura.anime"
         minSdk = 21
         targetSdk = 34
-        versionCode = 23
-        versionName = "1.2.2"
+        versionCode = 24
+        versionName = "1.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
