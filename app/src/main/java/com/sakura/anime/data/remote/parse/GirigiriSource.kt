@@ -81,7 +81,7 @@ object GirigiriSource : AnimeSource {
         val updateTime = main.select("span.slide-info-remarks")[1].text()
         val episodes = getAnimeEpisodes(document.select("div.anthology-list").select("ul"))
         val relatedAnimes =
-            getAnimeList(document.select("div.box-width")[6].select("div.public-list-box"))
+            getAnimeList(document.select("div.box-width.wow").select("div.public-list-box"))
         return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
     }
 
