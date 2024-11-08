@@ -66,9 +66,9 @@ object AnfunsSource : AnimeSource {
         val source = DownloadManager.getHtml(url)
         val document = Jsoup.parse(source)
 
-        val elements = document.select("div.hl-row-box").select("h2 > span")[0]
-        val title = elements.text().split(" ")[0]
-        val episodeName = elements.text().split(" ")[1]
+        val spanElement = document.select("div.hl-row-box").select("h2 > span")[0]
+        val title = spanElement.ownText()
+        val episodeName = spanElement.select("em").text()
         val episodes =
             getAnimeEpisodes(document.select("div.hl-tabs-box"))
         val videoUrl = getVideoUrl(url)
