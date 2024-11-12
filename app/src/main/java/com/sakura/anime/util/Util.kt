@@ -3,6 +3,7 @@ package com.sakura.anime.util
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -10,7 +11,11 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import android.webkit.WebView
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.content.FileProvider.getUriForFile
 import com.sakura.anime.BuildConfig
 import com.sakura.anime.application.AnimeApplication
@@ -51,6 +56,9 @@ fun getVersionName(context: Context): String {
     return context.packageManager.getPackageInfo(context.packageName, 0).versionName
 }*/
 
+/**
+ * 升级安装应用
+ */
 fun Context.installApk(file: File) {
     val intent = Intent(ACTION_VIEW)
     val authority = "$packageName.provider"
@@ -59,6 +67,58 @@ fun Context.installApk(file: File) {
     intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
     intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION)
     startActivity(intent)
+}
+
+/**
+ * 分享崩溃日志文件
+ */
+fun Context.shareCrashLog() {
+    val logUri = getCrashLogUri()
+    val intent = Intent(ACTION_SEND).apply {
+        setDataAndType(logUri, "text/plain")
+        putExtra(Intent.EXTRA_STREAM, logUri)
+        addFlags(FLAG_ACTIVITY_NEW_TASK)
+        addFlags(FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    startActivity(Intent.createChooser(intent, "Share crash log"))
+}
+
+fun Context.logCrashToFile(e: Throwable) {
+    val logFile = File(externalCacheDir, CRASH_LOG_FILE)
+    logFile.writeText(getCrashLogInfo(e))
+}
+
+fun Context.getCrashLogInfo(e: Throwable): String {
+    return "${getDebugInfo(this)}\n\n${e.stackTraceToString()}"
+}
+
+private fun getDebugInfo(context: Context): String {
+    return """
+            App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})
+            Android version: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}; build ${Build.DISPLAY})
+            Device brand: ${Build.BRAND}
+            Device manufacturer: ${Build.MANUFACTURER}
+            Device name: ${Build.DEVICE} (${Build.PRODUCT})
+            Device model: ${Build.MODEL}
+            WebView: ${getWebViewVersion(context)}
+        """.trimIndent()
+}
+
+private fun getWebViewVersion(context: Context): String {
+    val webView = WebView.getCurrentWebViewPackage() ?: return "how did you get here?"
+    val pm = context.packageManager
+    val label = webView.applicationInfo!!.loadLabel(pm)
+    val version = webView.versionName
+    return "$label $version"
+}
+
+private fun Context.getCrashLogUri(): Uri {
+    val logFile = File(externalCacheDir, CRASH_LOG_FILE)
+    return getUriForFile(this, "$packageName.provider", logFile)
+}
+
+fun Context.toast(@StringRes resId: Int) {
+    Toast.makeText(this, getString(resId), Toast.LENGTH_LONG).show()
 }
 
 fun <T> T.log(tag: String, prefix: String = ""): T {

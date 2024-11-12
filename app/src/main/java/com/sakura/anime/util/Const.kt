@@ -9,6 +9,8 @@ const val KEY_FROM_LOCAL_VIDEO = "fromLocalVideo"
 
 val TABS = listOf("一", "二", "三", "四", "五", "六", "日")
 
+const val CRASH_LOG_FILE = "anime_crash_logs.txt"
+
 const val GITHUB_ADDRESS = "https://github.com/lanlinju/Anime"
 const val CHECK_UPDATE_ADDRESS = "https://api.github.com/repos/lanlinju/Anime/releases/latest"
 const val GITHUB_RELEASE_ADDRESS = "https://github.com/lanlinju/Anime/releases/latest"
