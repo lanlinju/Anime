@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // 全局异常捕获器
     private fun setGlobalExceptionHandler() {
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             logCrashToFile(e)
