@@ -505,18 +505,18 @@ private fun LayoutTypeSelector(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            repeat(2) {
-                val selectIndex = if (!checked) 0 else 1
+            repeat(2) { index ->
+                val selectedIndex = if (!checked) 0 else 1
                 IconButton(
-                    onClick = { onCheckedChange?.invoke(!checked) },
+                    onClick = { if (selectedIndex != index) onCheckedChange?.invoke(!checked) },
                     modifier = Modifier.requiredWidth(dimensionResource(Res.dimen.media_type_choice_size))
                 ) {
                     Icon(
-                        imageVector = if (it == 0) Icons.Rounded.PlayArrow else ImageVector.vectorResource(
+                        imageVector = if (index == 0) Icons.Rounded.PlayArrow else ImageVector.vectorResource(
                             id = Res.drawable.manga
                         ),
                         tint = animateColorAsState(
-                            targetValue = if (selectIndex == it) MaterialTheme.colorScheme.primary
+                            targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.background,
                             animationSpec = tween(400),
                             label = "icon_color"
