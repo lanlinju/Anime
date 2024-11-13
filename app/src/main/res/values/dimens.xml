@@ -31,4 +31,10 @@
     <dimen name="radio_button_height">56dp</dimen>
 
     <dimen name="week_item_width">160dp</dimen>
+
+    <dimen name="media_type_selector_height">56dp</dimen>
+    <dimen name="media_type_selector_width">96dp</dimen>
+    <dimen name="media_type_selector_padding">10dp</dimen>
+    <dimen name="media_type_choice_size">36dp</dimen>
+    <dimen name="media_type_selector_round">32dp</dimen>
 </resources>

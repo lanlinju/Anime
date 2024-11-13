@@ -1,46 +1,72 @@
 package com.sakura.anime.presentation.screen.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.sakura.anime.R
 import com.sakura.anime.domain.model.HomeItem
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
@@ -49,13 +75,16 @@ import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.TranslucentStatusBarLayout
 import com.sakura.anime.presentation.component.WarningMessage
 import com.sakura.anime.util.KEY_HOME_BACKGROUND_URI
+import com.sakura.anime.util.KEY_USE_GRID_LAYOUT
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.bannerParallax
 import com.sakura.anime.util.isWideScreen
 import com.sakura.anime.util.rememberPreference
+import kotlinx.coroutines.launch
 import com.sakura.anime.R as Res
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
@@ -70,71 +99,165 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        Modifier.fillMaxSize()
-    ) {
-        StateHandler(state = availableDataList.value, onLoading = {
-            LoadingIndicator()
-        }, onFailure = {
-            WarningMessage(
-                textId = Res.string.txt_empty_result,
-                onRetryClick = { homeViewModel.refresh() }
-            )
-        }) { resource ->
+    Column(Modifier.fillMaxSize()) {
+        StateHandler(
+            state = availableDataList.value,
+            onLoading = { LoadingIndicator() },
+            onFailure = {
+                WarningMessage(
+                    textId = Res.string.txt_empty_result,
+                    onRetryClick = { homeViewModel.refresh() }
+                )
+            }
+        ) { resource ->
 
             val scrollState = rememberScrollState()
+            var useGridLayout by rememberPreference(KEY_USE_GRID_LAYOUT, false)
+            val homeBackground = Color(
+                ColorUtils.blendARGB(
+                    MaterialTheme.colorScheme.background.toArgb(),
+                    MaterialTheme.colorScheme.primaryContainer.toArgb(),
+                    0.05f
+                )
+            )
 
             TranslucentStatusBarLayout(
                 scrollState = scrollState,
                 distanceUntilAnimated = dimensionResource(Res.dimen.banner_height)
             ) {
-                Box(
-                    modifier = Modifier
-                        .verticalScroll(scrollState)
-                ) {
-
+                Box(modifier = Modifier
+                    .run {
+                        if (useGridLayout) this
+                        else verticalScroll(scrollState)
+                    })
+                {
                     val context = LocalContext.current
                     val isWideScreen = isWideScreen(context)
 
                     if (!isWideScreen) {
-                        HomeBackground(scrollState = scrollState)
+                        HomeBackground(
+                            scrollState = scrollState,
+                            useGridLayout = useGridLayout,
+                            onSwitchLayout = {
+                                useGridLayout = it
+                            }
+                        )
                     }
 
                     Column {
-                        Spacer(Modifier.size(if (!isWideScreen) dimensionResource(Res.dimen.banner_height) else 0.dp))
+                        val size by animateDpAsState(
+                            targetValue = if (!isWideScreen) {
+                                if (useGridLayout)
+                                    dimensionResource(Res.dimen.banner_height) - 56.dp
+                                else
+                                    dimensionResource(Res.dimen.banner_height)
+                            } else 0.dp,
+                            animationSpec = tween(400),
+                            label = "background_padding"
+                        )
+                        Spacer(Modifier.size(size))
 
                         Column(
                             modifier = Modifier
                                 .background(
-                                    if (!isWideScreen)
-                                        Color(
-                                            ColorUtils.blendARGB(
-                                                MaterialTheme.colorScheme.background.toArgb(),
-                                                MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                                                0.05f
-                                            )
-                                        ) else MaterialTheme.colorScheme.background
+                                    if (!isWideScreen) homeBackground else MaterialTheme.colorScheme.background
                                 )
-                                .padding(vertical = dimensionResource(Res.dimen.large_padding)),
-                            verticalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.large_padding)),
+                                .padding(
+                                    vertical = if (useGridLayout) 0.dp else dimensionResource(
+                                        Res.dimen.medium_padding
+                                    )
+                                ),
+                            verticalArrangement = Arrangement.spacedBy(
+                                if (useGridLayout) 0.dp else dimensionResource(
+                                    Res.dimen.medium_padding
+                                )
+                            ),
                         ) {
                             if (isWideScreen) {
-                                HomeTile()
-                            }
-
-                            resource.data?.forEach { home ->
-                                HomeRow(
-                                    list = home.animList,
-                                    title = home.title,
-                                    onItemClicked = {
-                                        onNavigateToAnimeDetail(
-                                            it.detailUrl,
-                                            SourceHolder.currentSourceMode
-                                        )
+                                HomeTile(
+                                    useGridLayout = useGridLayout,
+                                    onSwitchLayout = {
+                                        useGridLayout = it
                                     }
                                 )
                             }
 
+                            if (!useGridLayout) {
+                                resource.data?.forEach { home ->
+                                    HomeRow(
+                                        list = home.animList,
+                                        title = home.title,
+                                        onItemClicked = {
+                                            onNavigateToAnimeDetail(
+                                                it.detailUrl,
+                                                SourceHolder.currentSourceMode
+                                            )
+                                        }
+                                    )
+                                }
+                            } else {
+                                resource.data?.let { data ->
+                                    val pagerState = rememberPagerState(pageCount = { data.size })
+                                    val scope = rememberCoroutineScope()
+                                    PrimaryScrollableTabRow(
+                                        selectedTabIndex = pagerState.currentPage,
+                                        containerColor = homeBackground,
+                                        edgePadding = 0.dp,
+                                        indicator = {},
+                                        divider = {}
+                                    ) {
+                                        val tabs = data.map { it.title }
+                                        tabs.forEachIndexed { index, title ->
+                                            Tab(
+                                                text = { title },
+                                                selected = pagerState.currentPage == index,
+                                                onClick = {
+                                                    scope.launch {
+                                                        pagerState.scrollToPage(index)
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    }
+
+                                    HorizontalPager(
+                                        state = pagerState,
+                                        modifier = Modifier.fillMaxSize(),
+                                        beyondViewportPageCount = 1,
+                                    ) { page ->
+                                        val context = LocalContext.current
+                                        val isWideScreen = isWideScreen(context)
+                                        // 判断使用的列数和布局宽度
+                                        val columns = if (isWideScreen) {
+                                            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
+                                        } else {
+                                            GridCells.Fixed(3)
+                                        }
+                                        LazyVerticalGrid(
+                                            modifier = Modifier.fillMaxSize(),
+                                            columns = columns,
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            contentPadding = PaddingValues(8.dp)
+                                        ) {
+                                            items(data[page].animList) { homeItem ->
+                                                MediaSmall(
+                                                    image = homeItem.img,
+                                                    label = homeItem.animTitle,
+                                                    onClick = {
+                                                        onNavigateToAnimeDetail(
+                                                            homeItem.detailUrl,
+                                                            SourceHolder.currentSourceMode
+                                                        )
+                                                    },
+                                                    modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
                         }
 
                     }
@@ -145,7 +268,37 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeBackground(scrollState: ScrollState) {
+fun Tab(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    text: @Composable () -> String,
+) {
+    Box(
+        modifier = modifier
+            .padding(8.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(11.dp)
+            )
+            .clip(RoundedCornerShape(11.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = text(),
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun HomeBackground(
+    scrollState: ScrollState,
+    useGridLayout: Boolean,
+    onSwitchLayout: (Boolean) -> Unit,
+) {
     Box {
         val context = LocalContext.current
         var imageUri by rememberPreference(key = KEY_HOME_BACKGROUND_URI, defaultValue = "")
@@ -167,7 +320,12 @@ fun HomeBackground(scrollState: ScrollState) {
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensionResource(Res.dimen.banner_height))
+                .height(
+                    if (useGridLayout)
+                        dimensionResource(Res.dimen.banner_height) - 56.dp
+                    else
+                        dimensionResource(Res.dimen.banner_height)
+                )
                 .bannerParallax(scrollState),
             contentScale = ContentScale.Crop,
             alignment = Alignment.TopCenter,
@@ -188,54 +346,84 @@ fun HomeBackground(scrollState: ScrollState) {
                 .height(dimensionResource(Res.dimen.banner_height))
         )
 
-        HomeTile(modifier = Modifier.align(Alignment.BottomStart)) {
+        val offsetY by animateDpAsState(
+            targetValue = if (useGridLayout) (-56).dp else 0.dp,
+            animationSpec = tween(400),
+            label = "hometile_offset"
+        )
+        HomeTile(
+            modifier = Modifier
+                .offset(y = offsetY)
+                .align(Alignment.BottomStart),
+            useGridLayout = useGridLayout,
+            onSwitchLayout = onSwitchLayout
+        ) {
             launcher.launch(arrayOf("image/*"))
         }
-
     }
 }
 
 @Composable
 private fun HomeTile(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    useGridLayout: Boolean,
+    onSwitchLayout: (Boolean) -> Unit,
+    onClick: () -> Unit = {},
 ) {
     val isWideScreen = isWideScreen(LocalContext.current)
-
-    Box(
+    Row(
         modifier = modifier
-            .padding(
-                start = dimensionResource(Res.dimen.large_padding),
-                bottom = if (!isWideScreen) dimensionResource(Res.dimen.medium_padding) else 0.dp
-            )
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!isWideScreen) {
+        Box(
+            modifier = Modifier
+                .padding(
+                    start = dimensionResource(Res.dimen.large_padding),
+                    bottom = if (!isWideScreen) dimensionResource(Res.dimen.medium_padding) else 0.dp
+                )
+        ) {
+            if (!isWideScreen) {
+                Text(
+                    text = stringResource(Res.string.lbl_anime),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.displayMedium,
+                    modifier = Modifier
+                        .clickable { onClick() }
+                )
+            }
             Text(
-                text = stringResource(Res.string.lbl_anime),
+                text = SourceHolder.currentSourceMode.name,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .clickable { onClick() }
+                    .align(Alignment.BottomStart)
+                    .offset(y = 8.dp)
+                    .run {
+                        if (isWideScreen) {
+                            // 获取焦点
+                            clickable { }
+                        } else this
+                    }
             )
         }
 
-        Text(
-            text = SourceHolder.currentSourceMode.name,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(y = 8.dp)
-                .run {
-                    if (isWideScreen) {
-                        // 获取焦点
-                        clickable { }
-                    } else this
-                }
-        )
+        if (!isWideScreen) {
+            LayoutTypeSelector(
+                modifier = Modifier
+                    .padding(
+                        end = 24.dp,
+                        bottom = 16.dp
+                    ),
+                checked = useGridLayout,
+                onCheckedChange = { onSwitchLayout(it) }
+            )
+        }
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun HomeRow(
     list: List<HomeItem?>,
@@ -249,7 +437,7 @@ fun HomeRow(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
-                .padding(start = dimensionResource(Res.dimen.large_padding))
+                .padding(start = dimensionResource(Res.dimen.medium_padding))
         )
 
         Spacer(Modifier.size(dimensionResource(Res.dimen.medium_padding)))
@@ -259,7 +447,6 @@ fun HomeRow(
             content = { homeItem ->
                 MediaSmall(
                     image = homeItem?.img,
-                    // TODO: Do something about this chain.
                     label = homeItem?.animTitle,
                     onClick = {
                         onItemClicked(homeItem!!)
@@ -268,5 +455,64 @@ fun HomeRow(
                 )
             }
         )
+    }
+}
+
+@Composable
+private fun LayoutTypeSelector(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.onBackground,
+                shape = CircleShape
+            )
+    ) {
+        val offset by animateDpAsState(
+            targetValue = if (!checked) 0.dp else 40.dp,
+            label = "media_switch"
+        )
+
+        Box(
+            modifier = Modifier
+                .padding(dimensionResource(Res.dimen.media_type_selector_padding))
+                .size(dimensionResource(Res.dimen.media_type_choice_size))
+                .offset { IntOffset(x = offset.roundToPx(), y = 0) }
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.background)
+        )
+
+        Row(
+            modifier = Modifier
+                .height(dimensionResource(Res.dimen.media_type_selector_height))
+                .width(dimensionResource(Res.dimen.media_type_selector_width))
+                .padding(dimensionResource(Res.dimen.media_type_selector_padding)),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(2) {
+                val selectIndex = if (!checked) 0 else 1
+                IconButton(
+                    onClick = { onCheckedChange?.invoke(!checked) },
+                    modifier = Modifier.requiredWidth(dimensionResource(Res.dimen.media_type_choice_size))
+                ) {
+                    Icon(
+                        imageVector = if (it == 0) Icons.Rounded.PlayArrow else ImageVector.vectorResource(
+                            id = Res.drawable.manga
+                        ),
+                        tint = animateColorAsState(
+                            targetValue = if (selectIndex == it) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.background,
+                            animationSpec = tween(400),
+                            label = "icon_color"
+                        ).value,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
     }
 }

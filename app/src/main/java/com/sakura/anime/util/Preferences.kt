@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 const val KEY_SOURCE_MODE = "animeSourceMode"
 const val KEY_HOME_BACKGROUND_URI = "homeBackgroundUri"
 const val KEY_AUTO_ORIENTATION_ENABLED = "autoOrientationEnabled"
+const val KEY_USE_GRID_LAYOUT = "useGridLayout"
 
 // theme
 const val KEY_CUSTOM_COLOR = "customColor"
