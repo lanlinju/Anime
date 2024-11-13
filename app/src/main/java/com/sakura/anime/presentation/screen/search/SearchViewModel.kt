@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.componentsui.anime.domain.model.Anime
+import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceMode

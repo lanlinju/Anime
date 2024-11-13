@@ -1,7 +1,5 @@
 package com.sakura.anime.domain.model
 
-import com.example.componentsui.anime.domain.model.Episode
-
 data class Video(
     val title: String,
     val url: String, /* 视频播放地址 */

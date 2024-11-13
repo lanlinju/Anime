@@ -3,12 +3,12 @@ package com.sakura.anime.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.example.componentsui.anime.domain.model.Anime
-import com.example.componentsui.anime.domain.model.AnimeDetail
-import com.example.componentsui.anime.domain.model.Home
 import com.sakura.anime.data.remote.api.AnimeApi
 import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.repository.paging.SearchPagingSource
+import com.sakura.anime.domain.model.Anime
+import com.sakura.anime.domain.model.AnimeDetail
+import com.sakura.anime.domain.model.Home
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.Resource

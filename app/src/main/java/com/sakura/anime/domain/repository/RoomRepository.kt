@@ -1,8 +1,8 @@
 package com.sakura.anime.domain.repository
 
-import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Download
 import com.sakura.anime.domain.model.DownloadDetail
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import kotlinx.coroutines.flow.Flow

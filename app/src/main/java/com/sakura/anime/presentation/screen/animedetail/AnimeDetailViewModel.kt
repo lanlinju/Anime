@@ -4,9 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.componentsui.anime.domain.model.AnimeDetail
-import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Download
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.AnimeRepository

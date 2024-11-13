@@ -1,6 +1,5 @@
 package com.sakura.anime.domain.model
 
-import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.data.local.entity.HistoryEntity
 import com.sakura.anime.util.SourceMode
 

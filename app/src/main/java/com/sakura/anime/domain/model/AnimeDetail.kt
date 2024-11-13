@@ -1,4 +1,4 @@
-package com.example.componentsui.anime.domain.model
+package com.sakura.anime.domain.model
 
 data class AnimeDetail(
     val title: String,

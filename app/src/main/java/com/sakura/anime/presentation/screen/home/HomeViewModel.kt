@@ -2,7 +2,7 @@ package com.sakura.anime.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.componentsui.anime.domain.model.Home
+import com.sakura.anime.domain.model.Home
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel

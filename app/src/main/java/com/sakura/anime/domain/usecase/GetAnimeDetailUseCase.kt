@@ -1,7 +1,7 @@
 package com.sakura.anime.domain.usecase
 
-import com.example.componentsui.anime.domain.model.AnimeDetail
-import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.domain.model.AnimeDetail
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.util.Resource

@@ -2,8 +2,8 @@ package com.sakura.anime.data.repository.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.componentsui.anime.domain.model.Anime
 import com.sakura.anime.data.remote.api.AnimeApi
+import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.util.SourceMode
 
 class SearchPagingSource(

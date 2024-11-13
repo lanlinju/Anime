@@ -67,8 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.componentsui.anime.domain.model.Home
 import com.sakura.anime.R
+import com.sakura.anime.domain.model.Home
 import com.sakura.anime.domain.model.HomeItem
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
@@ -190,7 +190,7 @@ private fun HomeContent(
             } else {
                 data.forEach { home ->
                     HomeRow(
-                        list = home.animList,
+                        list = home.animeList,
                         title = home.title,
                         onItemClicked = onItemClick
                     )
@@ -248,7 +248,7 @@ private fun GridLayoutTabs(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
-            items(data[page].animList) { homeItem ->
+            items(data[page].animeList) { homeItem ->
                 MediaSmall(
                     image = homeItem.img,
                     label = homeItem.animTitle,

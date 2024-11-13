@@ -106,8 +106,8 @@ import com.anime.danmaku.api.DanmakuPresentation
 import com.anime.danmaku.api.DanmakuSession
 import com.anime.danmaku.ui.DanmakuHost
 import com.anime.danmaku.ui.rememberDanmakuHostState
-import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Video
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.screen.settings.DanmakuConfigData

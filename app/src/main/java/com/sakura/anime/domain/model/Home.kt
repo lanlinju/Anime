@@ -1,8 +1,6 @@
-package com.example.componentsui.anime.domain.model
-
-import com.sakura.anime.domain.model.HomeItem
+package com.sakura.anime.domain.model
 
 data class Home(
-    val title:String,
-    val animList: List<HomeItem>
+    val title: String,
+    val animeList: List<HomeItem>
 )

@@ -1,4 +1,4 @@
-package com.example.componentsui.anime.domain.model
+package com.sakura.anime.domain.model
 
 import com.sakura.anime.data.local.entity.EpisodeEntity
 

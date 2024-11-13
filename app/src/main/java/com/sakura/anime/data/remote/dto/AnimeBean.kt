@@ -1,6 +1,6 @@
 package com.sakura.anime.data.remote.dto
 
-import com.example.componentsui.anime.domain.model.Anime
+import com.sakura.anime.domain.model.Anime
 
 /**
  * @param title 动漫名称

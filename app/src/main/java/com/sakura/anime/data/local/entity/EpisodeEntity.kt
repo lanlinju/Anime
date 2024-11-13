@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.componentsui.anime.domain.model.Episode
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.util.EPISODE_TABLE
 
 /**

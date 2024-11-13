@@ -1,6 +1,6 @@
 package com.sakura.anime.data.remote.dto
 
-import com.example.componentsui.anime.domain.model.AnimeDetail
+import com.sakura.anime.domain.model.AnimeDetail
 
 data class AnimeDetailBean(
     val title: String,

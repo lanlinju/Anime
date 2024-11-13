@@ -1,10 +1,10 @@
 package com.sakura.anime.data.repository
 
-import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.data.local.database.AnimeDatabase
 import com.sakura.anime.data.local.entity.EpisodeEntity
 import com.sakura.anime.domain.model.Download
 import com.sakura.anime.domain.model.DownloadDetail
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.RoomRepository

@@ -1,6 +1,6 @@
 package com.sakura.anime.data.remote.dto
 
-import com.example.componentsui.anime.domain.model.Home
+import com.sakura.anime.domain.model.Home
 import com.sakura.anime.domain.model.HomeItem
 
 data class HomeBean(
@@ -17,6 +17,6 @@ data class HomeBean(
                 episode = anime.episodeName
             )
         }
-        return Home(title = title, animList = homeItems)
+        return Home(title = title, animeList = homeItems)
     }
 }

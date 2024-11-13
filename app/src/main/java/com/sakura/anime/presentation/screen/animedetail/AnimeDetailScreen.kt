@@ -101,12 +101,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.componentsui.anime.domain.model.Anime
-import com.example.componentsui.anime.domain.model.AnimeDetail
-import com.example.componentsui.anime.domain.model.Episode
 import com.sakura.anime.R
+import com.sakura.anime.domain.model.Anime
+import com.sakura.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Download
 import com.sakura.anime.domain.model.DownloadDetail
+import com.sakura.anime.domain.model.Episode
 import com.sakura.anime.domain.model.Favourite
 import com.sakura.anime.domain.model.History
 import com.sakura.anime.presentation.component.LoadingIndicator
