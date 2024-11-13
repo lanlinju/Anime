@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.componentsui.anime.domain.model.Home
 import com.sakura.anime.R
 import com.sakura.anime.domain.model.HomeItem
 import com.sakura.anime.presentation.component.LoadingIndicator
@@ -113,24 +115,15 @@ fun HomeScreen(
 
             val scrollState = rememberScrollState()
             var useGridLayout by rememberPreference(KEY_USE_GRID_LAYOUT, false)
-            val homeBackground = Color(
-                ColorUtils.blendARGB(
-                    MaterialTheme.colorScheme.background.toArgb(),
-                    MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                    0.05f
-                )
-            )
+            val homeBackgroundColor = getBlendedBackgroundColor()
 
             TranslucentStatusBarLayout(
                 scrollState = scrollState,
                 distanceUntilAnimated = dimensionResource(Res.dimen.banner_height)
             ) {
-                Box(modifier = Modifier
-                    .run {
-                        if (useGridLayout) this
-                        else verticalScroll(scrollState)
-                    })
-                {
+                Box(modifier = Modifier.run {
+                    if (useGridLayout) this else verticalScroll(scrollState)
+                }) {
                     val context = LocalContext.current
                     val isWideScreen = isWideScreen(context)
 
@@ -138,128 +131,24 @@ fun HomeScreen(
                         HomeBackground(
                             scrollState = scrollState,
                             useGridLayout = useGridLayout,
-                            onSwitchLayout = {
-                                useGridLayout = it
-                            }
+                            onSwitchLayout = { useGridLayout = it }
                         )
                     }
 
-                    Column {
-                        val size by animateDpAsState(
-                            targetValue = if (!isWideScreen) {
-                                if (useGridLayout)
-                                    dimensionResource(Res.dimen.banner_height) - 56.dp
-                                else
-                                    dimensionResource(Res.dimen.banner_height)
-                            } else 0.dp,
-                            animationSpec = tween(400),
-                            label = "background_padding"
+                    resource.data?.let { data ->
+                        HomeContent(
+                            data = data,
+                            useGridLayout = useGridLayout,
+                            onSwitchGridLayout = { useGridLayout = it },
+                            isWideScreen = isWideScreen,
+                            homeBackgroundColor = homeBackgroundColor,
+                            onItemClick = {
+                                onNavigateToAnimeDetail(
+                                    it.detailUrl,
+                                    SourceHolder.currentSourceMode
+                                )
+                            }
                         )
-                        Spacer(Modifier.size(size))
-
-                        Column(
-                            modifier = Modifier
-                                .background(
-                                    if (!isWideScreen) homeBackground else MaterialTheme.colorScheme.background
-                                )
-                                .padding(
-                                    vertical = if (useGridLayout) 0.dp else dimensionResource(
-                                        Res.dimen.medium_padding
-                                    )
-                                ),
-                            verticalArrangement = Arrangement.spacedBy(
-                                if (useGridLayout) 0.dp else dimensionResource(
-                                    Res.dimen.medium_padding
-                                )
-                            ),
-                        ) {
-                            if (isWideScreen) {
-                                HomeTile(
-                                    useGridLayout = useGridLayout,
-                                    onSwitchLayout = {
-                                        useGridLayout = it
-                                    }
-                                )
-                            }
-
-                            if (!useGridLayout) {
-                                resource.data?.forEach { home ->
-                                    HomeRow(
-                                        list = home.animList,
-                                        title = home.title,
-                                        onItemClicked = {
-                                            onNavigateToAnimeDetail(
-                                                it.detailUrl,
-                                                SourceHolder.currentSourceMode
-                                            )
-                                        }
-                                    )
-                                }
-                            } else {
-                                resource.data?.let { data ->
-                                    val pagerState = rememberPagerState(pageCount = { data.size })
-                                    val scope = rememberCoroutineScope()
-                                    PrimaryScrollableTabRow(
-                                        selectedTabIndex = pagerState.currentPage,
-                                        containerColor = homeBackground,
-                                        edgePadding = 0.dp,
-                                        indicator = {},
-                                        divider = {}
-                                    ) {
-                                        val tabs = data.map { it.title }
-                                        tabs.forEachIndexed { index, title ->
-                                            Tab(
-                                                text = { title },
-                                                selected = pagerState.currentPage == index,
-                                                onClick = {
-                                                    scope.launch {
-                                                        pagerState.scrollToPage(index)
-                                                    }
-                                                },
-                                            )
-                                        }
-                                    }
-
-                                    HorizontalPager(
-                                        state = pagerState,
-                                        modifier = Modifier.fillMaxSize(),
-                                        beyondViewportPageCount = 1,
-                                    ) { page ->
-                                        val context = LocalContext.current
-                                        val isWideScreen = isWideScreen(context)
-                                        // 判断使用的列数和布局宽度
-                                        val columns = if (isWideScreen) {
-                                            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
-                                        } else {
-                                            GridCells.Fixed(3)
-                                        }
-                                        LazyVerticalGrid(
-                                            modifier = Modifier.fillMaxSize(),
-                                            columns = columns,
-                                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            contentPadding = PaddingValues(8.dp)
-                                        ) {
-                                            items(data[page].animList) { homeItem ->
-                                                MediaSmall(
-                                                    image = homeItem.img,
-                                                    label = homeItem.animTitle,
-                                                    onClick = {
-                                                        onNavigateToAnimeDetail(
-                                                            homeItem.detailUrl,
-                                                            SourceHolder.currentSourceMode
-                                                        )
-                                                    },
-                                                    modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
-
                     }
                 }
             }
@@ -268,7 +157,137 @@ fun HomeScreen(
 }
 
 @Composable
-fun Tab(
+private fun HomeContent(
+    data: List<Home>,
+    useGridLayout: Boolean,
+    onSwitchGridLayout: (Boolean) -> Unit,
+    isWideScreen: Boolean,
+    homeBackgroundColor: Color,
+    onItemClick: (HomeItem) -> Unit
+) {
+    Column {
+        HomeBackgroundSpacer(isWideScreen, useGridLayout)
+
+        val padding = if (useGridLayout) 0.dp else dimensionResource(Res.dimen.medium_padding)
+        Column(
+            modifier = Modifier
+                .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.background)
+                .padding(vertical = padding),
+            verticalArrangement = Arrangement.spacedBy(padding),
+        ) {
+            if (isWideScreen) {
+                HomeTile(
+                    useGridLayout = useGridLayout,
+                    onSwitchGridLayout = onSwitchGridLayout
+                )
+            }
+
+            if (useGridLayout) {
+                GridLayoutTabs(
+                    data = data,
+                    onItemClick = {}
+                )
+            } else {
+                data.forEach { home ->
+                    HomeRow(
+                        list = home.animList,
+                        title = home.title,
+                        onItemClicked = onItemClick
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GridLayoutTabs(
+    data: List<Home>,
+    onItemClick: (HomeItem) -> Unit
+) {
+    val pagerState = rememberPagerState(pageCount = { data.size })
+    val scope = rememberCoroutineScope()
+    PrimaryScrollableTabRow(
+        selectedTabIndex = pagerState.currentPage,
+        containerColor = Color.Unspecified,
+        edgePadding = 0.dp,
+        indicator = {},
+        divider = {}
+    ) {
+        val tabs = remember(data) { data.map { it.title } }
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                text = { title },
+                selected = pagerState.currentPage == index,
+                onClick = {
+                    scope.launch { pagerState.scrollToPage(index) }
+                },
+            )
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+        beyondViewportPageCount = 1,
+    ) { page ->
+        val context = LocalContext.current
+        val isWideScreen = isWideScreen(context)
+        // 判断使用的列数和布局宽度
+        val columns = if (isWideScreen) {
+            GridCells.Adaptive(minSize = dimensionResource(R.dimen.min_media_card_width))
+        } else {
+            GridCells.Fixed(3)
+        }
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = columns,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
+            items(data[page].animList) { homeItem ->
+                MediaSmall(
+                    image = homeItem.img,
+                    label = homeItem.animTitle,
+                    onClick = { onItemClick(homeItem) },
+                    modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun getBlendedBackgroundColor(): Color {
+    return Color(
+        ColorUtils.blendARGB(
+            MaterialTheme.colorScheme.background.toArgb(),
+            MaterialTheme.colorScheme.primaryContainer.toArgb(),
+            0.05f
+        )
+    )
+}
+
+@Composable
+private fun HomeBackgroundSpacer(isWideScreen: Boolean, useGridLayout: Boolean) {
+    val size by animateDpAsState(
+        targetValue = if (!isWideScreen) {
+            if (useGridLayout)
+                dimensionResource(Res.dimen.banner_height) - 56.dp
+            else
+                dimensionResource(Res.dimen.banner_height)
+        } else 0.dp,
+        animationSpec = tween(400),
+        label = "background_padding"
+    )
+    Spacer(Modifier.size(size))
+}
+
+@Composable
+private fun Tab(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -356,7 +375,7 @@ fun HomeBackground(
                 .offset(y = offsetY)
                 .align(Alignment.BottomStart),
             useGridLayout = useGridLayout,
-            onSwitchLayout = onSwitchLayout
+            onSwitchGridLayout = onSwitchLayout
         ) {
             launcher.launch(arrayOf("image/*"))
         }
@@ -367,7 +386,7 @@ fun HomeBackground(
 private fun HomeTile(
     modifier: Modifier = Modifier,
     useGridLayout: Boolean,
-    onSwitchLayout: (Boolean) -> Unit,
+    onSwitchGridLayout: (Boolean) -> Unit,
     onClick: () -> Unit = {},
 ) {
     val isWideScreen = isWideScreen(LocalContext.current)
@@ -389,8 +408,7 @@ private fun HomeTile(
                     text = stringResource(Res.string.lbl_anime),
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = MaterialTheme.typography.displayMedium,
-                    modifier = Modifier
-                        .clickable { onClick() }
+                    modifier = Modifier.clickable { onClick() }
                 )
             }
             Text(
@@ -400,6 +418,7 @@ private fun HomeTile(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .offset(y = 8.dp)
+                    .padding(vertical = if (isWideScreen && useGridLayout) 8.dp else 0.dp)
                     .run {
                         if (isWideScreen) {
                             // 获取焦点
@@ -412,12 +431,9 @@ private fun HomeTile(
         if (!isWideScreen) {
             LayoutTypeSelector(
                 modifier = Modifier
-                    .padding(
-                        end = 24.dp,
-                        bottom = 16.dp
-                    ),
+                    .padding(end = 24.dp, bottom = 16.dp),
                 checked = useGridLayout,
-                onCheckedChange = { onSwitchLayout(it) }
+                onCheckedChange = { onSwitchGridLayout(it) }
             )
         }
     }
