@@ -1,6 +1,5 @@
 package com.sakura.anime.presentation.screen.home
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -115,11 +114,9 @@ fun HomeScreen(
 
             val scrollState = rememberScrollState()
             var useGridLayout by rememberPreference(KEY_USE_GRID_LAYOUT, false)
-            val homeBackgroundColor = getBlendedBackgroundColor()
 
             TranslucentStatusBarLayout(
                 scrollState = scrollState,
-                distanceUntilAnimated = dimensionResource(Res.dimen.banner_height)
             ) {
                 Box(modifier = Modifier.run {
                     if (useGridLayout) this else verticalScroll(scrollState)
@@ -141,7 +138,6 @@ fun HomeScreen(
                             useGridLayout = useGridLayout,
                             onSwitchGridLayout = { useGridLayout = it },
                             isWideScreen = isWideScreen,
-                            homeBackgroundColor = homeBackgroundColor,
                             onItemClick = {
                                 onNavigateToAnimeDetail(
                                     it.detailUrl,
@@ -162,13 +158,14 @@ private fun HomeContent(
     useGridLayout: Boolean,
     onSwitchGridLayout: (Boolean) -> Unit,
     isWideScreen: Boolean,
-    homeBackgroundColor: Color,
     onItemClick: (HomeItem) -> Unit
 ) {
     Column {
         HomeBackgroundSpacer(isWideScreen, useGridLayout)
 
         val padding = if (useGridLayout) 0.dp else dimensionResource(Res.dimen.medium_padding)
+        val homeBackgroundColor = getBlendedBackgroundColor()
+
         Column(
             modifier = Modifier
                 .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.background)
@@ -185,7 +182,7 @@ private fun HomeContent(
             if (useGridLayout) {
                 GridLayoutTabs(
                     data = data,
-                    onItemClick = {}
+                    onItemClick = onItemClick
                 )
             } else {
                 data.forEach { home ->
@@ -439,7 +436,6 @@ private fun HomeTile(
     }
 }
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun HomeRow(
     list: List<HomeItem?>,
@@ -453,7 +449,7 @@ fun HomeRow(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
-                .padding(start = dimensionResource(Res.dimen.medium_padding))
+                .padding(start = dimensionResource(Res.dimen.large_padding))
         )
 
         Spacer(Modifier.size(dimensionResource(Res.dimen.medium_padding)))

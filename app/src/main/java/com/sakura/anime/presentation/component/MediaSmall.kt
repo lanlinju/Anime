@@ -43,8 +43,8 @@ fun <T> MediaSmallRow(
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(Res.dimen.small_padding)),
         contentPadding = PaddingValues(
-            start = dimensionResource(Res.dimen.medium_padding),
-            end = dimensionResource(Res.dimen.medium_padding)
+            start = dimensionResource(Res.dimen.large_padding),
+            end = dimensionResource(Res.dimen.large_padding)
         )
     ) {
         items(mediaList) { media ->

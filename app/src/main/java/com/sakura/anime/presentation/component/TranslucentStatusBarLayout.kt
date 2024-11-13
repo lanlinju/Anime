@@ -11,12 +11,14 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
+import com.sakura.anime.R
 
 @Composable
 fun TranslucentStatusBarLayout(
     scrollState: ScrollState,
-    distanceUntilAnimated: Dp,
+    distanceUntilAnimated: Dp = dimensionResource(R.dimen.banner_height),
     modifier: Modifier = Modifier,
     targetAlpha: Float = 0.75f,
     targetColor: Color = MaterialTheme.colorScheme.background,
