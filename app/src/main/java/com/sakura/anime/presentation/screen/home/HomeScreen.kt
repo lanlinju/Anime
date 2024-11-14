@@ -243,7 +243,7 @@ private fun GridLayoutTabs(
             columns = columns,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp)
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp)
         ) {
             items(data[page].animeList) { homeItem ->
                 MediaSmall(
