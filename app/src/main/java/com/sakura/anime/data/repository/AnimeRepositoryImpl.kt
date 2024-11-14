@@ -4,7 +4,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.sakura.anime.data.remote.api.AnimeApi
-import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.data.repository.paging.SearchPagingSource
 import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.domain.model.AnimeDetail
@@ -71,7 +70,7 @@ class AnimeRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun getWeekData(): Resource<Map<Int, List<AnimeBean>>> {
+    override suspend fun getWeekData(): Resource<Map<Int, List<Anime>>> {
         val response = invokeApi {
             animeApi.getWeekDate()
         }
@@ -79,7 +78,7 @@ class AnimeRepositoryImpl @Inject constructor(
             is Resource.Error -> Resource.Error(error = response.error)
             is Resource.Loading -> Resource.Loading
             is Resource.Success -> Resource.Success(
-                data = response.data.orEmpty()
+                data = response.data?.mapValues { (_, v) -> v.map { it.toAnime() } } ?: emptyMap()
             )
         }
     }

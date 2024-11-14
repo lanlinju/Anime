@@ -1,7 +1,6 @@
 package com.sakura.anime.domain.repository
 
 import androidx.paging.PagingData
-import com.sakura.anime.data.remote.dto.AnimeBean
 import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Home
@@ -19,5 +18,5 @@ interface AnimeRepository {
 
     suspend fun getSearchData(query: String, mode: SourceMode): Flow<PagingData<Anime>>
 
-    suspend fun getWeekData(): Resource<Map<Int, List<AnimeBean>>>
+    suspend fun getWeekData(): Resource<Map<Int, List<Anime>>>
 }

@@ -79,7 +79,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sakura.anime.R
-import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.StateHandler
@@ -191,7 +191,10 @@ fun WeekScreen(
                             WeekList(
                                 list = list,
                                 onItemClicked = {
-                                    onNavigateToAnimeDetail(it.url, SourceHolder.currentSourceMode)
+                                    onNavigateToAnimeDetail(
+                                        it.detailUrl,
+                                        SourceHolder.currentSourceMode
+                                    )
                                 }
                             )
                         }
@@ -224,8 +227,8 @@ fun WeekScreen(
 
 @Composable
 fun WeekList(
-    list: List<AnimeBean>,
-    onItemClicked: (AnimeBean) -> Unit,
+    list: List<Anime>,
+    onItemClicked: (Anime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current

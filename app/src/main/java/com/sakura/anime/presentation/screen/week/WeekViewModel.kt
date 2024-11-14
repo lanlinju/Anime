@@ -13,7 +13,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.sakura.anime.BuildConfig
 import com.sakura.anime.R
-import com.sakura.anime.data.remote.dto.AnimeBean
+import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.util.CHECK_UPDATE_ADDRESS
 import com.sakura.anime.util.DownloadManager
@@ -31,9 +31,9 @@ import javax.inject.Inject
 class WeekViewModel @Inject constructor(
     private val repository: AnimeRepository,
 ) : ViewModel() {
-    private val _weekDataMap: MutableStateFlow<Resource<Map<Int, List<AnimeBean>>>> =
+    private val _weekDataMap: MutableStateFlow<Resource<Map<Int, List<Anime>>>> =
         MutableStateFlow(value = Resource.Loading)
-    val weekDataMap: StateFlow<Resource<Map<Int, List<AnimeBean>>>> get() = _weekDataMap
+    val weekDataMap: StateFlow<Resource<Map<Int, List<Anime>>>> get() = _weekDataMap
 
     private val _isUpdateAvailable: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
     val isUpdateAvailable: StateFlow<Boolean> get() = _isUpdateAvailable
