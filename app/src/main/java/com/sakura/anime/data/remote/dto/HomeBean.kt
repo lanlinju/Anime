@@ -1,7 +1,6 @@
 package com.sakura.anime.data.remote.dto
 
 import com.sakura.anime.domain.model.Home
-import com.sakura.anime.domain.model.HomeItem
 
 data class HomeBean(
     val title: String,
@@ -9,14 +8,7 @@ data class HomeBean(
     val animes: List<AnimeBean>
 ) {
     fun toHome(): Home {
-        val homeItems = animes.map { anime ->
-            HomeItem(
-                animTitle = anime.title,
-                img = anime.img,
-                detailUrl = anime.url,
-                episode = anime.episodeName
-            )
-        }
+        val homeItems = animes.map { it.toAnime() }
         return Home(title = title, animeList = homeItems)
     }
 }

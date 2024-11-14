@@ -67,8 +67,8 @@ import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.sakura.anime.R
+import com.sakura.anime.domain.model.Anime
 import com.sakura.anime.domain.model.Home
-import com.sakura.anime.domain.model.HomeItem
 import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.MediaSmallRow
@@ -158,7 +158,7 @@ private fun HomeContent(
     useGridLayout: Boolean,
     onSwitchGridLayout: (Boolean) -> Unit,
     isWideScreen: Boolean,
-    onItemClick: (HomeItem) -> Unit
+    onItemClick: (Anime) -> Unit
 ) {
     Column {
         HomeBackgroundSpacer(isWideScreen, useGridLayout)
@@ -202,7 +202,7 @@ private fun HomeContent(
 @Composable
 private fun GridLayoutTabs(
     data: List<Home>,
-    onItemClick: (HomeItem) -> Unit
+    onItemClick: (Anime) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { data.size })
     val scope = rememberCoroutineScope()
@@ -248,7 +248,7 @@ private fun GridLayoutTabs(
             items(data[page].animeList) { homeItem ->
                 MediaSmall(
                     image = homeItem.img,
-                    label = homeItem.animTitle,
+                    label = homeItem.title,
                     onClick = { onItemClick(homeItem) },
                     modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width))
                 )
@@ -438,9 +438,9 @@ private fun HomeTile(
 
 @Composable
 fun HomeRow(
-    list: List<HomeItem?>,
+    list: List<Anime?>,
     title: String,
-    onItemClicked: (HomeItem) -> Unit,
+    onItemClicked: (Anime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxWidth()) {
@@ -459,7 +459,7 @@ fun HomeRow(
             content = { homeItem ->
                 MediaSmall(
                     image = homeItem?.img,
-                    label = homeItem?.animTitle,
+                    label = homeItem?.title,
                     onClick = {
                         onItemClicked(homeItem!!)
                     },
