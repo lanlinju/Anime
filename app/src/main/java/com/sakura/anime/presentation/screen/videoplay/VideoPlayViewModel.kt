@@ -1,11 +1,10 @@
 package com.sakura.anime.presentation.screen.videoplay
 
-import android.net.Uri
 import androidx.core.content.edit
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.anime.danmaku.api.DanmakuSession
 import com.sakura.anime.application.AnimeApplication
 import com.sakura.anime.domain.model.Episode
@@ -13,8 +12,7 @@ import com.sakura.anime.domain.model.Video
 import com.sakura.anime.domain.repository.DanmakuRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetVideoFromRemoteUseCase
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_VIDEO_EPISODE_URL
+import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.util.KEY_DANMAKU_ENABLED
 import com.sakura.anime.util.KEY_FROM_LOCAL_VIDEO
 import com.sakura.anime.util.Resource
@@ -50,7 +48,7 @@ class VideoPlayViewModel @Inject constructor(
 
     // 判断是否为本地视频
     private var isLocalVideo = false
-    lateinit var mode: SourceMode
+    var mode: SourceMode
 
     // 当前集数的URL和历史记录ID
     private var currentEpisodeUrl: String = ""
@@ -58,11 +56,9 @@ class VideoPlayViewModel @Inject constructor(
 
     init {
         // 从SavedStateHandle中获取播放模式和视频集数的URL
-        savedStateHandle.get<String>(ROUTE_ARGUMENT_SOURCE_MODE)?.let { mode ->
-            this.mode = SourceMode.valueOf(mode)
-        }
-        savedStateHandle.get<String>(ROUTE_ARGUMENT_VIDEO_EPISODE_URL)?.let { episodeUrl ->
-            val url = Uri.decode(episodeUrl)
+        savedStateHandle.toRoute<Screen.VideoPlay>().let {
+            this.mode = it.mode
+            val url = it.episodeUrl
             if (url.contains(KEY_FROM_LOCAL_VIDEO)) {
                 // 如果是本地视频，获取本地视频
                 isLocalVideo = true
@@ -70,7 +66,7 @@ class VideoPlayViewModel @Inject constructor(
             } else {
                 // 如果是远程视频，获取历史记录Id并加载远程视频
                 currentEpisodeUrl = url
-                getHistoryId(episodeUrl)
+                getHistoryId(url)
                 getVideoFromRemote(url)
             }
         }
@@ -101,7 +97,7 @@ class VideoPlayViewModel @Inject constructor(
             // 从Room数据库中获取下载的详细信息
             roomRepository.getDownloadDetails(detailUrl).collect { downloadDetails ->
                 val episodes = downloadDetails.filter { it.fileSize != 0L }.map {
-                    Episode(name = it.title, url = it.path.toUri().toString())
+                    Episode(name = it.title, url = it.path)
                 }
                 // 根据集数名获取对应视频
                 val index = episodes.indexOfFirst { it.name == episodeName }

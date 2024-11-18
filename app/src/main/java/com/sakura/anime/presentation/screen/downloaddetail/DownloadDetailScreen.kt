@@ -1,7 +1,6 @@
 package com.sakura.anime.presentation.screen.downloaddetail
 
 import android.content.Context
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -124,10 +123,7 @@ fun DownloadDetailScreen(
                                         val params =
                                             "$KEY_FROM_LOCAL_VIDEO:${detailUrl}:${title}:${episodeName}"
 
-                                        onNavigateToVideoPlay(
-                                            Uri.encode(params),
-                                            DEFAULT_ANIME_SOURCE
-                                        )
+                                        onNavigateToVideoPlay(params, DEFAULT_ANIME_SOURCE)
                                     }
 
                                     state.isStarted() -> state.stop()

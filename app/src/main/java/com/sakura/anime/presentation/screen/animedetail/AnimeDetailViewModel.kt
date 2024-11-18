@@ -1,9 +1,9 @@
 package com.sakura.anime.presentation.screen.animedetail
 
-import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.sakura.anime.domain.model.AnimeDetail
 import com.sakura.anime.domain.model.Download
 import com.sakura.anime.domain.model.Episode
@@ -12,8 +12,7 @@ import com.sakura.anime.domain.model.History
 import com.sakura.anime.domain.repository.AnimeRepository
 import com.sakura.anime.domain.repository.RoomRepository
 import com.sakura.anime.domain.usecase.GetAnimeDetailUseCase
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_DETAIL_URL
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_SOURCE_MODE
+import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.util.Resource
 import com.sakura.anime.util.SourceMode
 import com.sakura.download.download
@@ -51,11 +50,9 @@ class AnimeDetailViewModel @Inject constructor(
     lateinit var mode: SourceMode
 
     init {
-        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_SOURCE_MODE)?.let { mode ->
-            this.mode = enumValueOf(mode)
-        }
-        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_DETAIL_URL)?.let { detailUrl ->
-            this.detailUrl = Uri.decode(detailUrl)
+        savedStateHandle.toRoute<Screen.AnimeDetail>().let {
+            this.mode = it.mode
+            this.detailUrl = it.detailUrl
             getAnimeDetail(this.detailUrl)
         }
     }

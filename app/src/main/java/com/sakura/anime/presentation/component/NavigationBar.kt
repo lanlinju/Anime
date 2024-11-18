@@ -33,7 +33,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.sakura.anime.presentation.navigation.Screen
 import java.util.Locale
 import com.sakura.anime.R as Res
 
@@ -173,7 +172,7 @@ enum class NavigationBarPath(
     val label: @Composable () -> String,
 ) {
     RSlash(
-        route = Screen.WeekScreen.route.capitalize(),
+        route = "week".capitalize(),
         icon = {
             Icon(
                 imageVector = ImageVector.vectorResource(id = Res.drawable.rslash),
@@ -183,7 +182,7 @@ enum class NavigationBarPath(
         label = { stringResource(Res.string.navbar_week) }
     ),
     Home(
-        route = Screen.HomeScreen.route.capitalize(),
+        route = "home".capitalize(),
         icon = {
             Icon(
                 imageVector = ImageVector.vectorResource(id = Res.drawable.home),
@@ -193,7 +192,7 @@ enum class NavigationBarPath(
         label = { stringResource(Res.string.navbar_home) }
     ),
     Favourite(
-        route = Screen.FavouriteScreen.route.capitalize(),
+        route = "favourite".capitalize(),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Star,

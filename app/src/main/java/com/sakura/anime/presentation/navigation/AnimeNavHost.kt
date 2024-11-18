@@ -23,7 +23,7 @@ import com.sakura.anime.util.SourceMode
 fun AnimeNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.MainScreen.route,
+    startDestination: Any = Screen.Main,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
     onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
     onNavigateToHistory: () -> Unit,
@@ -39,7 +39,7 @@ fun AnimeNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Screen.MainScreen.route) {
+        composable<Screen.Main> {
             MainScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onNavigateToSearch = onNavigateToSearch,
@@ -49,52 +49,51 @@ fun AnimeNavHost(
                 onNavigateToDanmakuSettings = onNavigateToDanmakuSettings,
             )
         }
-        composable(Screen.AnimeDetailScreen.route) {
+        composable<Screen.AnimeDetail>() {
             AnimeDetailScreen(
                 onRelatedAnimeClick = onNavigateToAnimeDetail,
                 onNavigateToVideoPlay = onNavigateToVideoPlay,
                 onBackClick = onBackClick
             )
         }
-        composable(
-            Screen.VideoPlayScreen.route,
+        composable<Screen.VideoPlay>(
             enterTransition = { fadeIn() },
             popExitTransition = { fadeOut(animationSpec = tween(durationMillis = 35)) }
         ) {
             VideoPlayScreen(onBackClick = onBackClick)
         }
-        composable(Screen.SearchScreen.route) {
+        composable<Screen.Search> {
             SearchScreen(
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onBackClick = onBackClick
             )
         }
-        composable(Screen.HistoryScreen.route) {
+        composable<Screen.HistoryScreen> {
             HistoryScreen(
                 onBackClick = onBackClick,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
                 onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
-        composable(Screen.DownloadScreen.route) {
+        composable<Screen.Download> {
             DownloadScreen(
                 onBackClick = onBackClick,
                 onNavigateToDownloadDetail = onNavigateToDownloadDetail,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail
             )
         }
-        composable(Screen.DownloadDetailScreen.route) {
+        composable<Screen.DownloadDetail> {
             DownloadDetailScreen(
                 onBackClick = onBackClick,
                 onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
-        composable(Screen.AppearanceScreen.route) {
+        composable<Screen.Appearance> {
             AppearanceScreen(
                 onBackClick = onBackClick
             )
         }
-        composable(Screen.DanmakuSettingsScreen.route) {
+        composable<Screen.DanmakuSettings> {
             DanmakuSettingsScreen(
                 onBackClick = onBackClick
             )

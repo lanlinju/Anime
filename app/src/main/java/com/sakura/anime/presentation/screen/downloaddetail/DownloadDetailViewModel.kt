@@ -1,13 +1,12 @@
 package com.sakura.anime.presentation.screen.downloaddetail
 
-import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.sakura.anime.domain.model.DownloadDetail
 import com.sakura.anime.domain.repository.RoomRepository
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_ANIME_TITLE
-import com.sakura.anime.presentation.navigation.ROUTE_ARGUMENT_DETAIL_URL
+import com.sakura.anime.presentation.navigation.Screen
 import com.sakura.anime.util.Resource
 import com.sakura.download.core.DownloadTask
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,21 +26,16 @@ class DownloadDetailViewModel @Inject constructor(
     val downloadDetailsState: StateFlow<Resource<List<DownloadDetail>>>
         get() = _downloadDetailsState
 
-    private val _title: MutableStateFlow<String> =
-        MutableStateFlow("")
-    val title: StateFlow<String>
-        get() = _title
+    private val _title: MutableStateFlow<String> = MutableStateFlow("")
+    val title: StateFlow<String> get() = _title
 
-    lateinit var detailUrl: String
+    var detailUrl: String
 
     init {
-        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_ANIME_TITLE)?.let { title ->
-            _title.value = title
-        }
-
-        savedStateHandle.get<String>(key = ROUTE_ARGUMENT_DETAIL_URL)?.let { detailUrl ->
-            this.detailUrl = detailUrl
-            getDownloadDetails(Uri.decode(detailUrl))
+        savedStateHandle.toRoute<Screen.DownloadDetail>().let {
+            _title.value = it.title
+            this.detailUrl = it.detailUrl
+            getDownloadDetails(it.detailUrl)
         }
     }
 

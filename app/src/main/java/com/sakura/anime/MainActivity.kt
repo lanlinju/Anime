@@ -73,31 +73,31 @@ private fun App(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background),
         navController = navController,
         onNavigateToAnimeDetail = { detailUrl, mode ->
-            navController.navigate(route = Screen.AnimeDetailScreen.passUrl(detailUrl, mode))
+            navController.navigate(route = Screen.AnimeDetail(detailUrl, mode))
         },
         onNavigateToVideoPlay = { episodeUrl, mode ->
-            navController.navigate(route = Screen.VideoPlayScreen.passUrl(episodeUrl, mode))
+            navController.navigate(route = Screen.VideoPlay(episodeUrl, mode))
         },
         onBackClick = {
             navController.popBackStack()
         },
         onNavigateToHistory = {
-            navController.navigate(Screen.HistoryScreen.route)
+            navController.navigate(Screen.HistoryScreen)
         },
         onNavigateToDownload = {
-            navController.navigate(Screen.DownloadScreen.route)
+            navController.navigate(Screen.Download)
         },
         onNavigateToDownloadDetail = { detailUrl, title ->
-            navController.navigate(Screen.DownloadDetailScreen.passUrl(detailUrl, title))
+            navController.navigate(Screen.DownloadDetail(detailUrl, title))
         },
         onNavigateToSearch = {
-            navController.navigate(Screen.SearchScreen.route)
+            navController.navigate(Screen.Search)
         },
         onNavigateToAppearance = {
-            navController.navigate(Screen.AppearanceScreen.route)
+            navController.navigate(Screen.Appearance)
         },
         onNavigateToDanmakuSettings = {
-            navController.navigate(Screen.DanmakuSettingsScreen.route)
+            navController.navigate(Screen.DanmakuSettings)
         },
     )
 }
