@@ -9,8 +9,13 @@ import com.sakura.anime.data.remote.dto.VideoBean
 import com.sakura.anime.data.remote.parse.util.WebViewUtil
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.getDefaultDomain
+import org.json.JSONObject
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import java.net.URLDecoder
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @SuppressLint("StaticFieldLeak", "SetJavaScriptEnabled")
 object AnfunsSource : AnimeSource {
@@ -59,20 +64,6 @@ object AnfunsSource : AnimeSource {
         val relatedAnimes =
             getAnimeList(document.select("div.hl-change-box1").select("li"))
         return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
-    }
-
-    override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val url = "${baseUrl}/$episodeUrl"
-        val source = DownloadManager.getHtml(url)
-        val document = Jsoup.parse(source)
-
-        val spanElement = document.select("div.hl-row-box").select("h2 > span")[0]
-        val title = spanElement.ownText()
-        val episodeName = spanElement.select("em").text()
-        val episodes =
-            getAnimeEpisodes(document.select("div.hl-tabs-box"))
-        val videoUrl = getVideoUrl(url)
-        return VideoBean(title, videoUrl, episodeName, episodes)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
@@ -128,22 +119,60 @@ object AnfunsSource : AnimeSource {
         return animeList
     }
 
-    // Reference code: https://github.com/670848654/MoviesBox/blob/32276dd39cfe531ae21687737df1a564b639d57c/app/src/main/java/my/project/moviesbox/parser/parserImpl/AnFunsImpl.java#L662
-    /**
-     * 1. 先Base64解码
-     * 2. 再URL解码
-     */
-    /*@OptIn(ExperimentalEncodingApi::class)
-    private suspend fun getVideoUrl(document: Document): String {
-        // 获取<script>标签里的内容使用方法data()获取
-        val videoUrlTarget = document.select("div.hl-player-wrap > script")[1].data()
-        val videoUrlRegex = """"url":"(.*?)","url_next"""".toRegex()
-        val rawVideoUrl = videoUrlRegex.find(videoUrlTarget)?.groupValues?.get(1)
-            ?: throw IllegalStateException("video url is empty")
+    override suspend fun getVideoData(episodeUrl: String): VideoBean {
+        val url = "${baseUrl}/$episodeUrl"
+        val source = DownloadManager.getHtml(url)
+        val document = Jsoup.parse(source)
 
-        val encodedVideoUrl = String(Base64.decode(rawVideoUrl), Charsets.UTF_8)
-        return Uri.decode(encodedVideoUrl)
-    }*/
+        val spanElement = document.select("div.hl-row-box").select("h2 > span")[0]
+        val title = spanElement.ownText()
+        val episodeName = spanElement.select("em").text()
+        val episodes =
+            getAnimeEpisodes(document.select("div.hl-tabs-box"))
+        val videoUrl = getVideoUrl(document).let { getVideoUrl(url = url) }
+        return VideoBean(title, videoUrl, episodeName, episodes)
+    }
+
+    // Reference code: https://github.com/670848654/MoviesBox/blob/279a68da4645cde4ba3ba9257a4baac5ced831c5/app/src/main/java/my/project/moviesbox/parser/parserImpl/AnFunsImpl.java#L728
+    @OptIn(ExperimentalEncodingApi::class)
+    private suspend fun getVideoUrl(document: Document): String? {
+        // 获取<script>标签里的内容使用方法data()获取
+        val data = document.select("div.hl-player-wrap > script")[1].data()
+        val jsonText = data.substring(data.indexOf("{"), data.lastIndexOf("}") + 1)
+        val jsonObject = JSONObject(jsonText)
+        val encryptUrl = jsonObject.getString("url")
+        return when (jsonObject.getInt("encrypt")) {
+            2 -> {
+                val decodedString = Base64.decode(encryptUrl) // Base64解码
+                    .decodeToString()
+                    .let { URLDecoder.decode(it, Charsets.UTF_8) } // URLDecode解码
+                decodedString
+            }
+
+            3 -> {
+                val apiTemplate =
+                    "${baseUrl}/vapi/AIRA/art.php?url=%s&next=%s&vid=%s&title=%s&nid=%s&uid=guest&name=guest&group=guest"
+                val vid = jsonObject.getString("id")
+                val title = jsonObject.getJSONObject("vod_data").getString("vod_name")
+                val nid = jsonObject.getInt("nid")
+                val parseApi = apiTemplate.format(
+                    encryptUrl,
+                    baseUrl.replace("https:", ""),
+                    vid,
+                    title,
+                    nid
+                )
+                val apiResult = DownloadManager.getHtml(parseApi, mapOf("Referer" to baseUrl))
+                val regex = "url:\\s*'([^']+)'".toRegex()
+                val videoUrl = regex.find(apiResult)?.groupValues?.get(1)
+                videoUrl
+            }
+
+            else -> {
+                encryptUrl
+            }
+        }
+    }
 
     private suspend fun getVideoUrl(url: String): String {
 //        val regex = "https://www.anfuns.cc/vapi/AIRA/mui.php.*"
