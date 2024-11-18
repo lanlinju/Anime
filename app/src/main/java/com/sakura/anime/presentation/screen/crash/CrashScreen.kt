@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.sakura.anime.R
 import com.sakura.anime.presentation.theme.AnimeTheme
+import com.sakura.anime.presentation.theme.SECONDARY_ALPHA
+import com.sakura.anime.presentation.theme.padding
 import com.sakura.anime.util.shareCrashLog
 import com.sakura.anime.util.toast
 import kotlinx.coroutines.launch
@@ -104,25 +106,6 @@ private fun CrashScreenPreview() {
         CrashScreen(RuntimeException("Dummy").stackTraceToString()) {}
     }
 }
-
-const val DISABLED_ALPHA = .38f
-const val SECONDARY_ALPHA = .78f
-
-class Padding {
-
-    val extraLarge = 32.dp
-
-    val large = 24.dp
-
-    val medium = 16.dp
-
-    val small = 8.dp
-
-    val extraSmall = 4.dp
-}
-
-val MaterialTheme.padding: Padding
-    get() = Padding()
 
 @Composable
 fun InfoScreen(
