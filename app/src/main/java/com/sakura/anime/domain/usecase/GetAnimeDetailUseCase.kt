@@ -40,7 +40,7 @@ class GetAnimeDetailUseCase @Inject constructor(
                                             Episode(
                                                 name = episode.name,
                                                 url = episode.url,
-                                                lastPosition = if (index != -1) localEpisodes[index].lastPosition else 0L,
+                                                lastPlayPosition = if (index != -1) localEpisodes[index].lastPlayPosition else 0L,
                                                 isPlayed = index != -1
                                             )
                                         }

@@ -16,7 +16,7 @@ import com.sakura.anime.presentation.screen.main.MainScreen
 import com.sakura.anime.presentation.screen.search.SearchScreen
 import com.sakura.anime.presentation.screen.settings.AppearanceScreen
 import com.sakura.anime.presentation.screen.settings.DanmakuSettingsScreen
-import com.sakura.anime.presentation.screen.videoplay.VideoPlayScreen
+import com.sakura.anime.presentation.screen.videoplayer.VideoPlayScreen
 import com.sakura.anime.util.SourceMode
 
 @Composable
@@ -56,7 +56,7 @@ fun AnimeNavHost(
                 onBackClick = onBackClick
             )
         }
-        composable<Screen.VideoPlay>(
+        composable<Screen.VideoPlayer>(
             enterTransition = { fadeIn() },
             popExitTransition = { fadeOut(animationSpec = tween(durationMillis = 35)) }
         ) {

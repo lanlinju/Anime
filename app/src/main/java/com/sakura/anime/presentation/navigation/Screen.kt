@@ -30,5 +30,5 @@ sealed class Screen {
     data class AnimeDetail(val detailUrl: String, val mode: SourceMode) : Screen()
 
     @Serializable
-    data class VideoPlay(val episodeUrl: String, val mode: SourceMode) : Screen()
+    data class VideoPlayer(val episodeUrl: String, val mode: SourceMode) : Screen()
 }

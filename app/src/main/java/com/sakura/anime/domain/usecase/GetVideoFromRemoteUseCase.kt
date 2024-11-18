@@ -19,7 +19,7 @@ class GetVideoFromRemoteUseCase @Inject constructor(
             is Resource.Success -> {
                 val localEpisode = roomRepository.getEpisode(episodeUrl).first() ?: return resource
 
-                return Resource.Success(resource.data!!.copy(lastPosition = localEpisode.lastPosition))
+                return Resource.Success(resource.data!!.copy(lastPlayPosition = localEpisode.lastPlayPosition))
             }
         }
     }

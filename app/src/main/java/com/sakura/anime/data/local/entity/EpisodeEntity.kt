@@ -31,14 +31,14 @@ data class EpisodeEntity(
     @ColumnInfo(name = "history_id") val historyId: Long,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "episode_url") val episodeUrl: String,
-    @ColumnInfo(name = "last_position") val lastPosition: Long = 0L,
+    @ColumnInfo(name = "last_position") val lastPosition: Long = 0L, /* 记录上次视频播放的位置 */
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
 ) {
     fun toEpisode(): Episode {
         return Episode(
             name = name,
             url = episodeUrl,
-            lastPosition = lastPosition,
+            lastPlayPosition = lastPosition,
             isPlayed = false,
             historyId = historyId
         )

@@ -1,4 +1,4 @@
-package com.sakura.anime.presentation.screen.videoplay
+package com.sakura.anime.presentation.screen.videoplayer
 
 import androidx.core.content.edit
 import androidx.lifecycle.SavedStateHandle
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class VideoPlayViewModel @Inject constructor(
+class VideoPlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val roomRepository: RoomRepository,
     private val danmakuRepository: DanmakuRepository,
@@ -56,7 +56,7 @@ class VideoPlayViewModel @Inject constructor(
 
     init {
         // 从SavedStateHandle中获取播放模式和视频集数的URL
-        savedStateHandle.toRoute<Screen.VideoPlay>().let {
+        savedStateHandle.toRoute<Screen.VideoPlayer>().let {
             this.mode = it.mode
             val url = it.episodeUrl
             if (url.contains(KEY_FROM_LOCAL_VIDEO)) {
@@ -184,9 +184,9 @@ class VideoPlayViewModel @Inject constructor(
 
     /**
      * 切换到下一集
-     * @param videoPosition 当前视频的播放位置
+     * @param currPlayPosition 当前视频的播放位置, 单位：毫秒
      */
-    fun nextEpisode(videoPosition: Long) {
+    fun nextEpisode(currPlayPosition: Long) {
         _videoState.value.data?.let { video ->
             val nextEpisodeIndex = video.currentEpisodeIndex + 1
             if (nextEpisodeIndex < video.episodes.size) {
@@ -195,7 +195,7 @@ class VideoPlayViewModel @Inject constructor(
                     video.episodes[nextEpisodeIndex].url,
                     video.episodes[nextEpisodeIndex].name,
                     nextEpisodeIndex,
-                    videoPosition
+                    currPlayPosition
                 )
             }
         }
@@ -203,18 +203,18 @@ class VideoPlayViewModel @Inject constructor(
 
     /**
      * 保存当前视频的播放进度
-     * @param videoPosition 当前视频的播放位置
+     * @param currPlayPosition 当前视频的播放位置, 单位：毫秒
      */
-    fun saveVideoPosition(videoPosition: Long) {
+    fun saveVideoPosition(currPlayPosition: Long) {
         // 观看时长少于5秒或本地视频的播放时长不保存
-        if (videoPosition < 5_000 || isLocalVideo) return
+        if (currPlayPosition < 5_000 || isLocalVideo) return
 
         _videoState.value.data?.let { video ->
             viewModelScope.launch {
                 val episode = Episode(
                     name = video.episodeName,
                     url = video.episodeUrl,
-                    lastPosition = videoPosition,
+                    lastPlayPosition = currPlayPosition,
                     historyId = historyId
                 )
                 // 将当前视频进度保存到Room数据库中

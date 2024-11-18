@@ -1,4 +1,4 @@
-package com.sakura.anime.presentation.screen.videoplay
+package com.sakura.anime.presentation.screen.videoplayer
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -151,7 +151,7 @@ private val Resizes = arrayOf(
 /* 屏幕方向改变会导致丢失状态 */
 @Composable
 fun VideoPlayScreen(
-    viewModel: VideoPlayViewModel = hiltViewModel(),
+    viewModel: VideoPlayerViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
 ) {
     val animeVideoState by viewModel.videoState.collectAsState()
@@ -184,7 +184,7 @@ fun VideoPlayScreen(
                 // Video player composable
                 VideoPlayer(
                     url = video.url,
-                    videoPosition = video.lastPosition,
+                    videoPosition = video.lastPlayPosition,
                     playerState = playerState,
                     headers = video.headers,
                     onBackPress = { handleBackPress(playerState, onBackClick, view, activity) },
@@ -251,7 +251,7 @@ private fun ShowLoadingPage() {
 
 // Failure screen composable
 @Composable
-private fun ShowFailurePage(viewModel: VideoPlayViewModel, onBackClick: () -> Unit) {
+private fun ShowFailurePage(viewModel: VideoPlayerViewModel, onBackClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -692,7 +692,7 @@ private fun ShowVideoMessage(text: String, onRetryClick: (() -> Unit)? = null) {
 private fun VideoSideSheet(
     video: Video,
     playerState: VideoPlayerState,
-    viewModel: VideoPlayViewModel
+    viewModel: VideoPlayerViewModel
 ) {
     var selectedSpeedIndex by remember { mutableIntStateOf(3) }     // 1.0x
     var selectedResizeIndex by remember { mutableIntStateOf(0) }    // 适应
