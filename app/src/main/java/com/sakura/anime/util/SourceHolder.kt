@@ -6,6 +6,7 @@ import com.sakura.anime.data.remote.parse.AnfunsSource
 import com.sakura.anime.data.remote.parse.AnimeSource
 import com.sakura.anime.data.remote.parse.CycanimeSource
 import com.sakura.anime.data.remote.parse.GirigiriSource
+import com.sakura.anime.data.remote.parse.GogoanimeSource
 import com.sakura.anime.data.remote.parse.MxdmSource
 import com.sakura.anime.data.remote.parse.NyafunSource
 import com.sakura.anime.data.remote.parse.SilisiliSource
@@ -67,6 +68,7 @@ object SourceHolder {
             SourceMode.Girigiri -> GirigiriSource
             SourceMode.Nyafun -> NyafunSource
             SourceMode.Cycanime -> CycanimeSource
+            SourceMode.Gogoanime -> GogoanimeSource
         }
     }
 }

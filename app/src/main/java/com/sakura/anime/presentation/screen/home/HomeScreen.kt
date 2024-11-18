@@ -268,12 +268,14 @@ fun getBlendedBackgroundColor(): Color {
     )
 }
 
+private val BackgroundOffset = 48.dp
+
 @Composable
 private fun HomeBackgroundSpacer(isWideScreen: Boolean, useGridLayout: Boolean) {
     val size by animateDpAsState(
         targetValue = if (!isWideScreen) {
             if (useGridLayout)
-                dimensionResource(Res.dimen.banner_height) - 56.dp
+                dimensionResource(Res.dimen.banner_height) - BackgroundOffset
             else
                 dimensionResource(Res.dimen.banner_height)
         } else 0.dp,
@@ -336,12 +338,7 @@ fun HomeBackground(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(
-                    if (useGridLayout)
-                        dimensionResource(Res.dimen.banner_height) - 56.dp
-                    else
-                        dimensionResource(Res.dimen.banner_height)
-                )
+                .height(dimensionResource(Res.dimen.banner_height))
                 .bannerParallax(scrollState),
             contentScale = ContentScale.Crop,
             alignment = Alignment.TopCenter,
@@ -363,7 +360,7 @@ fun HomeBackground(
         )
 
         val offsetY by animateDpAsState(
-            targetValue = if (useGridLayout) (-56).dp else 0.dp,
+            targetValue = if (useGridLayout) -BackgroundOffset else 0.dp,
             animationSpec = tween(400),
             label = "hometile_offset"
         )

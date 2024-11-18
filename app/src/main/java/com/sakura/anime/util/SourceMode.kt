@@ -8,6 +8,7 @@ enum class SourceMode {
     Cycanime,
     Nyafun,
     Yhdm,
-    Anfuns
+    Anfuns,
+    Gogoanime
 }
 

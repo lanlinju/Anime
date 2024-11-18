@@ -29,6 +29,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.File
 import java.util.Base64
 
@@ -49,6 +51,12 @@ val AnimeSource.preferences: SharedPreferences
  */
 fun AnimeSource.getDefaultDomain(): String {
     return preferences.getString(KEY_SOURCE_DOMAIN, DEFAULT_DOMAIN) ?: DEFAULT_DOMAIN
+}
+
+suspend fun AnimeSource.getDocument(url: String): Document {
+    val source = DownloadManager.getHtml(url)
+    val document = Jsoup.parse(source)
+    return document
 }
 
 /*

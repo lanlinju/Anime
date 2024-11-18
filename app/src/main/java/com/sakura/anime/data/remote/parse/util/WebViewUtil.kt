@@ -54,8 +54,8 @@ class WebViewUtil {
 
         suspendCancellableCoroutine { continuation ->
 
-            continuation.invokeOnCancellation {
-                "invokeOnCancellation".log(LOG_TAG)
+            continuation.invokeOnCancellation { e ->
+                "invokeOnCancellation: ${e?.message}".log(LOG_TAG)
                 destroyWebView()
             }
 
@@ -129,7 +129,7 @@ class WebViewUtil {
         ) = run {
             val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
             if (blockRes.any { url.contains(it) }) {
-                "intercept load: $url".log(LOG_TAG)
+                "filtered load: $url".log(LOG_TAG)
                 view.post { view.webViewClient.onLoadResource(view, url) }
                 blockWebResourceRequest
             }
