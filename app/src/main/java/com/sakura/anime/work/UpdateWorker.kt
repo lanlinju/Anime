@@ -20,11 +20,14 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters) :
         return withContext(Dispatchers.IO) {
             try {
                 val savePath = applicationContext.getExternalFilesDir("apk/")!!.path
+                val file = File(savePath, "base.apk")
+
+                if (file.exists()) file.delete()
+
                 val downloadTask = download(url = url, saveName = "base.apk", savePath = savePath)
                 downloadTask.suspendStart()
 
                 if (downloadTask.isSucceed()) {
-                    val file = File(savePath, "base.apk")
                     applicationContext.installApk(file)
                     Result.success()
                 } else {

@@ -24,7 +24,7 @@ coil = "2.6.0"
 hiltNavigation = "1.2.0"
 splashscreen = "1.0.1"
 jsoup = "1.18.1"
-workRuntimeKtx = "2.9.1"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setGlobalExceptionHandler() {
+        if (BuildConfig.DEBUG) return // 调试模式下使用控制台查看崩溃日志
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             logCrashToFile(e)
             launchCrashActivity(e)

@@ -1,7 +1,6 @@
 package com.sakura.anime.presentation.screen.week
 
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +18,7 @@ import com.sakura.anime.util.CHECK_UPDATE_ADDRESS
 import com.sakura.anime.util.DownloadManager
 import com.sakura.anime.util.KEY_DOWNLOAD_UPDATE_URL
 import com.sakura.anime.util.Resource
+import com.sakura.anime.util.toast
 import com.sakura.anime.work.UpdateWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,16 +83,13 @@ class WeekViewModel @Inject constructor(
                 _isUpdateCheckInProgress.value = false
                 _isUpdateAvailable.value = isUpdateVersion
                 if (!isUpdateVersion) {
-                    val msg = context.getString(R.string.no_new_version)
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    context.toast(R.string.no_new_version)
                 }
             } catch (_: Exception) {
                 _isUpdateCheckInProgress.value = false
-                val msg = context.getString(R.string.check_updates_failed)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                context.toast(R.string.check_updates_failed)
             }
         }
-
     }
 
     fun downloadVersionUpdate(context: Context, lifecycleOwner: LifecycleOwner) {
@@ -116,15 +113,13 @@ class WeekViewModel @Inject constructor(
                 for (workInfo in listOfWorkInfo) {
                     if (workInfo.state.isFinished) {
                         if (workInfo.state == WorkInfo.State.FAILED) {
-                            val errorMsg = context.getString(R.string.download_software_failed)
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                            context.toast(R.string.download_software_failed)
                         }
                     }
                 }
             }
 
-        val msg = context.getString(R.string.downloading_updates)
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        context.toast(R.string.downloading_updates)
     }
 
     fun dismissVersionUpdateDialog() {
