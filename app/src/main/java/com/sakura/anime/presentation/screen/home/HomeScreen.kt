@@ -36,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -210,8 +211,7 @@ private fun GridLayoutTabs(
         selectedTabIndex = pagerState.currentPage,
         containerColor = Color.Unspecified,
         edgePadding = 0.dp,
-        indicator = {},
-        divider = {}
+        divider = { HorizontalDivider(thickness = 0.5.dp) }
     ) {
         val tabs = remember(data) { data.map { it.title } }
         tabs.forEachIndexed { index, title ->
@@ -243,7 +243,7 @@ private fun GridLayoutTabs(
             columns = columns,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp)
+            contentPadding = PaddingValues(8.dp)
         ) {
             items(data[page].animeList) { homeItem ->
                 MediaSmall(
@@ -254,6 +254,32 @@ private fun GridLayoutTabs(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun Tab(
+    selected: Boolean,
+    text: @Composable () -> String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .padding(8.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(11.dp)
+            )
+            .clip(RoundedCornerShape(11.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = text(),
+//            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 
@@ -283,32 +309,6 @@ private fun HomeBackgroundSpacer(isWideScreen: Boolean, useGridLayout: Boolean) 
         label = "background_padding"
     )
     Spacer(Modifier.size(size))
-}
-
-@Composable
-private fun Tab(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    text: @Composable () -> String,
-) {
-    Box(
-        modifier = modifier
-            .padding(8.dp)
-            .background(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(11.dp)
-            )
-            .clip(RoundedCornerShape(11.dp))
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = text(),
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
 }
 
 @Composable
