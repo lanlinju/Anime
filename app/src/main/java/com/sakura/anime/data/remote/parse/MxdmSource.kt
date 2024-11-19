@@ -116,9 +116,10 @@ object MxdmSource : AnimeSource {
     }
 
     private fun getAnimeEpisodes(elements: Elements): List<EpisodeBean> {
-        val dramaElements = elements.select("div.module-blocklist > div.scroll-content > a") //剧集列表
+        // 剧集列表,含多条线路，默认第一个
+        val dramaElements = elements.select("div.module-blocklist > div.scroll-content")[0]
         val episodes = mutableListOf<EpisodeBean>()
-        dramaElements.forEach { el ->
+        dramaElements.select("a").forEach { el ->
             val name = el.text()
             val url = el.attr("href")
             episodes.add(EpisodeBean(name, url))
