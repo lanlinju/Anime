@@ -72,3 +72,15 @@ object SourceHolder {
         }
     }
 }
+
+enum class SourceMode {
+    Mxdm,
+    Silisili,
+    Girigiri,
+    Agedm,
+    Cycanime,
+    Anfuns,
+    Gogoanime,
+    Yhdm,
+    Nyafun
+}
