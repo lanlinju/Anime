@@ -123,7 +123,7 @@ fun HomeScreen(
             ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
-                    .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.onBackground)
+                    .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.background)
                     .run { if (useGridLayout) this else verticalScroll(scrollState) }
                 ) {
 
@@ -173,7 +173,7 @@ private fun HomeContent(
 
         Column(
             modifier = Modifier
-                .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.onBackground)
+                .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.background)
                 .padding(vertical = padding),
             verticalArrangement = Arrangement.spacedBy(padding),
         ) {
