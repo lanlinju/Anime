@@ -121,7 +121,7 @@ fun DownloadDetailScreen(
                                         val title = titleState.value
                                         val episodeName = downloadDetail.title
                                         val params =
-                                            "$KEY_FROM_LOCAL_VIDEO:${detailUrl}:${title}:${episodeName}"
+                                            "$KEY_FROM_LOCAL_VIDEO#${detailUrl}#${title}#${episodeName}"
 
                                         onNavigateToVideoPlay(params, DEFAULT_ANIME_SOURCE)
                                     }

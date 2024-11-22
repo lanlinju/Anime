@@ -1,5 +1,6 @@
 package com.sakura.videoplayer
 
+import android.net.Uri
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
 import androidx.compose.ui.unit.Constraints
@@ -13,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -147,9 +149,12 @@ private fun StringBuilder.appendDoubleDigit(value: Long) {
     }
 }
 
-internal fun mediaItemCreator(uri: String): MediaItem {
-    val builder = MediaItem.Builder().setUri(uri)
-    if (uri.contains(".m3u8")) {
+internal fun mediaItemCreator(url: String): MediaItem {
+    if (url.contains("/storage/emulated")) { // 本地视频文件处理
+        return MediaItem.fromUri(Uri.fromFile(File(url)))
+    }
+    val builder = MediaItem.Builder().setUri(url) // 远程视频文件类型处理
+    if (url.contains(".m3u8")) {
         builder.setMimeType(MimeTypes.APPLICATION_M3U8)
     }
     return builder.build()

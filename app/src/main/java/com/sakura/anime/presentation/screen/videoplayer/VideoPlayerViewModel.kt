@@ -89,7 +89,7 @@ class VideoPlayerViewModel @Inject constructor(
      */
     private fun getVideoFromLocal(params: String) {
         viewModelScope.launch {
-            val list = params.split(":")
+            val list = params.split("#")
             val detailUrl = list[1]
             val title = list[2]
             val episodeName = list[3]

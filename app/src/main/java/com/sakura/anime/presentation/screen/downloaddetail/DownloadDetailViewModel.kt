@@ -39,6 +39,7 @@ class DownloadDetailViewModel @Inject constructor(
         }
     }
 
+    // TODO:使用传递downloadId获取downloadDetail
     private fun getDownloadDetails(detailUrl: String) {
         viewModelScope.launch {
             roomRepository.getDownloadDetails(detailUrl).collect {
