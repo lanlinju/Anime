@@ -196,9 +196,8 @@ fun AnimeDetailScreen(
                             .bannerParallax(scrollState)
                     )
 
-
                     TopAppBar(
-                        detailUrl = "${SourceHolder.currentSource.baseUrl}${viewModel.detailUrl}",
+                        detailUrl = viewModel.detailUrl,
                         onBackClick = onBackClick,
                         onDownloadClick = { showDownloadBottomSheet = true }
                     )
@@ -431,7 +430,10 @@ private fun TopAppBar(
                         text = { Text(stringResource(id = R.string.website_address)) },
                         onClick = {
                             expanded = false
-                            uriHandler.openUri(detailUrl)
+                            // gogoanime 的detailUrl包含域名地址，其他的不包含，所以需要判断一下
+                            val url =
+                                if (detailUrl.contains("http")) detailUrl else "${SourceHolder.currentSource.baseUrl}$detailUrl"
+                            uriHandler.openUri(url)
                         },
                         leadingIcon = {
                             Icon(
