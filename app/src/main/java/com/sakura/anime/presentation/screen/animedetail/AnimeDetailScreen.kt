@@ -477,7 +477,7 @@ private fun FavouriteIcon(
         Icon(
             if (isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
             contentDescription = stringResource(id = Res.string.favourite),
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.primary,
         )
     }
 }
