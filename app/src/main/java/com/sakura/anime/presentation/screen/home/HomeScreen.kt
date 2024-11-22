@@ -112,18 +112,20 @@ fun HomeScreen(
                 )
             }
         ) { resource ->
-
+            val context = LocalContext.current
             val scrollState = rememberScrollState()
             var useGridLayout by rememberPreference(KEY_USE_GRID_LAYOUT, false)
+            val isWideScreen = isWideScreen(context)
+            val homeBackgroundColor = getBlendedBackgroundColor()
 
             TranslucentStatusBarLayout(
                 scrollState = scrollState,
             ) {
-                Box(modifier = Modifier.run {
-                    if (useGridLayout) this else verticalScroll(scrollState)
-                }) {
-                    val context = LocalContext.current
-                    val isWideScreen = isWideScreen(context)
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.onBackground)
+                    .run { if (useGridLayout) this else verticalScroll(scrollState) }
+                ) {
 
                     if (!isWideScreen) {
                         HomeBackground(
@@ -137,8 +139,9 @@ fun HomeScreen(
                         HomeContent(
                             data = data,
                             useGridLayout = useGridLayout,
-                            onSwitchGridLayout = { useGridLayout = it },
                             isWideScreen = isWideScreen,
+                            homeBackgroundColor = homeBackgroundColor,
+                            onSwitchGridLayout = { useGridLayout = it },
                             onItemClick = {
                                 onNavigateToAnimeDetail(
                                     it.detailUrl,
@@ -157,19 +160,20 @@ fun HomeScreen(
 private fun HomeContent(
     data: List<Home>,
     useGridLayout: Boolean,
-    onSwitchGridLayout: (Boolean) -> Unit,
     isWideScreen: Boolean,
-    onItemClick: (Anime) -> Unit
+    homeBackgroundColor: Color,
+    onSwitchGridLayout: (Boolean) -> Unit,
+    onItemClick: (Anime) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         HomeBackgroundSpacer(isWideScreen, useGridLayout)
 
         val padding = if (useGridLayout) 0.dp else dimensionResource(Res.dimen.medium_padding)
-        val homeBackgroundColor = getBlendedBackgroundColor()
 
         Column(
             modifier = Modifier
-                .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.background)
+                .background(if (!isWideScreen) homeBackgroundColor else MaterialTheme.colorScheme.onBackground)
                 .padding(vertical = padding),
             verticalArrangement = Arrangement.spacedBy(padding),
         ) {
