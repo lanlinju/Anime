@@ -76,9 +76,8 @@ class WeekViewModel @Inject constructor(
                 this@WeekViewModel.updateDescription = obj.getString("body")
                 this@WeekViewModel.updateVersionName = obj.getString("tag_name")
 
-                val latestVersionName = obj.getString("name")
-                val curVersionName = BuildConfig.VERSION_NAME
-                val isUpdateVersion = !latestVersionName.equals(curVersionName)
+                val curVersionName = "v${BuildConfig.VERSION_NAME}"
+                val isUpdateVersion = updateVersionName != curVersionName
 
                 _isUpdateCheckInProgress.value = false
                 _isUpdateAvailable.value = isUpdateVersion
