@@ -30,8 +30,10 @@ object GogoanimeSource : AnimeSource {
     override val DEFAULT_DOMAIN: String = "https://gogoanime.by/"
     override var baseUrl: String = getDefaultDomain()
 
-    private val client: HttpClient by lazy {
-        HttpClient {
+    private lateinit var client: HttpClient
+
+    override fun onEnter() {
+        client = HttpClient {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
             }
