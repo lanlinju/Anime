@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sakura.anime.presentation.component.AdaptiveNavigationBar
 import com.sakura.anime.presentation.component.NavigationBarPath
 import com.sakura.anime.presentation.screen.favourite.FavouriteScreen
 import com.sakura.anime.presentation.screen.home.HomeScreen
+import com.sakura.anime.presentation.screen.week.VersionUpdateDialog
 import com.sakura.anime.presentation.screen.week.WeekScreen
 import com.sakura.anime.util.SourceMode
 import com.sakura.anime.util.isWideScreen
@@ -37,6 +40,8 @@ fun MainScreen(
     onNavigateToAppearance: () -> Unit,
     onNavigateToDanmakuSettings: () -> Unit,
 ) {
+    val viewModel = hiltViewModel<MainViewModel>()
+    val showVersionUpdateDialog by viewModel.showVersionUpdateDialog.collectAsState()
     var currentDestination by rememberSaveable { mutableStateOf(NavigationBarPath.Home.route) }
     val pagerState = rememberPagerState(initialPage = 1) { NavigationBarPath.entries.size }
     val scope = rememberCoroutineScope()
@@ -74,6 +79,7 @@ fun MainScreen(
                     onNavigateToAppearance = onNavigateToAppearance,
                     onNavigateToDanmakuSettings = onNavigateToDanmakuSettings
                 )
+
                 1 -> HomeScreen(onNavigateToAnimeDetail)
                 2 -> FavouriteScreen(onNavigateToAnimeDetail)
             }
@@ -86,15 +92,29 @@ fun MainScreen(
             pagerContent(
                 Modifier
                     .fillMaxHeight()
-                    .weight(1f))
+                    .weight(1f)
+            )
         }
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
             pagerContent(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f))
+                    .weight(1f)
+            )
             navigationBar()
         }
+    }
+
+    if (showVersionUpdateDialog) {
+        VersionUpdateDialog(
+            updateVersionName = viewModel.updateVersionName,
+            updateDescription = viewModel.updateDescription,
+            onDismissUpdateDialog = viewModel::dismissUpdateDialog,
+            onDownloadUpdate = {
+                viewModel.dismissUpdateDialog()
+                viewModel.downloadUpdate(context)
+            }
+        )
     }
 }

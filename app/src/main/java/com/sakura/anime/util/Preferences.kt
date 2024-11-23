@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
+import com.sakura.anime.application.AnimeApplication
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
@@ -27,6 +28,23 @@ const val KEY_DYNAMIC_IMAGE_COLOR = "dynamicImageColor"
 const val KEY_DANMAKU_ENABLED = "danmakuEnabled"
 const val KEY_DANMAKU_CONFIG_DATA = "danmakuConfigData"
 
+// 自动检查更新相关
+const val KEY_IS_AUTO_CHECK_UPDATE = "isAutoCheckUpdate" // 自动更新开关
+const val KEY_LAST_CHECK_UPDATE_TIME = "lastCheckUpdateTime" // 上次检查更新的时间（以时间戳保存）
+
+private val preferences = AnimeApplication.getInstance().preferences
+
+fun preferenceForBoolean(key: String, defValue: Boolean): Boolean {
+    return preferences.getBoolean(key, defValue)
+}
+
+fun preferenceForLong(key: String, defValue: Long): Long {
+    return preferences.getLong(key, defValue)
+}
+
+fun preferenceForString(key: String, defValue: String): String {
+    return preferences.getString(key, defValue) ?: defValue
+}
 
 fun <T> SharedPreferences.getObject(
     key: String,
@@ -130,11 +148,11 @@ inline fun <T> mutableStatePreferenceOf(
     value: T,
     crossinline onStructuralInequality: (newValue: T) -> Unit
 ) = mutableStateOf(
-        value = value,
-        policy = object : SnapshotMutationPolicy<T> {
-            override fun equivalent(a: T, b: T): Boolean {
-                val areEquals = a == b
-                if (!areEquals) onStructuralInequality(b)
-                return areEquals
-            }
-        })
+    value = value,
+    policy = object : SnapshotMutationPolicy<T> {
+        override fun equivalent(a: T, b: T): Boolean {
+            val areEquals = a == b
+            if (!areEquals) onStructuralInequality(b)
+            return areEquals
+        }
+    })

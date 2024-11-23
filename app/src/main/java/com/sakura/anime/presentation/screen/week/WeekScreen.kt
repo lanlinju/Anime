@@ -519,7 +519,7 @@ fun Dialogs(
 }
 
 @Composable
-private fun VersionUpdateDialog(
+fun VersionUpdateDialog(
     updateVersionName: String,
     updateDescription: String,
     onDismissUpdateDialog: () -> Unit,

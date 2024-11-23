@@ -129,7 +129,7 @@ fun Context.toast(@StringRes resId: Int) {
     Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show()
 }
 
-fun <T> T.log(tag: String, prefix: String = ""): T {
+fun <T> T.log(tag: String = "Debug", prefix: String = ""): T {
     val prefixStr = if (prefix.isEmpty()) "" else "[$prefix] "
     if (BuildConfig.DEBUG) {
         if (this is Throwable) {
