@@ -19,7 +19,7 @@ object SourceHolder {
     /**
      * 默认动漫源
      */
-    val DEFAULT_ANIME_SOURCE = SourceMode.Mxdm
+    val DEFAULT_ANIME_SOURCE = SourceMode.Silisili
 
     val currentSource: AnimeSource
         get() = _currentSource
@@ -74,8 +74,8 @@ object SourceHolder {
 }
 
 enum class SourceMode {
-    Mxdm,
     Silisili,
+    Mxdm,
     Girigiri,
     Agedm,
     Cycanime,
