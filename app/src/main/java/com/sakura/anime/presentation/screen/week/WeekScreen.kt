@@ -84,9 +84,11 @@ import com.sakura.anime.presentation.component.LoadingIndicator
 import com.sakura.anime.presentation.component.MediaSmall
 import com.sakura.anime.presentation.component.StateHandler
 import com.sakura.anime.presentation.component.WarningMessage
+import com.sakura.anime.presentation.theme.padding
 import com.sakura.anime.util.GITHUB_ADDRESS
 import com.sakura.anime.util.GITHUB_RELEASE_ADDRESS
 import com.sakura.anime.util.KEY_AUTO_ORIENTATION_ENABLED
+import com.sakura.anime.util.KEY_IS_AUTO_CHECK_UPDATE
 import com.sakura.anime.util.KEY_SOURCE_MODE
 import com.sakura.anime.util.SourceHolder
 import com.sakura.anime.util.SourceHolder.DEFAULT_ANIME_SOURCE
@@ -648,37 +650,63 @@ private fun SettingsDialog(
     onDismissRequest: () -> Unit,
 ) {
     var isAutoOrientation by rememberPreference(KEY_AUTO_ORIENTATION_ENABLED, true)
+    var isAutoCheckUpdate by rememberPreference(KEY_IS_AUTO_CHECK_UPDATE, true)
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
-            Column(
-                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.large_padding))
-            ) {
+        Card(
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(modifier = Modifier.padding(MaterialTheme.padding.large)) {
                 Text(
-                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
                     text = stringResource(id = R.string.default_settings),
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(dimensionResource(id = R.dimen.radio_button_height))
-                        .padding(horizontal = dimensionResource(id = R.dimen.large_padding)),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.enable_auto_rotate_orientation),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
+                SettingsItem(
+                    text = stringResource(id = R.string.enable_auto_rotate_orientation),
+                    checked = isAutoOrientation,
+                    onCheckedChange = { isAutoOrientation = it }
+                )
 
-                    Switch(checked = isAutoOrientation, onCheckedChange = {
-                        isAutoOrientation = it
-                    })
+                SettingsItem(
+                    text = stringResource(id = R.string.auto_check_update),
+                    checked = isAutoCheckUpdate,
+                    onCheckedChange = { isAutoCheckUpdate = it }
+                )
+
+                TextButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = onDismissRequest
+                ) {
+                    Text(stringResource(R.string.close))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsItem(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(dimensionResource(id = R.dimen.radio_button_height)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
     }
 }
 

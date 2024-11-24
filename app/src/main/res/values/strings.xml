@@ -63,6 +63,7 @@
     <string name="check_updates_failed">连接Github超时，检测更新失败</string>
     <string name="cancel">取消</string>
     <string name="confirm">确认</string>
+    <string name="close">关闭</string>
     <string name="download_software">下载更新</string>
     <string name="download_software_failed">下载更新失败</string>
     <string name="software_updates">软件更新</string>
@@ -113,4 +114,6 @@
     <string name="action_share">分享</string>
     <string name="copy_crash_log">复制崩溃日志</string>
     <string name="crash_log_has_been_copied">崩溃日志已复制</string>
+
+    <string name="auto_check_update">自动更新</string>
 </resources>
