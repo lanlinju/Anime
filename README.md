@@ -1,4 +1,4 @@
-# Anime
+# Animius
 
 一个简洁的播放动漫的App，支持下载，弹幕，多数据源等功能，使用[Jetpack Compose](https://developer.android.com/jetpack?hl=zh-cn)
 进行开发
