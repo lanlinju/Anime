@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sakura.download"
+    namespace = "com.lanlinju.download"
     compileSdk = 35
 
     defaultConfig {

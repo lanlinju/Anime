@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Anime</string>
+    <string name="app_name">Animius</string>
     <string name="txt_empty_result">Oops...! we couldn\'t find the Anime</string>
     <string name="lbl_anime">Anime</string>
     <string name="lbl_related_anime">相关推荐</string>

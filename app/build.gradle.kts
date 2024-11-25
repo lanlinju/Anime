@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.sakura.anime"
+    namespace = "com.lanlinju.animius"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.sakura.anime"
+        applicationId = "com.lanlinju.animius"
         minSdk = 26
         targetSdk = 35
         versionCode = 26

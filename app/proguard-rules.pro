@@ -32,7 +32,7 @@
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 
 # 保留 SourceMode 枚举类及其成员
--keep enum com.sakura.anime.util.SourceMode { *; }
+-keep enum com.lanlinju.animius.util.SourceMode { *; }
 
 # https://developer.android.com/build/shrink-code?utm_source=android-studio&hl=zh-cn#retracing
 # 对堆栈轨迹进行轨迹还原

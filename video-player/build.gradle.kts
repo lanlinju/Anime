@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sakura.video_player"
+    namespace = "com.lanlinju.videoplayer"
     compileSdk = 35
 
     defaultConfig {

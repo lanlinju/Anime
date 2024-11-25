@@ -1,0 +1,386 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "fcac2f347c258dffa74bd37898f6e5cc",
+    "entities": [
+      {
+        "tableName": "favourite_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`favourite_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "favouriteId",
+            "columnName": "favourite_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailUrl",
+            "columnName": "detail_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imgUrl",
+            "columnName": "img_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "favourite_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_favourite_table_detail_url",
+            "unique": true,
+            "columnNames": [
+              "detail_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_favourite_table_detail_url` ON `${TABLE_NAME}` (`detail_url`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "history_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`history_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `img_url` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `source` TEXT NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "historyId",
+            "columnName": "history_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imgUrl",
+            "columnName": "img_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailUrl",
+            "columnName": "detail_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "history_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_history_table_detail_url",
+            "unique": true,
+            "columnNames": [
+              "detail_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_history_table_detail_url` ON `${TABLE_NAME}` (`detail_url`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "episode_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`episode_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `history_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `episode_url` TEXT NOT NULL, `last_position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`history_id`) REFERENCES `history_table`(`history_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "episodeId",
+            "columnName": "episode_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "historyId",
+            "columnName": "history_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "episodeUrl",
+            "columnName": "episode_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastPosition",
+            "columnName": "last_position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "episode_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_episode_table_history_id",
+            "unique": false,
+            "columnNames": [
+              "history_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_episode_table_history_id` ON `${TABLE_NAME}` (`history_id`)"
+          },
+          {
+            "name": "index_episode_table_episode_url",
+            "unique": true,
+            "columnNames": [
+              "episode_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episode_table_episode_url` ON `${TABLE_NAME}` (`episode_url`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "history_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "history_id"
+            ],
+            "referencedColumns": [
+              "history_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "download_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`download_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `detail_url` TEXT NOT NULL, `img_url` TEXT NOT NULL, `source` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "downloadId",
+            "columnName": "download_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailUrl",
+            "columnName": "detail_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imgUrl",
+            "columnName": "img_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "download_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_download_table_detail_url",
+            "unique": true,
+            "columnNames": [
+              "detail_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_download_table_detail_url` ON `${TABLE_NAME}` (`detail_url`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "download_detail_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`download_detail_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `download_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `img_url` TEXT NOT NULL, `drama_number` INTEGER NOT NULL, `download_url` TEXT NOT NULL, `path` TEXT NOT NULL, `download_size` INTEGER NOT NULL, `total_size` INTEGER NOT NULL, `file_size` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`download_id`) REFERENCES `download_table`(`download_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "downloadDetailId",
+            "columnName": "download_detail_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadId",
+            "columnName": "download_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imgUrl",
+            "columnName": "img_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dramaNumber",
+            "columnName": "drama_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadUrl",
+            "columnName": "download_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadSize",
+            "columnName": "download_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalSize",
+            "columnName": "total_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileSize",
+            "columnName": "file_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "download_detail_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_download_detail_table_download_id",
+            "unique": false,
+            "columnNames": [
+              "download_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_download_detail_table_download_id` ON `${TABLE_NAME}` (`download_id`)"
+          },
+          {
+            "name": "index_download_detail_table_download_url",
+            "unique": true,
+            "columnNames": [
+              "download_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_download_detail_table_download_url` ON `${TABLE_NAME}` (`download_url`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "download_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "download_id"
+            ],
+            "referencedColumns": [
+              "download_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fcac2f347c258dffa74bd37898f6e5cc')"
+    ]
+  }
+}
