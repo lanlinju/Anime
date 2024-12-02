@@ -29,12 +29,10 @@ class DownloadDetailViewModel @Inject constructor(
     private val _title: MutableStateFlow<String> = MutableStateFlow("")
     val title: StateFlow<String> get() = _title
 
-    var detailUrl: String
 
     init {
         savedStateHandle.toRoute<Screen.DownloadDetail>().let {
             _title.value = it.title
-            this.detailUrl = it.detailUrl
             getDownloadDetails(it.detailUrl)
         }
     }

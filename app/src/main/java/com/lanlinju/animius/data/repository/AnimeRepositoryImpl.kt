@@ -8,11 +8,14 @@ import com.lanlinju.animius.data.repository.paging.SearchPagingSource
 import com.lanlinju.animius.domain.model.Anime
 import com.lanlinju.animius.domain.model.AnimeDetail
 import com.lanlinju.animius.domain.model.Home
-import com.lanlinju.animius.domain.model.Video
+import com.lanlinju.animius.domain.model.WebVideo
 import com.lanlinju.animius.domain.repository.AnimeRepository
 import com.lanlinju.animius.util.Resource
+import com.lanlinju.animius.util.Result
 import com.lanlinju.animius.util.SEARCH_PAGE_SIZE
 import com.lanlinju.animius.util.SourceMode
+import com.lanlinju.animius.util.map
+import com.lanlinju.animius.util.safeCall
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,17 +53,10 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getVideoData(episodeUrl: String, mode: SourceMode): Resource<Video?> {
-        val response = invokeApi {
+    override suspend fun getVideoData(episodeUrl: String, mode: SourceMode): Result<WebVideo> {
+        return safeCall {
             animeApi.getVideoData(episodeUrl, mode)
-        }
-        return when (response) {
-            is Resource.Error -> Resource.Error(error = response.error)
-            is Resource.Loading -> Resource.Loading
-            is Resource.Success -> Resource.Success(
-                data = response.data?.toVideo()
-            )
-        }
+        }.map { it.toWebVideo() }
     }
 
     override suspend fun getSearchData(query: String, mode: SourceMode): Flow<PagingData<Anime>> {

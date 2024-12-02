@@ -76,8 +76,8 @@ private fun App(modifier: Modifier = Modifier) {
         onNavigateToAnimeDetail = { detailUrl, mode ->
             navController.navigate(route = Screen.AnimeDetail(detailUrl, mode))
         },
-        onNavigateToVideoPlay = { episodeUrl, mode ->
-            navController.navigate(route = Screen.VideoPlayer(episodeUrl, mode))
+        onNavigateToVideoPlay = { playerParameters ->
+            navController.navigate(Screen.VideoPlayer(playerParameters))
         },
         onBackClick = {
             navController.popBackStack()

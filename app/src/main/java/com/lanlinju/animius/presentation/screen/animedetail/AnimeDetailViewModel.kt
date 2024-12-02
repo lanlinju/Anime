@@ -15,6 +15,7 @@ import com.lanlinju.animius.domain.usecase.GetAnimeDetailUseCase
 import com.lanlinju.animius.presentation.navigation.Screen
 import com.lanlinju.animius.util.Resource
 import com.lanlinju.animius.util.SourceMode
+import com.lanlinju.animius.util.onSuccess
 import com.lanlinju.download.download
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -82,11 +83,16 @@ class AnimeDetailViewModel @Inject constructor(
     @OptIn(DelicateCoroutinesApi::class)
     fun addDownload(download: Download, episodeUrl: String, file: File) {
         viewModelScope.launch {
-            val videoUrl = animeRepository.getVideoData(episodeUrl, mode).data?.url ?: return@launch
-            val downloadDetail = download.downloadDetails.first().copy(downloadUrl = videoUrl)
-            roomRepository.addDownload(download.copy(downloadDetails = listOf(downloadDetail)))
-            // 开始下载视频
-            GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!).start()
+            animeRepository.getVideoData(episodeUrl, mode)
+                .onSuccess {
+                    val videoUrl = it.url
+                    val downloadDetail =
+                        download.downloadDetails.first().copy(downloadUrl = videoUrl)
+                    roomRepository.addDownload(download.copy(downloadDetails = listOf(downloadDetail)))
+                    // 开始下载视频
+                    GlobalScope.download(videoUrl, saveName = file.name, savePath = file.parent!!)
+                        .start()
+                }
         }
     }
 

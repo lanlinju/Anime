@@ -116,6 +116,7 @@ import com.lanlinju.animius.presentation.component.ScrollableText
 import com.lanlinju.animius.presentation.component.StateHandler
 import com.lanlinju.animius.presentation.component.TranslucentStatusBarLayout
 import com.lanlinju.animius.presentation.component.WarningMessage
+import com.lanlinju.animius.presentation.navigation.PlayerParameters
 import com.lanlinju.animius.util.CROSSFADE_DURATION
 import com.lanlinju.animius.util.KEY_DYNAMIC_IMAGE_COLOR
 import com.lanlinju.animius.util.SettingsPreferences
@@ -136,7 +137,7 @@ fun AnimeDetailScreen(
     viewModel: AnimeDetailViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     onRelatedAnimeClick: (detailUrl: String, mode: SourceMode) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit
+    onNavigateToVideoPlay: (parameters: String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val bannerHeight = dimensionResource(Res.dimen.banner_height)
@@ -145,7 +146,7 @@ fun AnimeDetailScreen(
     val isFavourite by viewModel.isFavourite.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
     StateHandler(
         state = animeDetailState,
@@ -261,17 +262,27 @@ fun AnimeDetailScreen(
                                     end = dimensionResource(Res.dimen.large_padding)
                                 ),
                                 reverseList = reverseList,
-                                onEpisodeClick = { episode ->
-                                    val history =
-                                        History(
-                                            title = animeDetail.title,
-                                            imgUrl = animeDetail.img,
-                                            detailUrl = viewModel.detailUrl,
-                                            episodes = listOf(episode),
-                                            sourceMode = viewModel.mode
-                                        )
-                                    viewModel.addHistory(history)
-                                    onNavigateToVideoPlay(episode.url, viewModel.mode)
+                                onEpisodeClick = { episodeIndex ->
+                                    // TODO: 优化
+                                    with(animeDetail) {
+                                        val history =
+                                            History(
+                                                title = title,
+                                                imgUrl = img,
+                                                detailUrl = viewModel.detailUrl,
+                                                episodes = listOf(episodes[episodeIndex]),
+                                                sourceMode = viewModel.mode
+                                            )
+                                        viewModel.addHistory(history)
+                                        scope.launch {
+                                            PlayerParameters.serialize(
+                                                title = title,
+                                                episodeIndex = episodeIndex,
+                                                episodes = episodes,
+                                                mode = viewModel.mode
+                                            ).let { onNavigateToVideoPlay(it) }
+                                        }
+                                    }
                                 }
                             )
 
@@ -306,7 +317,7 @@ fun AnimeDetailScreen(
                             modifier = Modifier.width(dimensionResource(Res.dimen.media_card_width)),
                             onSuccess = { bitmap ->
                                 if (isDynamicImageColor) {
-                                    coroutineScope.launch {
+                                    scope.launch {
                                         val newBitmap =
                                             bitmap.copy(Bitmap.Config.ARGB_8888, true)
                                         dynamicColorOf(newBitmap)?.let {
@@ -326,18 +337,30 @@ fun AnimeDetailScreen(
                             reverseList = reverseList,
                             lastPosition = animeDetail.lastPosition,
                             onDismissRequest = { showBottomSheet = false },
-                            onEpisodeClick = { episode ->
-                                val history =
-                                    History(
-                                        title = animeDetail.title,
-                                        imgUrl = animeDetail.img,
-                                        detailUrl = viewModel.detailUrl,
-                                        episodes = listOf(episode),
-                                        sourceMode = viewModel.mode
-                                    )
-                                viewModel.addHistory(history)
-                                onNavigateToVideoPlay(episode.url, viewModel.mode)
-                            })
+                            onEpisodeClick = { episodeIndex ->
+                                // TODO: 优化
+                                with(animeDetail) {
+                                    val history =
+                                        History(
+                                            title = title,
+                                            imgUrl = img,
+                                            detailUrl = viewModel.detailUrl,
+                                            episodes = listOf(episodes[episodeIndex]),
+                                            sourceMode = viewModel.mode
+                                        )
+                                    viewModel.addHistory(history)
+                                    scope.launch {
+                                        PlayerParameters.serialize(
+                                            title = title,
+                                            episodeIndex = episodeIndex,
+                                            episodes = episodes,
+                                            mode = viewModel.mode
+                                        ).let { onNavigateToVideoPlay(it) }
+                                    }
+
+                                }
+                            }
+                        )
                     }
 
                     if (showDownloadBottomSheet) {
@@ -589,7 +612,7 @@ fun AnimeEpisodes(
     reverseList: Boolean,
     contentPadding: PaddingValues,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
-    onEpisodeClick: (episode: Episode) -> Unit
+    onEpisodeClick: (episodeIndex: Int) -> Unit
 ) {
     val scrollState = rememberLazyListState(
         initialFirstVisibleItemIndex = if (lastPosition < 3) 0 else lastPosition,
@@ -609,7 +632,7 @@ fun AnimeEpisodes(
             val interactionSource = remember { MutableInteractionSource() }
 //            var focusIndex by rememberSaveable { mutableStateOf(lastPosition) } // 保存焦点位置
             FilledTonalButton(
-                onClick = { onEpisodeClick(episode) },
+                onClick = { onEpisodeClick(index) },
                 colors = ButtonDefaults.filledTonalButtonColors(containerColor = color.copy(0.5f)),
                 modifier = Modifier.run {
                     if (isAndroidTV) {
@@ -724,7 +747,7 @@ private fun EpisodeBottomSheet(
     reverseList: Boolean,
     lastPosition: Int,
     onDismissRequest: () -> Unit,
-    onEpisodeClick: (episode: Episode) -> Unit,
+    onEpisodeClick: (episodeIndex: Int) -> Unit,
     isDownload: Boolean = false,
     onDownloadClick: (index: Int, episode: Episode) -> Unit = { _, _ -> },
 ) {
@@ -752,7 +775,7 @@ private fun EpisodeBottomSheet(
                     onClick = {
                         when {
                             isDownload -> onDownloadClick(index, episode)
-                            else -> onEpisodeClick(episode)
+                            else -> onEpisodeClick(index)
                         }
                     },
                     label = {

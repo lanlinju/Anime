@@ -1,6 +1,7 @@
 package com.lanlinju.animius.data.remote.dto
 
 import com.lanlinju.animius.domain.model.Video
+import com.lanlinju.animius.domain.model.WebVideo
 
 data class VideoBean(
     val title: String,
@@ -20,6 +21,13 @@ data class VideoBean(
             currentEpisodeIndex = index,
             episodes = episodes.map { it.toEpisode() },
             headers = headers,
+        )
+    }
+
+    fun toWebVideo(): WebVideo {
+        return WebVideo(
+            url = url,
+            headers = headers
         )
     }
 }

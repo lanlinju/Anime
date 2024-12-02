@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -40,15 +40,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lanlinju.animius.R
+import com.lanlinju.animius.domain.model.Episode
 import com.lanlinju.animius.presentation.component.BackTopAppBar
 import com.lanlinju.animius.presentation.component.LoadingIndicator
 import com.lanlinju.animius.presentation.component.PopupMenuListItem
 import com.lanlinju.animius.presentation.component.StateHandler
+import com.lanlinju.animius.presentation.navigation.PlayerParameters
 import com.lanlinju.animius.util.CROSSFADE_DURATION
-import com.lanlinju.animius.util.KEY_FROM_LOCAL_VIDEO
-import com.lanlinju.animius.util.SourceHolder.DEFAULT_ANIME_SOURCE
-import com.lanlinju.animius.util.SourceMode
 import com.lanlinju.animius.util.VIDEO_ASPECT_RATIO
+import com.lanlinju.animius.util.toast
 import com.lanlinju.download.Progress
 import com.lanlinju.download.core.DownloadTask
 import com.lanlinju.download.download
@@ -64,12 +64,14 @@ import com.lanlinju.download.State as DownloadSate
 
 @Composable
 fun DownloadDetailScreen(
-    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
+    onNavigateToVideoPlay: (parameters: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel: DownloadDetailViewModel = hiltViewModel()
     val downloadDetailsState = viewModel.downloadDetailsState.collectAsState()
     val titleState = viewModel.title.collectAsState()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     StateHandler(
         state = downloadDetailsState.value,
@@ -82,7 +84,10 @@ fun DownloadDetailScreen(
         }) { paddingValues ->
             LazyColumn(modifier = Modifier.padding(paddingValues)) {
                 resource.data?.let { downloadDetailList ->
-                    items(downloadDetailList, key = { it.downloadUrl }) { downloadDetail ->
+
+                    itemsIndexed(
+                        downloadDetailList,
+                        key = { i, d -> d.downloadUrl }) { index, downloadDetail ->
 
                         val state =
                             rememberDownloaderState(
@@ -117,13 +122,30 @@ fun DownloadDetailScreen(
                             onClick = {
                                 when {
                                     state.isSucceed.value -> {
-                                        val detailUrl = viewModel.detailUrl
                                         val title = titleState.value
                                         val episodeName = downloadDetail.title
-                                        val params =
-                                            "$KEY_FROM_LOCAL_VIDEO#${detailUrl}#${title}#${episodeName}"
+                                        scope.launch {
+                                            // 过滤出已下载好的视频剧集
+                                            val episodes =
+                                                downloadDetailList.filter { it.fileSize != 0L }
+                                                    .map {
+                                                        Episode(name = it.title, url = it.path)
+                                                    }
+                                            // 根据集数名获取对应视频
+                                            val index =
+                                                episodes.indexOfFirst { it.name == episodeName }
 
-                                        onNavigateToVideoPlay(params, DEFAULT_ANIME_SOURCE)
+                                            if (index != -1) {
+                                                PlayerParameters.serialize(
+                                                    title = title,
+                                                    episodeIndex = index,
+                                                    episodes = episodes,
+                                                    isLocalVideo = true,
+                                                ).let { onNavigateToVideoPlay(it) }
+                                            } else {
+                                                context.toast(R.string.unknown_error)
+                                            }
+                                        }
                                     }
 
                                     state.isStarted() -> state.stop()

@@ -5,8 +5,6 @@ const val VIDEO_ASPECT_RATIO = 1.778f
 
 const val LOW_CONTENT_ALPHA= 0.35f
 
-const val KEY_FROM_LOCAL_VIDEO = "fromLocalVideo"
-
 val TABS = listOf("一", "二", "三", "四", "五", "六", "日")
 
 const val CRASH_LOG_FILE = "anime_crash_logs.txt"

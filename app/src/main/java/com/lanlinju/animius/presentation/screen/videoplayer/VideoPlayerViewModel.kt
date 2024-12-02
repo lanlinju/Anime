@@ -9,19 +9,24 @@ import com.anime.danmaku.api.DanmakuSession
 import com.lanlinju.animius.application.AnimeApplication
 import com.lanlinju.animius.domain.model.Episode
 import com.lanlinju.animius.domain.model.Video
+import com.lanlinju.animius.domain.model.WebVideo
+import com.lanlinju.animius.domain.repository.AnimeRepository
 import com.lanlinju.animius.domain.repository.DanmakuRepository
 import com.lanlinju.animius.domain.repository.RoomRepository
-import com.lanlinju.animius.domain.usecase.GetVideoFromRemoteUseCase
+import com.lanlinju.animius.presentation.navigation.PlayerParameters
 import com.lanlinju.animius.presentation.navigation.Screen
 import com.lanlinju.animius.util.KEY_DANMAKU_ENABLED
-import com.lanlinju.animius.util.KEY_FROM_LOCAL_VIDEO
 import com.lanlinju.animius.util.Resource
+import com.lanlinju.animius.util.Result
 import com.lanlinju.animius.util.SourceMode
+import com.lanlinju.animius.util.onError
+import com.lanlinju.animius.util.onSuccess
 import com.lanlinju.animius.util.preferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,13 +34,13 @@ import javax.inject.Inject
 class VideoPlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val roomRepository: RoomRepository,
+    private val animeRepository: AnimeRepository,
     private val danmakuRepository: DanmakuRepository,
-    private val getVideoFromRemoteUseCase: GetVideoFromRemoteUseCase,
 ) : ViewModel() {
 
     // 保存视频状态的流，默认为加载中
-    private val _videoState: MutableStateFlow<Resource<Video?>> = MutableStateFlow(Resource.Loading)
-    val videoState: StateFlow<Resource<Video?>> get() = _videoState
+    private val _videoState: MutableStateFlow<Resource<Video>> = MutableStateFlow(Resource.Loading)
+    val videoState: StateFlow<Resource<Video>> get() = _videoState
 
     // 获取保存的偏好设置，初始化弹幕启用状态
     private val preferences = AnimeApplication.getInstance().preferences
@@ -48,26 +53,52 @@ class VideoPlayerViewModel @Inject constructor(
 
     // 判断是否为本地视频
     private var isLocalVideo = false
-    var mode: SourceMode
+    private var mode: SourceMode? = null
 
     // 当前集数的URL和历史记录ID
     private var currentEpisodeUrl: String = ""
     private var historyId: Long = -1L
 
     init {
-        // 从SavedStateHandle中获取播放模式和视频集数的URL
-        savedStateHandle.toRoute<Screen.VideoPlayer>().let {
-            this.mode = it.mode
-            val url = it.episodeUrl
-            if (url.contains(KEY_FROM_LOCAL_VIDEO)) {
-                // 如果是本地视频，获取本地视频
-                isLocalVideo = true
-                getVideoFromLocal(url)
-            } else {
-                // 如果是远程视频，获取历史记录Id并加载远程视频
-                currentEpisodeUrl = url
-                getHistoryId(url)
-                getVideoFromRemote(url)
+        viewModelScope.launch {
+            // 从SavedStateHandle中获取播放模式和视频集数的URL
+            savedStateHandle.toRoute<Screen.VideoPlayer>().let {
+                val params = PlayerParameters.deserialize(it.parameters)
+                this@VideoPlayerViewModel.mode = params.mode
+                val url = params.episodes[params.episodeIndex].url
+                if (params.isLocalVideo) {
+                    // 如果是本地视频，获取本地视频
+                    isLocalVideo = true
+                    getVideoFromLocal(params)
+                } else {
+                    // 如果是远程视频，获取历史记录Id并加载远程视频
+                    currentEpisodeUrl = url
+                    getHistoryId(url)
+
+                    val currentEpisode = params.episodes[params.episodeIndex]
+                    getWebVideo(episodeUrl = currentEpisode.url, mode = params.mode!!)
+                        .onSuccess {
+                            val lastPlayPosition =
+                                roomRepository.getEpisode(currentEpisode.url)
+                                    .first()?.lastPlayPosition ?: 0L
+                            Video(
+                                title = params.title,
+                                url = it.url,
+                                episodeName = currentEpisode.name,
+                                episodeUrl = currentEpisode.url,
+                                lastPlayPosition = lastPlayPosition,
+                                currentEpisodeIndex = params.episodeIndex,
+                                episodes = params.episodes,
+                                headers = it.headers
+                            ).let {
+                                _videoState.value = Resource.Success(it)
+                            }
+                        }
+                        .onError {
+                            _videoState.value = Resource.Error(it)
+                        }
+
+                }
             }
         }
     }
@@ -87,45 +118,53 @@ class VideoPlayerViewModel @Inject constructor(
      * 获取本地视频信息
      * @param params 格式化的本地视频参数
      */
-    private fun getVideoFromLocal(params: String) {
+    private fun getVideoFromLocal(params: PlayerParameters) {
         viewModelScope.launch {
-            val list = params.split("#")
-            val detailUrl = list[1]
-            val title = list[2]
-            val episodeName = list[3]
+            val title = params.title
+            val index = params.episodeIndex
+            val episodes = params.episodes
 
-            // 从Room数据库中获取下载的详细信息
-            roomRepository.getDownloadDetails(detailUrl).collect { downloadDetails ->
-                val episodes = downloadDetails.filter { it.fileSize != 0L }.map {
-                    Episode(name = it.title, url = it.path)
-                }
-                // 根据集数名获取对应视频
-                val index = episodes.indexOfFirst { it.name == episodeName }
-                if (index != -1) {
-                    _videoState.value = Resource.Success(
-                        Video(
-                            title = title,
-                            url = episodes[index].url,
-                            episodeName = episodeName,
-                            episodeUrl = episodes[index].url,
-                            currentEpisodeIndex = index,
-                            episodes = episodes
-                        )
-                    )
-                }
-            }
+            _videoState.value = Resource.Success(
+                Video(
+                    title = title,
+                    url = episodes[index].url,
+                    episodeName = episodes[index].name,
+                    episodeUrl = episodes[index].url,
+                    currentEpisodeIndex = index,
+                    episodes = episodes
+                )
+            )
         }
+    }
+
+    private suspend fun getWebVideo(episodeUrl: String, mode: SourceMode): Result<WebVideo> {
+        return animeRepository.getVideoData(episodeUrl, mode)
     }
 
     /**
      * 获取远程视频
      * @param episodeUrl 视频集数的URL
      */
-    private fun getVideoFromRemote(episodeUrl: String) {
+    private fun getVideoFromRemote(episodeUrl: String, index: Int) {
         _danmakuSession.value = null
         viewModelScope.launch {
             // 使用用例从远程获取视频信息
-            _videoState.value = getVideoFromRemoteUseCase(episodeUrl, mode)
+            getWebVideo(episodeUrl, mode!!)
+                .onSuccess {
+                    val lastPlayPosition =
+                        roomRepository.getEpisode(episodeUrl).first()?.lastPlayPosition ?: 0L
+                    _videoState.value = Resource.Success(
+                        _videoState.value.data!!.copy(
+                            url = it.url,
+                            currentEpisodeIndex = index,
+                            episodeUrl = episodeUrl,
+                            lastPlayPosition = lastPlayPosition
+                        )
+                    )
+                }
+                .onError {
+                    _videoState.value = Resource.Error(it)
+                }
             // 如果启用了弹幕，获取弹幕会话
             if (_enabledDanmaku.value) {
                 _danmakuSession.value = fetchDanmakuSession()
@@ -178,7 +217,7 @@ class VideoPlayerViewModel @Inject constructor(
             // 如果是远程视频，保存播放进度并重新获取远程视频
             currentEpisodeUrl = url
             saveVideoPosition(videoPosition)
-            getVideoFromRemote(url)
+            getVideoFromRemote(url, index)
         }
     }
 
@@ -228,6 +267,7 @@ class VideoPlayerViewModel @Inject constructor(
      */
     fun retry() {
         _videoState.value = Resource.Loading
-        getVideoFromRemote(currentEpisodeUrl)
+        val video = _videoState.value.data!!
+        getVideoFromRemote(video.episodeUrl, video.currentEpisodeIndex)
     }
 }

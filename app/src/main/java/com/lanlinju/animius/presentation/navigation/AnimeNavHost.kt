@@ -23,9 +23,8 @@ import com.lanlinju.animius.util.SourceMode
 fun AnimeNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: Any = Screen.Main,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit,
+    onNavigateToVideoPlay: (parameters: String) -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToDownload: () -> Unit,
     onNavigateToDownloadDetail: (detailUrl: String, title: String) -> Unit,
@@ -37,7 +36,7 @@ fun AnimeNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Main,
     ) {
         composable<Screen.Main> {
             MainScreen(
