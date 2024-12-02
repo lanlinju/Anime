@@ -1,9 +1,6 @@
 package com.lanlinju.animius.presentation.screen.history
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -50,7 +46,6 @@ import com.lanlinju.animius.util.VIDEO_ASPECT_RATIO
 fun HistoryScreen(
     onBackClick: () -> Unit,
     onNavigateToAnimeDetail: (detailUrl: String, mode: SourceMode) -> Unit,
-    onNavigateToVideoPlay: (episodeUrl: String, mode: SourceMode) -> Unit
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyListState by viewModel.historyList.collectAsState()
@@ -76,22 +71,14 @@ fun HistoryScreen(
                 ) {
                     items(histories) { history ->
                         PopupMenuListItem(
-                            content = {
-                                HistoryItem(
-                                    history = history,
-                                    onPlayClick = { episodeUrl, mode ->
-                                        viewModel.updateHistoryDate(history.detailUrl)
-                                        onNavigateToVideoPlay(episodeUrl, mode)
-                                    }
-                                )
-                            },
                             menuText = stringResource(id = R.string.delete),
                             onClick = {
                                 onNavigateToAnimeDetail(history.detailUrl, history.sourceMode)
                             },
                             onMenuItemClick = { viewModel.deleteHistory(history.detailUrl) }
-                        )
-
+                        ) {
+                            HistoryItem(history = history)
+                        }
                     }
                 }
             }
@@ -104,7 +91,6 @@ fun HistoryScreen(
 fun HistoryItem(
     modifier: Modifier = Modifier,
     history: History,
-    onPlayClick: (episodeUrl: String, mode: SourceMode) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -147,40 +133,24 @@ fun HistoryItem(
                     maxLines = 2,
                 )
 
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(
                         text = history.lastEpisodeName,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
                         style = MaterialTheme.typography.bodySmall,
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        val interactionSource = remember { MutableInteractionSource() }
-                        Text(
-                            text = stringResource(id = R.string.resume_play),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.clickable(
-                                interactionSource = interactionSource,
-                                indication = LocalIndication.current
-                            ) {
-                                onPlayClick(history.lastEpisodeUrl, history.sourceMode)
-                            }
-                        )
-
-                        Text(
-                            text = history.time,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
+                    Text(
+                        text = history.time,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = LOW_CONTENT_ALPHA),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
-            }
 
+            }
         }
     }
 

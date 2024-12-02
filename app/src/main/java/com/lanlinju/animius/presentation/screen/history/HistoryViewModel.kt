@@ -33,11 +33,12 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    /*
     fun updateHistoryDate(detailUrl: String) {
         viewModelScope.launch {
             roomRepository.updateHistoryDate(detailUrl)
         }
-    }
+    }*/
 
     fun deleteHistory(detailUrl: String) {
         viewModelScope.launch {

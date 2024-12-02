@@ -24,10 +24,10 @@ import com.lanlinju.animius.util.VIDEO_ASPECT_RATIO
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PopupMenuListItem(
-    content: @Composable () -> Unit,
     menuText: String,
     onClick: () -> Unit,
     onMenuItemClick: () -> Unit,
+    content: @Composable () -> Unit,
 ) {
 
     var expanded by remember { mutableStateOf(false) }
@@ -49,9 +49,10 @@ fun PopupMenuListItem(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(
-                x = dimensionResource(id = R.dimen.image_cover_height) * VIDEO_ASPECT_RATIO
-                        + dimensionResource(id = R.dimen.small_padding),
-                y = (-40).dp
+                x = dimensionResource(id = R.dimen.image_cover_height) * VIDEO_ASPECT_RATIO + dimensionResource(
+                    id = R.dimen.small_padding
+                ),
+                y = 0.dp
             ),
         ) {
 

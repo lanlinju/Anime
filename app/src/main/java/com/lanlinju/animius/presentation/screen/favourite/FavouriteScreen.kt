@@ -114,7 +114,7 @@ fun FavouriteScreen(
                                 onDismissRequest = { expanded = false },
                                 offset = DpOffset(
                                     x = 40.dp,
-                                    y = (-100).dp
+                                    y = 0.dp
                                 ),
                             ) {
 

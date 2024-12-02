@@ -49,7 +49,7 @@ fun AnimeNavHost(
                 onNavigateToDanmakuSettings = onNavigateToDanmakuSettings,
             )
         }
-        composable<Screen.AnimeDetail>() {
+        composable<Screen.AnimeDetail> {
             AnimeDetailScreen(
                 onRelatedAnimeClick = onNavigateToAnimeDetail,
                 onNavigateToVideoPlay = onNavigateToVideoPlay,
@@ -72,7 +72,6 @@ fun AnimeNavHost(
             HistoryScreen(
                 onBackClick = onBackClick,
                 onNavigateToAnimeDetail = onNavigateToAnimeDetail,
-                onNavigateToVideoPlay = onNavigateToVideoPlay
             )
         }
         composable<Screen.Download> {
