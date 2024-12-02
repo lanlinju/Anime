@@ -14,6 +14,7 @@ import com.lanlinju.animius.util.Resource
 import com.lanlinju.animius.util.Result
 import com.lanlinju.animius.util.SEARCH_PAGE_SIZE
 import com.lanlinju.animius.util.SourceMode
+import com.lanlinju.animius.util.invokeApi
 import com.lanlinju.animius.util.map
 import com.lanlinju.animius.util.safeCall
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class AnimeRepositoryImpl @Inject constructor(
     private val animeApi: AnimeApi
-) : AnimeRepository, BaseRepository() {
+) : AnimeRepository {
     override suspend fun getHomeData(): Resource<List<Home>> {
         val response = invokeApi {
             animeApi.getHomeAllData()
