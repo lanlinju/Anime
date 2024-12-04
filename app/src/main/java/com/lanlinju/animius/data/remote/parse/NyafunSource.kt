@@ -68,15 +68,15 @@ object NyafunSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
+        /*val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
         val title = document.select("div.list-body").select("h2").text()
-        val videoUrl = getVideoUrl("$baseUrl/$episodeUrl")
         var episodeName = ""
-        val episodes = getAnimeEpisodes(document, action = { episodeName = it })
+        val episodes = getAnimeEpisodes(document, action = { episodeName = it })*/
+        val videoUrl = getVideoUrl("$baseUrl/$episodeUrl")
 
         val headers = mapOf("Referer" to "https://play.nyafun.net/")
-        return VideoBean(title, videoUrl, episodeName, episodes, headers)
+        return VideoBean(videoUrl, headers)
     }
 
     private suspend fun getVideoUrl(url: String): String {

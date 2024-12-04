@@ -124,13 +124,13 @@ object AnfunsSource : AnimeSource {
         val source = DownloadManager.getHtml(url)
         val document = Jsoup.parse(source)
 
-        val spanElement = document.select("div.hl-row-box").select("h2 > span")[0]
+        /*val spanElement = document.select("div.hl-row-box").select("h2 > span")[0]
         val title = spanElement.ownText()
         val episodeName = spanElement.select("em").text()
         val episodes =
-            getAnimeEpisodes(document.select("div.hl-tabs-box"))
+            getAnimeEpisodes(document.select("div.hl-tabs-box"))*/
         val videoUrl = getVideoUrl(document).let { getVideoUrl(url = url) }
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
     // Reference code: https://github.com/670848654/MoviesBox/blob/279a68da4645cde4ba3ba9257a4baac5ced831c5/app/src/main/java/my/project/moviesbox/parser/parserImpl/AnFunsImpl.java#L728
@@ -145,7 +145,7 @@ object AnfunsSource : AnimeSource {
             2 -> {
                 val decodedString = Base64.decode(encryptUrl) // Base64解码
                     .decodeToString()
-                    .let { URLDecoder.decode(it, Charsets.UTF_8) } // URLDecode解码
+                    .let { URLDecoder.decode(it, "UTF-8") } // URLDecode解码
                 decodedString
             }
 

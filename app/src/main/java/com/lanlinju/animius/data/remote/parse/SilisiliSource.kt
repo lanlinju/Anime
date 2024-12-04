@@ -97,15 +97,15 @@ object SilisiliSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = getHtml("$baseUrl/$episodeUrl")
-        val document = Jsoup.parse(source)
-
-        val title = document.select("h1 > a").text()
-        val episodeName = document.select("span.nidname").text()
+//        val source = getHtml("$baseUrl/$episodeUrl")
+//        val document = Jsoup.parse(source)
+//
+//        val title = document.select("h1 > a").text()
+//        val episodeName = document.select("span.nidname").text()
+//        val episodes = getAnimeEpisodes(document)
         val videoUrl = getVideoUrl("$baseUrl/$episodeUrl")
-        val episodes = getAnimeEpisodes(document)
 
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {

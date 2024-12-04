@@ -111,14 +111,14 @@ object AgedmSource : AnimeSource {
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
         val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
         val document = Jsoup.parse(source)
-        val elements = document.select("div.cata_video_item")
+        /*val elements = document.select("div.cata_video_item")
         val title = elements.select("h5").text()
         var episodeName = ""
         val playlist = document.select("div.playlist-source-tab").select("div.tab-pane")
-        val episodes = getAnimeEpisodes(playlist, action = { episodeName = it })
+        val episodes = getAnimeEpisodes(playlist, action = { episodeName = it })*/
         val videoUrl = getVideoUrl(document)
 
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
     private suspend fun getAnimeList(elements: Elements): List<AnimeBean> {

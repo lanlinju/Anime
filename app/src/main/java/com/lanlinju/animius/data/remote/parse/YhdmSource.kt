@@ -68,13 +68,13 @@ object YhdmSource : AnimeSource {
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
         val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
-        val document = Jsoup.parse(source)
-        val head = document.select("h1").text().split("：")
-        val title = head[0]
-        val episodeName = head[1]
+//        val document = Jsoup.parse(source)
+//        val head = document.select("h1").text().split("：")
+//        val title = head[0]
+//        val episodeName = head[1]
+//        val episodes = getAnimeEpisodes(document.select("div.movurls"))
         val videoUrl = getVideoUrl(source)
-        val episodes = getAnimeEpisodes(document.select("div.movurls"))
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
     private fun getVideoUrl(source: String): String {

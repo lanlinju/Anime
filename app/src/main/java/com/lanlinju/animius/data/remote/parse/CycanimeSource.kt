@@ -22,6 +22,7 @@ object CycanimeSource : AnimeSource {
     override fun onExit() {
         webViewUtil.clearWeb()
     }
+
     private val headers = mapOf("Host" to "www.cyc-anime.net")
 
     override suspend fun getHomeData(): List<HomeBean> {
@@ -76,13 +77,13 @@ object CycanimeSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("${baseUrl}/$episodeUrl")
-        val document = Jsoup.parse(source)
-        val title = document.select("div.player-right").select("h2").text()
-        var episodeName = ""
-        val episodes = getAnimeEpisodes(document, action = { episodeName = it })
+        /* val source = DownloadManager.getHtml("${baseUrl}/$episodeUrl")
+         val document = Jsoup.parse(source)
+         val title = document.select("div.player-right").select("h2").text()
+         var episodeName = ""
+         val episodes = getAnimeEpisodes(document, action = { episodeName = it })*/
         val videoUrl = getVideoUrl("$baseUrl/$episodeUrl")
-        return VideoBean(title, videoUrl, episodeName, episodes, headers)
+        return VideoBean(videoUrl, headers)
     }
 
     private suspend fun getVideoUrl(url: String): String {

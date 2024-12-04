@@ -64,11 +64,11 @@ object MxdmSource : AnimeSource {
         val source = DownloadManager.getHtml("$baseUrl/${episodeUrl}")
         val document = Jsoup.parse(source)
 
-        val elements = document.select("div.video-info-header")
-        val title = elements.select("h1 > a").attr("title")
+        /* val elements = document.select("div.video-info-header")
+         val title = elements.select("h1 > a").attr("title")*/
         val videoUrl = getVideoUrl(document)
 
-        return VideoBean(title, videoUrl)
+        return VideoBean(videoUrl)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {

@@ -110,7 +110,7 @@ object GirigiriSource : AnimeSource {
         val url = "${baseUrl}/$episodeUrl"
         val source = DownloadManager.getHtml(url)
         val document = Jsoup.parse(source)
-        var elements = document.select("div.player-right")
+        /*var elements = document.select("div.player-right")
         if (elements.isEmpty()) {
             elements = document.select("div.player-info")
         }
@@ -118,9 +118,9 @@ object GirigiriSource : AnimeSource {
         var episodeName = ""
         val episodes = getAnimeEpisodes(
             elements.select("div.anthology-list-box").select("ul"),
-            action = { episodeName = it })
+            action = { episodeName = it })*/
         val videoUrl = getVideoUrl(document)
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
     @OptIn(ExperimentalEncodingApi::class)

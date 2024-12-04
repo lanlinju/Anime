@@ -83,17 +83,17 @@ object GogoanimeSource : AnimeSource {
      * @param episodeUrl e.g. https://gogoanime.by/dragon-ball-daima-episode-3-english-subbed/
      */
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val document = getDocument(episodeUrl)
-        val result = extractTitleAndEpisode(document.select("h1").text())
-        val title = result.first
-        var episodeName = result.second
+        /* val document = getDocument(episodeUrl)
+         val result = extractTitleAndEpisode(document.select("h1").text())
+         val title = result.first
+         var episodeName = result.second
+         val allEpisodesUrl = document.select("div.nvs.nvsc > a").attr("href")
+         val episodes = getAnimeEpisodes(Jsoup.parse(DownloadManager.getHtml(allEpisodesUrl)))*/
         val regex = Regex(""".*/(.*)-english-subbed/""")
         val episodeId = regex.find(episodeUrl)?.groupValues[1]
             ?: throw IllegalArgumentException("episodeUrl does not match the expected pattern")
         val videoUrl = getVideoUrl(episodeId)
-        val allEpisodesUrl = document.select("div.nvs.nvsc > a").attr("href")
-        val episodes = getAnimeEpisodes(Jsoup.parse(DownloadManager.getHtml(allEpisodesUrl)))
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(videoUrl)
     }
 
 
