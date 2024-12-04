@@ -122,4 +122,13 @@ class AnimeDetailViewModel @Inject constructor(
         _animeDetailState.value = Resource.Loading
         getAnimeDetail(this.detailUrl)
     }
+
+    fun onChannelClick(index: Int, episodes: List<Episode>) {
+        _animeDetailState.value = Resource.Success(
+            _animeDetailState.value.data!!.copy(
+                channelIndex = index,
+                episodes = episodes
+            )
+        )
+    }
 }

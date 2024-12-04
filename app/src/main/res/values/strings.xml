@@ -116,4 +116,6 @@
     <string name="crash_log_has_been_copied">崩溃日志已复制</string>
 
     <string name="auto_check_update">自动更新</string>
+    <string name="channel_selection">线路选择</string>
+    <string name="channel_number">线路%1$s</string>
 </resources>

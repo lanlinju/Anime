@@ -44,10 +44,20 @@ object MxdmSource : AnimeSource {
         val imgUrl = main.select("div.module-item-pic > img").attr("data-src")
         val updateTime = main.select("div.video-info-item")[4].text()
         val tags = main.select("div.tag-link > a").map { it.text() }
-        val episodes = getAnimeEpisodes(main)
+        val channels = getAnimeEpisodes(main)
         val relatedAnimes =
             getAnimeList(main.select("div.module-items")[0].select("div.module-item"))
-        return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
+        return AnimeDetailBean(
+            title,
+            imgUrl,
+            desc,
+            "",
+            tags,
+            updateTime,
+            emptyList(),
+            relatedAnimes,
+            channels
+        )
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
@@ -56,11 +66,9 @@ object MxdmSource : AnimeSource {
 
         val elements = document.select("div.video-info-header")
         val title = elements.select("h1 > a").attr("title")
-        val episodeName = elements.select("span.btn-pc").text()
         val videoUrl = getVideoUrl(document)
-        val episodes = getAnimeEpisodes(document.select("main"))
 
-        return VideoBean(title, videoUrl, episodeName, episodes)
+        return VideoBean(title, videoUrl)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
@@ -115,17 +123,20 @@ object MxdmSource : AnimeSource {
         return animeList
     }
 
-    private fun getAnimeEpisodes(elements: Elements): List<EpisodeBean> {
-        // 剧集列表,含多条线路，默认第一个
-        val dramaElements = elements.select("div.module-blocklist > div.scroll-content")[0]
-        val episodes = mutableListOf<EpisodeBean>()
-        dramaElements.select("a").forEach { el ->
-            val name = el.text()
-            val url = el.attr("href")
-            episodes.add(EpisodeBean(name, url))
+    private fun getAnimeEpisodes(elements: Elements): Map<Int, List<EpisodeBean>> {
+        val channels = mutableMapOf<Int, List<EpisodeBean>>()
+        // 剧集列表,含多条线路
+        elements.select("div.module-blocklist > div.scroll-content").forEachIndexed { i, e ->
+            val episodes = mutableListOf<EpisodeBean>()
+            e.select("a").forEach { el ->
+                val name = el.text()
+                val url = el.attr("href")
+                episodes.add(EpisodeBean(name, url))
+            }
+            channels[i] = episodes
         }
 
-        return episodes
+        return channels
     }
 
     private const val BASE_M3U8 = "https://danmu.yhdmjx.com/m3u8.php?url="

@@ -6,13 +6,19 @@ data class AnimeDetailBean(
     val title: String,
     val imgUrl: String,
     val desc: String,
-    val score: String = "", /* 可为空 */
-    val tags: List<String>,
-    val updateTime: String = "", /* 可为空 */
-    val episodes: List<EpisodeBean>,
-    val relatedAnimes: List<AnimeBean>
+    val score: String = "",                         /* 可为空 */
+    val tags: List<String> = emptyList(),
+    val updateTime: String = "",                    /* 可为空 */
+    val episodes: List<EpisodeBean> = emptyList(),  /* 保持对旧的数据兼容 */
+    val relatedAnimes: List<AnimeBean>,
+    val channels: Map<Int, List<EpisodeBean>> = emptyMap(),
 ) {
     fun toAnimeDetail(): AnimeDetail {
+        val tempChannels = if (episodes.isNotEmpty()) { /* 保持对旧的不支持多线路的兼容 */
+            mapOf(0 to episodes.map { it.toEpisode() })
+        } else {
+            channels.mapValues { it.value.map { it.toEpisode() } }
+        }
         return AnimeDetail(
             title = title,
             img = imgUrl,
@@ -21,8 +27,9 @@ data class AnimeDetailBean(
             tags = tags.map { it.uppercase() },
             updateTime = updateTime,
             lastPosition = 0,
-            episodes = episodes.map { it.toEpisode() },
-            relatedAnimes = relatedAnimes.map { it.toAnime() }
+            episodes = tempChannels[0] ?: emptyList(),
+            relatedAnimes = relatedAnimes.map { it.toAnime() },
+            channels = tempChannels,
         )
     }
 }

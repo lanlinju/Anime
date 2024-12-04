@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -49,6 +50,7 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -62,6 +64,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -166,6 +169,7 @@ fun AnimeDetailScreen(
             ) {
                 var reverseList by rememberSaveable { mutableStateOf(false) }
                 var showBottomSheet by remember { mutableStateOf(false) }
+                var showChannelSelectorDialog by remember { mutableStateOf(false) }
                 var showDownloadBottomSheet by remember { mutableStateOf(false) }
 
                 val background = Color(
@@ -288,8 +292,11 @@ fun AnimeDetailScreen(
 
                             EpisodeListControl(
                                 modifier = Modifier.align(Alignment.BottomEnd),
+                                channelIndex = animeDetail.channelIndex,
+                                isShowChannel = animeDetail.channels.size > 1,
                                 onReverseClick = { reverseList = !reverseList },
-                                onMoreClick = { showBottomSheet = true }
+                                onMoreClick = { showBottomSheet = true },
+                                onChannelClick = { showChannelSelectorDialog = true }
                             )
                         }
 
@@ -391,6 +398,18 @@ fun AnimeDetailScreen(
                                 )
                                 viewModel.addDownload(download, episode.url, File(path))
                             }
+                        )
+                    }
+
+                    if (showChannelSelectorDialog) {
+                        ChannelSelectorDialog(
+                            onDismissRequest = { showChannelSelectorDialog = false },
+                            onChannelClick = { i, l ->
+                                showChannelSelectorDialog = false
+                                viewModel.onChannelClick(i, l)
+                            },
+                            channels = animeDetail.channels,
+                            channelIndex = animeDetail.channelIndex,
                         )
                     }
                 }
@@ -668,8 +687,11 @@ fun AnimeEpisodes(
 @Composable
 private fun EpisodeListControl(
     modifier: Modifier = Modifier,
+    channelIndex: Int,
+    isShowChannel: Boolean,
     onReverseClick: () -> Unit,
     onMoreClick: () -> Unit,
+    onChannelClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -682,6 +704,16 @@ private fun EpisodeListControl(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (isShowChannel) {
+            Text(
+                modifier = Modifier.clickable(onClick = onChannelClick),
+                text = stringResource(Res.string.channel_number, channelIndex + 1),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            Spacer(modifier = Modifier.size(12.dp))
+        }
         Text(
             modifier = Modifier.clickable(onClick = onReverseClick),
             text = stringResource(id = Res.string.reverse_list),
@@ -816,5 +848,53 @@ private fun DownloadBottomSheet(
         onDownloadClick = onDownloadClick,
         onDismissRequest = onDismissRequest,
         onEpisodeClick = { }
+    )
+}
+
+@Composable
+fun ChannelSelectorDialog(
+    onDismissRequest: () -> Unit,
+    channelIndex: Int,
+    channels: Map<Int, List<Episode>>,
+    onChannelClick: (index: Int, episodes: List<Episode>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(text = stringResource(Res.string.channel_selection))
+        },
+        text = {
+            // 显示所有剧集线路
+            LazyColumn(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(channels.size) { index ->
+                    Text(
+                        text = stringResource(Res.string.channel_number, index + 1),
+                        color = if (index == channelIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable {
+                                onChannelClick(index, channels[index]!!)
+                            }
+                            .padding(16.dp)
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = stringResource(id = R.string.confirm))
+            }
+        }
     )
 }
