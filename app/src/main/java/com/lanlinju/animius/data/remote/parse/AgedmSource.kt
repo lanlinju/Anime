@@ -88,13 +88,11 @@ object AgedmSource : AnimeSource {
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
         val source = DownloadManager.getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
-        val score = ""
         val videoDetailRight = document.select("div.video_detail_right")
         val title = videoDetailRight.select("h2").text()
         val desc = videoDetailRight.select("div.video_detail_desc").text()
         val imgUrl = document.select("div.video_detail_cover > img").attr("data-original")
         val detailBoxList = document.select("div.video_detail_box").select("li")
-        val updateTime = detailBoxList[6].text()
         val tags = detailBoxList[9].text().split("：")[1].split(" ").toMutableList()
         tags.add(detailBoxList[0].text().split("：")[1])
         tags.add(detailBoxList[1].text().split("：")[1])
@@ -103,7 +101,7 @@ object AgedmSource : AnimeSource {
         val relatedAnimes =
             getAnimeList(document.select("div.video_list_box").select("div.video_item"))
         val animeDetailBean =
-            AnimeDetailBean(title, imgUrl, desc, score, tags, updateTime, episodes, relatedAnimes)
+            AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
 
         return animeDetailBean
     }

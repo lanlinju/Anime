@@ -57,13 +57,12 @@ object AnfunsSource : AnimeSource {
         val descList = main.select("div.hl-full-box").select("div.hl-full-box > ul > li")
         val desc = descList[11].text()
         val imgUrl = document.select("div.hl-dc-pic > span").attr("data-original")
-        val updateTime = descList[10].text()
         val tags = descList[6].select("a").map { it.text() }
         val episodes =
             getAnimeEpisodes(document.select("div.hl-tabs-box"))
         val relatedAnimes =
             getAnimeList(document.select("div.hl-change-box1").select("li"))
-        return AnimeDetailBean(title, imgUrl, desc, "", tags, updateTime, episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {

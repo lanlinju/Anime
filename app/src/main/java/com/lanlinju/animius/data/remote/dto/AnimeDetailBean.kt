@@ -6,9 +6,7 @@ data class AnimeDetailBean(
     val title: String,
     val imgUrl: String,
     val desc: String,
-    val score: String = "",                         /* 可为空 */
     val tags: List<String> = emptyList(),
-    val updateTime: String = "",                    /* 可为空 */
     val episodes: List<EpisodeBean> = emptyList(),  /* 保持对旧的数据兼容 */
     val relatedAnimes: List<AnimeBean>,
     val channels: Map<Int, List<EpisodeBean>> = emptyMap(),
@@ -23,9 +21,7 @@ data class AnimeDetailBean(
             title = title,
             img = imgUrl,
             desc = desc,
-            score = score,
             tags = tags.map { it.uppercase() },
-            updateTime = updateTime,
             lastPosition = 0,
             episodes = tempChannels[0] ?: emptyList(),
             relatedAnimes = relatedAnimes.map { it.toAnime() },

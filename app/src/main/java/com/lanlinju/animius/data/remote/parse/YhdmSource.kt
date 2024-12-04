@@ -48,10 +48,10 @@ object YhdmSource : AnimeSource {
         return with(document) {
             val title = select("h1").text()
             val desc = select("div.info").text()
-            val score = select("div.score > em").text()
             val img = select("div.thumb > img").attr("src")
+            /*val score = select("div.score > em").text()
             val updateTime =
-                select("div.sinfo > p").let { if (it.size > 1) it[1].text() else it[0].text() }
+                select("div.sinfo > p").let { if (it.size > 1) it[1].text() else it[0].text() }*/
             val tagElements = Elements()
             val tagInfo = select("div.sinfo > span")
             tagInfo.forEachIndexed { i, tag ->
@@ -62,7 +62,7 @@ object YhdmSource : AnimeSource {
             tagElements.forEach { tags.add(it.text().uppercase()) }
             val episodes = getAnimeEpisodes(this.select("div.movurl"))
             val relatedAnimes = getRelatedAnimes(this)
-            AnimeDetailBean(title, img, desc, score, tags, updateTime, episodes, relatedAnimes)
+            AnimeDetailBean(title, img, desc, tags, episodes, relatedAnimes)
         }
     }
 

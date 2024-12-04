@@ -69,7 +69,7 @@ object GogoanimeSource : AnimeSource {
         val tags = detailInfo.select("div.genxed > a").map { it.text() }
         val episodes = getAnimeEpisodes(document)
         val relatedAnimes = getAnimeList(document.select("div.listupd > article"))
-        return AnimeDetailBean(title, imgUrl, desc, "", tags, "", episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
     }
 
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {

@@ -60,7 +60,7 @@ object CycanimeSource : AnimeSource {
         val episodes = getAnimeEpisodes(document)
         val relatedAnimes =
             getAnimeList(document.select("div.box-width.wow").select("div.public-list-box"))
-        return AnimeDetailBean(title, imgUrl, desc, "", tags, "", episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
     }
 
     private fun getAnimeEpisodes(

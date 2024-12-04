@@ -74,15 +74,14 @@ object SilisiliSource : AnimeSource {
             tagTitles.add(tag.text().uppercase())
         }
 
-        val span = document.select("span.text-muted")
+        /*val span = document.select("span.text-muted")
         var updateTime = ""
         for (s in span) {
             if (s.text().contains("更新")) {
                 updateTime = s.parent()!!.text()
                 break
             }
-        }
-        val score = document.select("div.v_sd_r").select("span.data-favs-num").text()
+        }*/
         val desc = document.select("div.v_cont")
         desc.select("div.v_sd").remove()
         desc.select("span").remove()
@@ -91,9 +90,7 @@ object SilisiliSource : AnimeSource {
         val episodes = getAnimeEpisodes(document)
         val relatedAnimes = getAnimeList(document)
 
-        return AnimeDetailBean(
-            animeTitle, img, description, score, tagTitles, updateTime, episodes, relatedAnimes
-        )
+        return AnimeDetailBean(animeTitle, img, description, tagTitles, episodes, relatedAnimes)
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
