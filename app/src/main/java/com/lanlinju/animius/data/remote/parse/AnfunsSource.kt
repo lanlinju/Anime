@@ -58,11 +58,10 @@ object AnfunsSource : AnimeSource {
         val desc = descList[11].text()
         val imgUrl = document.select("div.hl-dc-pic > span").attr("data-original")
         val tags = descList[6].select("a").map { it.text() }
-        val episodes =
-            getAnimeEpisodes(document.select("div.hl-tabs-box"))
+        val channels = getAnimeEpisodes(document)
         val relatedAnimes =
             getAnimeList(document.select("div.hl-change-box1").select("li"))
-        return AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, tags, relatedAnimes, channels = channels)
     }
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
@@ -90,18 +89,22 @@ object AnfunsSource : AnimeSource {
         return weekMap
     }
 
-    private suspend fun getAnimeEpisodes(elements: Elements): List<EpisodeBean> {
-        if (elements.isEmpty()) return emptyList()
+    private suspend fun getAnimeEpisodes(document: Document): Map<Int, List<EpisodeBean>> {
+        val elements = document.select("div#playlist").select("div.hl-tabs-box")
+        val channels = mutableMapOf<Int, List<EpisodeBean>>()
 
-        val dramaElements = elements[0].select("div.hl-list-wrap").select("li > a") //剧集列表
-        val episodes = mutableListOf<EpisodeBean>()
-        dramaElements.forEach { el ->
-            val name = el.text()
-            val url = el.attr("href")
-            episodes.add(EpisodeBean(name, url))
+        elements.forEachIndexed { i, e ->
+            val episodes = mutableListOf<EpisodeBean>()
+            val dramaElements = e.select("div.hl-list-wrap").select("li > a") //剧集列表
+            dramaElements.forEach { el ->
+                val name = el.text()
+                val url = el.attr("href")
+                episodes.add(EpisodeBean(name, url))
+            }
+            channels[i] = episodes
         }
 
-        return episodes
+        return channels
     }
 
     private suspend fun getAnimeList(elements: Elements): List<AnimeBean> {

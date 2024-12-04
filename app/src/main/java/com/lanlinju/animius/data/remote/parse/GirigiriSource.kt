@@ -78,10 +78,10 @@ object GirigiriSource : AnimeSource {
         val tags =
             main.select("div.slide-info").last()?.select("a")?.map { it.text() }?.toMutableList()
                 ?.also { it.removeAt(it.lastIndex) } ?: emptyList()
-        val episodes = getAnimeEpisodes(document.select("div.anthology-list").select("ul"))
+        val channels = getAnimeEpisodes(document.select("div.anthology-list").select("ul"))
         val relatedAnimes =
             getAnimeList(document.select("div.box-width.wow").select("div.public-list-box"))
-        return AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
+        return AnimeDetailBean(title, imgUrl, desc, tags, relatedAnimes, channels = channels)
     }
 
     private fun getAnimeList(elements: Elements): List<AnimeBean> {
@@ -133,23 +133,20 @@ object GirigiriSource : AnimeSource {
         return Uri.decode(encodedVideoUrl)
     }
 
-    private fun getAnimeEpisodes(
-        elements: Elements,
-        action: (String) -> Unit = {}
-    ): List<EpisodeBean> {
-        if (elements.isEmpty()) return emptyList()
-        val dramaElements = elements[0].select("li").select("a")//剧集列表
-        val episodes = mutableListOf<EpisodeBean>()
-        dramaElements.forEach { el ->
-            val name = el.text()
-            val url = el.attr("href")
-            if (el.select("em.play-on").isNotEmpty()) {
-                action(name)
+    private fun getAnimeEpisodes(elements: Elements): Map<Int, List<EpisodeBean>> {
+        val channels = mutableMapOf<Int, List<EpisodeBean>>()
+        elements.forEachIndexed { i, e ->
+            val dramaElements = e.select("li").select("a")//剧集列表
+            val episodes = mutableListOf<EpisodeBean>()
+            dramaElements.forEach { el ->
+                val name = el.text()
+                val url = el.attr("href")
+                episodes.add(EpisodeBean(name, url))
             }
-            episodes.add(EpisodeBean(name, url))
+            channels[i] = episodes
         }
 
-        return episodes
+        return channels
     }
 
     private fun String.padDomain(): String {

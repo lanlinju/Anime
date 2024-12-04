@@ -64,7 +64,7 @@ object SilisiliSource : AnimeSource {
         val source = getHtml("$baseUrl/$detailUrl")
         val document = Jsoup.parse(source)
 
-        val animeTitle = document.select("h1.entry-title").text().split(" ").first()
+        val title = document.select("h1.entry-title").text().split(" ").first()
         val img = document.select("div.v_sd_l > img").attr("src")
         val tags = document.select("p.data").select("a")
 
@@ -87,10 +87,12 @@ object SilisiliSource : AnimeSource {
         desc.select("span").remove()
         val description = desc.text()
 
-        val episodes = getAnimeEpisodes(document)
+        val channels = getAnimeEpisodes(document)
         val relatedAnimes = getAnimeList(document)
 
-        return AnimeDetailBean(animeTitle, img, description, tagTitles, episodes, relatedAnimes)
+        return AnimeDetailBean(
+            title, img, description, tagTitles, relatedAnimes, channels = channels
+        )
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
@@ -154,15 +156,19 @@ object SilisiliSource : AnimeSource {
         this.add(destination, tmp)
     }
 
-    private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {
-        val playlist = document.select("div.play-pannel-list").first()!!
-        val episodes = mutableListOf<EpisodeBean>()
-        playlist.select("li > a").forEach { el ->
-            val name = el.text()
-            val url = el.attr("href")
-            episodes.add(EpisodeBean(name, url))
+    private fun getAnimeEpisodes(document: Document): Map<Int, List<EpisodeBean>> {
+        val channels = mutableMapOf<Int, List<EpisodeBean>>()
+        document.select("div.play-pannel-list").forEachIndexed { i, e ->
+            val episodes = mutableListOf<EpisodeBean>()
+            e.select("li > a").forEach { el ->
+                val name = el.text()
+                val url = el.attr("href")
+                episodes.add(EpisodeBean(name, url))
+            }
+            channels[i] = episodes
         }
-        return episodes
+
+        return channels
     }
 
     private fun getAnimeList(document: Document): List<AnimeBean> {

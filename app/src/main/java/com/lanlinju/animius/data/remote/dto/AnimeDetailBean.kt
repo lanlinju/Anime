@@ -7,9 +7,9 @@ data class AnimeDetailBean(
     val imgUrl: String,
     val desc: String,
     val tags: List<String> = emptyList(),
-    val episodes: List<EpisodeBean> = emptyList(),  /* 保持对旧的数据兼容 */
     val relatedAnimes: List<AnimeBean>,
-    val channels: Map<Int, List<EpisodeBean>> = emptyMap(),
+    val episodes: List<EpisodeBean> = emptyList(),  /* 保持对旧的数据兼容, 如果支持多线路则需要置为空 */
+    val channels: Map<Int, List<EpisodeBean>> = emptyMap(), /* 剧集多线路支持 */
 ) {
     fun toAnimeDetail(): AnimeDetail {
         val tempChannels = if (episodes.isNotEmpty()) { /* 保持对旧的不支持多线路的兼容 */

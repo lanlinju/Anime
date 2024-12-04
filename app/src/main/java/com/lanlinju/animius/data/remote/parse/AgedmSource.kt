@@ -97,11 +97,11 @@ object AgedmSource : AnimeSource {
         tags.add(detailBoxList[0].text().split("：")[1])
         tags.add(detailBoxList[1].text().split("：")[1])
         val playlist = document.select("div.tab-content").select("div.tab-pane")
-        val episodes = getAnimeEpisodes(playlist)
+        val channels = getAnimeEpisodes(playlist)
         val relatedAnimes =
             getAnimeList(document.select("div.video_list_box").select("div.video_item"))
         val animeDetailBean =
-            AnimeDetailBean(title, imgUrl, desc, tags, episodes, relatedAnimes)
+            AnimeDetailBean(title, imgUrl, desc, tags, relatedAnimes, channels = channels)
 
         return animeDetailBean
     }
@@ -131,24 +131,21 @@ object AgedmSource : AnimeSource {
         return animeList
     }
 
-    private suspend fun getAnimeEpisodes(
-        elements: Elements,
-        action: (String) -> Unit = {}
-    ): List<EpisodeBean> {
+    private suspend fun getAnimeEpisodes(elements: Elements): Map<Int, List<EpisodeBean>> {
+        if (elements.isEmpty()) return emptyMap()
 
-        if (elements.isEmpty()) return emptyList()
+        val channels = mutableMapOf<Int, List<EpisodeBean>>()
 
         val episodes = mutableListOf<EpisodeBean>()
-        elements[0].select("li").forEach { el ->
-            val name = el.text()
-            val url = el.select("a").attr("href").trimDomain()
-            if (el.select("div.video_detail_spisode_playing").isNotEmpty()) {
-                action(name)
+        elements.forEachIndexed { i, e ->
+            e.select("li").forEach { el ->
+                val name = el.text()
+                val url = el.select("a").attr("href").trimDomain()
+                episodes.add(EpisodeBean(name, url))
             }
-            episodes.add(EpisodeBean(name, url))
         }
 
-        return episodes
+        return channels
     }
 
     private suspend fun getVideoUrl(document: Document): String {

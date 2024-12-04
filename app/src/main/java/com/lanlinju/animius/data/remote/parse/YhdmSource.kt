@@ -62,7 +62,7 @@ object YhdmSource : AnimeSource {
             tagElements.forEach { tags.add(it.text().uppercase()) }
             val episodes = getAnimeEpisodes(this.select("div.movurl"))
             val relatedAnimes = getRelatedAnimes(this)
-            AnimeDetailBean(title, img, desc, tags, episodes, relatedAnimes)
+            AnimeDetailBean(title, img, desc, tags, relatedAnimes, episodes)
         }
     }
 
