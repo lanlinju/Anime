@@ -21,11 +21,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.toByteArray
+import io.ktor.utils.io.toByteArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -131,9 +130,9 @@ class MainViewModel @Inject constructor() : ViewModel() {
         if (file.exists()) file.delete()
 
         httpClient.get(url) {
-            onDownload { bytesSentTotal, contentLength ->
-                "下载进度：${bytesSentTotal * 100 / contentLength}%".log()
-            }
+//            onDownload { bytesSentTotal, contentLength ->
+//                "下载进度：${bytesSentTotal * 100 / contentLength}%".log()
+//            }
         }.bodyAsChannel().toByteArray().let {
             file.writeBytes(it)
         }
