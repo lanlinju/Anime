@@ -282,7 +282,7 @@ fun AnimeDetailScreen(
                                             PlayerParameters.serialize(
                                                 title = title,
                                                 episodeIndex = episodeIndex,
-                                                episodes = episodes,
+                                                episodes = if (reverseList) episodes.reversed() else episodes,
                                                 mode = viewModel.mode
                                             ).let { onNavigateToVideoPlay(it) }
                                         }
@@ -360,7 +360,7 @@ fun AnimeDetailScreen(
                                         PlayerParameters.serialize(
                                             title = title,
                                             episodeIndex = episodeIndex,
-                                            episodes = episodes,
+                                            episodes = if (reverseList) episodes.reversed() else episodes,
                                             mode = viewModel.mode
                                         ).let { onNavigateToVideoPlay(it) }
                                     }
