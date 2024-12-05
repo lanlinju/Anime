@@ -1,4 +1,4 @@
-package com.lanlinju.animius.presentation.screen.animedetail
+package com.lanlinju.animius.presentation.screen.detail
 
 import android.content.res.Configuration
 import android.graphics.Bitmap

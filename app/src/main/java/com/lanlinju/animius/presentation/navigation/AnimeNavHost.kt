@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.lanlinju.animius.presentation.screen.animedetail.AnimeDetailScreen
+import com.lanlinju.animius.presentation.screen.detail.AnimeDetailScreen
 import com.lanlinju.animius.presentation.screen.download.DownloadScreen
 import com.lanlinju.animius.presentation.screen.downloaddetail.DownloadDetailScreen
 import com.lanlinju.animius.presentation.screen.history.HistoryScreen
