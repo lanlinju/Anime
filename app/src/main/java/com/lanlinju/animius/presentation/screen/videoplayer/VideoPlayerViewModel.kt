@@ -57,6 +57,7 @@ class VideoPlayerViewModel @Inject constructor(
 
     // 当前集数的URL和历史记录ID
     private var currentEpisodeUrl: String = ""
+    private var currentEpisodeIndex: Int = 0
     private var historyId: Long = -1L
 
     init {
@@ -71,8 +72,9 @@ class VideoPlayerViewModel @Inject constructor(
                     isLocalVideo = true
                     getVideoFromLocal(params)
                 } else {
-                    // 如果是远程视频，获取历史记录Id并加载远程视频
                     currentEpisodeUrl = url
+                    currentEpisodeIndex = params.episodeIndex
+                    // 如果是远程视频，获取历史记录Id并加载远程视频
                     getHistoryId(url)
 
                     val currentEpisode = params.episodes[params.episodeIndex]
@@ -220,6 +222,7 @@ class VideoPlayerViewModel @Inject constructor(
         } else {
             // 如果是远程视频，保存播放进度并重新获取远程视频
             currentEpisodeUrl = url
+            currentEpisodeIndex = index
             saveVideoPosition(videoPosition)
             getVideoFromRemote(url, index)
         }
@@ -271,7 +274,6 @@ class VideoPlayerViewModel @Inject constructor(
      */
     fun retry() {
         _videoState.value = Resource.Loading
-        val video = _videoState.value.data!!
-        getVideoFromRemote(video.episodeUrl, video.currentEpisodeIndex)
+        getVideoFromRemote(currentEpisodeUrl, currentEpisodeIndex)
     }
 }
