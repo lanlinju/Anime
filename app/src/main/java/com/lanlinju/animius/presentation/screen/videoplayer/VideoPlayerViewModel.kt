@@ -92,6 +92,10 @@ class VideoPlayerViewModel @Inject constructor(
                                 headers = it.headers
                             ).let {
                                 _videoState.value = Resource.Success(it)
+                                // 如果启用了弹幕，获取弹幕会话
+                                if (_enabledDanmaku.value) {
+                                    _danmakuSession.value = fetchDanmakuSession()
+                                }
                             }
                         }
                         .onError {
@@ -161,14 +165,14 @@ class VideoPlayerViewModel @Inject constructor(
                             lastPlayPosition = lastPlayPosition
                         )
                     )
+                    // 如果启用了弹幕，获取弹幕会话
+                    if (_enabledDanmaku.value) {
+                        _danmakuSession.value = fetchDanmakuSession()
+                    }
                 }
                 .onError {
                     _videoState.value = Resource.Error(it)
                 }
-            // 如果启用了弹幕，获取弹幕会话
-            if (_enabledDanmaku.value) {
-                _danmakuSession.value = fetchDanmakuSession()
-            }
         }
     }
 
