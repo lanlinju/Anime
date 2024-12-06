@@ -17,6 +17,7 @@ fun getSchemeFromSeed(color: Int, dark: Boolean): ColorScheme {
 }
 
 val catpucchinLatte = arrayOf(
+    android.graphics.Color.rgb(248, 176, 96),
     android.graphics.Color.rgb(220, 138, 120),
     android.graphics.Color.rgb(221, 120, 120),
     android.graphics.Color.rgb(234, 118, 203),
