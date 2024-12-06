@@ -43,6 +43,7 @@ TV或者系统版本低于安卓8.0的，请点击查看[这里](https://github.
 - [ ] 选择下载目录
 - [x] 弹幕功能
 - [ ] BT资源下载
+- [ ] 多平台 (Compose Multiplatform)
 
 ## Architecture
 
