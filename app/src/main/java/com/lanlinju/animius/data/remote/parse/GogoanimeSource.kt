@@ -53,8 +53,8 @@ object GogoanimeSource : AnimeSource {
     }
 
     private fun getAnimeEpisodes(document: Document): List<EpisodeBean> {
-        return document.select("div.ep-list")
-            .select("li").map {
+        return document.select("div.episodes-container > div.episode-item > a")
+            .map {
                 EpisodeBean(it.text(), it.select("a").attr("href"))
             }
     }

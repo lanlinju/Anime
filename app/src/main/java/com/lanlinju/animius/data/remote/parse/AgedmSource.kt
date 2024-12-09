@@ -132,8 +132,6 @@ object AgedmSource : AnimeSource {
     }
 
     private suspend fun getAnimeEpisodes(elements: Elements): Map<Int, List<EpisodeBean>> {
-        if (elements.isEmpty()) return emptyMap()
-
         val channels = mutableMapOf<Int, List<EpisodeBean>>()
 
         val episodes = mutableListOf<EpisodeBean>()
@@ -143,6 +141,7 @@ object AgedmSource : AnimeSource {
                 val url = el.select("a").attr("href").trimDomain()
                 episodes.add(EpisodeBean(name, url))
             }
+            channels[i] = episodes
         }
 
         return channels
