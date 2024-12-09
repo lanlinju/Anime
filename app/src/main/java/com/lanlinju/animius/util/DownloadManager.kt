@@ -1,6 +1,7 @@
 package com.lanlinju.animius.util
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Network util
  */
-fun createHttpClient() = HttpClient {
+fun createHttpClient() = HttpClient(OkHttp) {
     install(HttpCookies)
     install(HttpTimeout) {
         socketTimeoutMillis = 30_000L

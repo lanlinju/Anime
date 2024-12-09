@@ -26,12 +26,11 @@ import kotlin.system.exitProcess
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
-
         // 设置全局异常捕获处理
         setGlobalExceptionHandler()
 
+        installSplashScreen()
         enableEdgeToEdge()
 
         //https://github.com/android/compose-samples/issues/1256
