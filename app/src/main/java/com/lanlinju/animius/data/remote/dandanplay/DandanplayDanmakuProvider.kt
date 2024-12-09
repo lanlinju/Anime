@@ -4,8 +4,7 @@ import com.anime.danmaku.api.DanmakuSession
 import com.anime.danmaku.api.TimeBasedDanmakuSession
 import com.lanlinju.animius.data.remote.dandanplay.DandanplayDanmakuProvider.Companion.ID
 import com.lanlinju.animius.data.remote.dandanplay.dto.toDanmakuOrNull
-import com.lanlinju.animius.di.DandanplayHttpClient
-import com.lanlinju.animius.util.createDefaultHttpClient
+import com.lanlinju.animius.util.createHttpClient
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -37,7 +36,7 @@ interface DanmakuProviderFactory { // SPI 接口
 
 @Singleton
 class DandanplayDanmakuProvider @Inject constructor(
-    @DandanplayHttpClient private val client: HttpClient
+    private val client: HttpClient
 ) : DanmakuProvider {
 
     companion object {
@@ -99,7 +98,7 @@ class DandanplayDanmakuProviderFactory : DanmakuProviderFactory {
     override val id: String get() = ID
 
     override fun create(): DandanplayDanmakuProvider {
-        return DandanplayDanmakuProvider(createDefaultHttpClient())
+        return DandanplayDanmakuProvider(createHttpClient())
     }
 }
 

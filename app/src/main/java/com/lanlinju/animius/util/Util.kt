@@ -21,14 +21,6 @@ import com.lanlinju.animius.BuildConfig
 import com.lanlinju.animius.application.AnimeApplication
 import com.lanlinju.animius.data.remote.parse.AnimeSource
 import com.lanlinju.download.utils.decrypt
-import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.cookies.HttpCookies
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
@@ -183,26 +175,4 @@ fun isWideScreen(context: Context): Boolean {
     val screenWidthDp = configuration.screenWidthDp
     val screenHeightDp = configuration.screenHeightDp
     return screenWidthDp > screenHeightDp
-}
-
-/**
- * Network util
- */
-fun createDefaultHttpClient(
-    clientConfig: HttpClientConfig<*>.() -> Unit = {},
-) = HttpClient {
-    install(HttpRequestRetry) {
-        maxRetries = 1
-        delayMillis { 1000 }
-    }
-    install(HttpCookies)
-    install(HttpTimeout) {
-        requestTimeoutMillis = 5000
-    }
-    clientConfig()
-    install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-        })
-    }
 }

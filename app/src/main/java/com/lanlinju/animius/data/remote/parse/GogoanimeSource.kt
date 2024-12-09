@@ -10,13 +10,9 @@ import com.lanlinju.animius.util.getDefaultDomain
 import com.lanlinju.animius.util.getDocument
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -30,23 +26,7 @@ object GogoanimeSource : AnimeSource {
     override val DEFAULT_DOMAIN: String = "https://gogoanime.by/"
     override var baseUrl: String = getDefaultDomain()
 
-    private lateinit var client: HttpClient
-
-    override fun onEnter() {
-        client = HttpClient {
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
-            }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 15_000
-                connectTimeoutMillis = 15_000
-            }
-        }
-    }
-
-    override fun onExit() {
-        client.close()
-    }
+    private var client: HttpClient = DownloadManager.httpClient
 
     override suspend fun getHomeData(): List<HomeBean> {
         val document = getDocument(baseUrl)
@@ -116,7 +96,7 @@ object GogoanimeSource : AnimeSource {
         return videoUrl ?: throw RuntimeException("Video URL is empty")
     }
 
-    private fun extractTitleAndEpisode(input: String): Pair<String, String> {
+    /*private fun extractTitleAndEpisode(input: String): Pair<String, String> {
         val regex = Regex("""(.+?) Episode (\d+)""")
         val matchResult = regex.find(input)
         return matchResult!!.let {
@@ -124,7 +104,7 @@ object GogoanimeSource : AnimeSource {
             val episode = it.groupValues[2].trim()
             Pair(title, episode)
         }
-    }
+    }*/
 
     override suspend fun getSearchData(query: String, page: Int): List<AnimeBean> {
         val document = getDocument("$baseUrl/page/$page/?s=$query")

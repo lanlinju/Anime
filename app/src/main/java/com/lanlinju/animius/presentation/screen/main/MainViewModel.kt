@@ -19,26 +19,24 @@ import com.lanlinju.animius.util.toast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.utils.io.toByteArray
+import io.ktor.client.statement.bodyAsBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val httpClient: HttpClient
+) : ViewModel() {
 
     // 显示版本更新对话框的状态
     private val _showVersionUpdateDialog: MutableStateFlow<Boolean> =
@@ -130,10 +128,12 @@ class MainViewModel @Inject constructor() : ViewModel() {
         if (file.exists()) file.delete()
 
         httpClient.get(url) {
-//            onDownload { bytesSentTotal, contentLength ->
-//                "下载进度：${bytesSentTotal * 100 / contentLength}%".log()
-//            }
-        }.bodyAsChannel().toByteArray().let {
+            onDownload { bytesSentTotal, contentLength ->
+                contentLength?.let {
+                    "下载进度：${(bytesSentTotal * 100) / contentLength}%".log()
+                }
+            }
+        }.bodyAsBytes().let {
             file.writeBytes(it)
         }
     }
@@ -158,35 +158,13 @@ class MainViewModel @Inject constructor() : ViewModel() {
     @Serializable
     data class GitHubRelease(
         @SerialName("tag_name") val tagName: String,    // 版本号，例如 "v1.1.0"
-        val name: String,                              // Release 名称
-        val body: String,                              // 更新日志
-        val assets: List<Asset>                       // 附件列表
+        val name: String,                               // Release 名称
+        val body: String,                               // 更新日志
+        val assets: List<Asset>                         // 附件列表
     )
 
     @Serializable
     data class Asset(
         @SerialName("browser_download_url") val browserDownloadUrl: String  // 下载链接
     )
-
-    /**
-     * HttpClient 配置
-     */
-    private val httpClient by lazy {
-        HttpClient {
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
-            }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 15_000
-                connectTimeoutMillis = 15_000
-            }
-
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        httpClient.close()
-    }
-
 }
