@@ -160,12 +160,15 @@ class VideoPlayerViewModel @Inject constructor(
                     val lastPlayPosition =
                         roomRepository.getEpisode(episodeUrl).first()?.lastPlayPosition ?: 0L
                     _videoState.value = Resource.Success(
-                        _videoState.value.data!!.copy(
-                            url = it.url,
-                            currentEpisodeIndex = index,
-                            episodeUrl = episodeUrl,
-                            lastPlayPosition = lastPlayPosition
-                        )
+                        _videoState.value.data!!.let {
+                            it.copy(
+                                url = it.url,
+                                currentEpisodeIndex = index,
+                                episodeName = it.episodes[index].name,
+                                episodeUrl = episodeUrl,
+                                lastPlayPosition = lastPlayPosition
+                            )
+                        }
                     )
                     // 如果启用了弹幕，获取弹幕会话
                     if (_enabledDanmaku.value) {
