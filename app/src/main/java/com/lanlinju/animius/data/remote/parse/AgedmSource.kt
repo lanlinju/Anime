@@ -178,6 +178,7 @@ object AgedmSource : AnimeSource {
     /**
      * age动漫的跳转链接是完整形式，需要去掉域名
      *  eg. http://www.agedm.org/detail/20240060 裁剪成为 /detail/20240060
+     *  // TODO: 去除trimDomain方法
      */
     private fun String.trimDomain() = replace("http://www.agedm.org", "")
 

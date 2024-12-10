@@ -60,6 +60,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -488,12 +489,8 @@ fun Dialogs(
 ) {
     if (showSourceSwitchDialog) {
         SourceSwitchDialog(
-            onDismissRequest = { isRefresh ->
-                onDismissSourceSwitchDialog()
-                if (isRefresh) {
-                    onRefresh()
-                }
-            }
+            onDismissRequest = onDismissSourceSwitchDialog,
+            onRefresh = onRefresh
         )
     }
     if (showSettingsDialog) {
@@ -586,41 +583,44 @@ private fun LoadingIndicationDialog(
 
 @Composable
 private fun SourceSwitchDialog(
-    onDismissRequest: (Boolean) -> Unit,
+    onDismissRequest: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     var currentSourceMode by rememberPreference(KEY_SOURCE_MODE, DEFAULT_ANIME_SOURCE)
 
     val radioOptions = SourceMode.entries.map { it.name }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(currentSourceMode.name) }
-    Dialog(onDismissRequest = {
-        val isRefresh = if (selectedOption != currentSourceMode.name) {
-            val mode = SourceMode.valueOf(selectedOption)
-            SourceHolder.isSourceChanged = true
-            SourceHolder.switchSource(mode)
-            currentSourceMode = mode
-            true
-        } else {
-            false
-        }
-        onDismissRequest(isRefresh)
-    }) {
-        Card(shape = RoundedCornerShape(dimensionResource(id = R.dimen.lager_corner_radius))) {
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(text = stringResource(id = R.string.switch_source))
+        },
+        text = {
             Column(
-                Modifier
-                    .padding(vertical = dimensionResource(id = R.dimen.large_padding))
+                modifier = Modifier
                     .selectableGroup()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall)
             ) {
-                Text(
-                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.large_padding)),
-                    text = stringResource(id = R.string.switch_source),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                radioOptions.forEach { text ->
+                // TODO: 提取为组件
+                radioOptions.forEachIndexed { index, text ->
+                    val topCorner = if (index == 0) 24.dp else 4.dp
+                    val bottomCorner = if (index == radioOptions.lastIndex) 24.dp else 4.dp
+
                     Row(
                         Modifier
                             .fillMaxWidth()
                             .height(dimensionResource(id = R.dimen.radio_button_height))
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = topCorner,
+                                    topEnd = topCorner,
+                                    bottomStart = bottomCorner,
+                                    bottomEnd = bottomCorner
+                                )
+                            )
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .selectable(
                                 selected = (text == selectedOption),
                                 onClick = { onOptionSelected(text) },
@@ -641,8 +641,27 @@ private fun SourceSwitchDialog(
                     }
                 }
             }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val mode = SourceMode.valueOf(selectedOption)
+                    currentSourceMode = mode            // 保存默认源到偏好设置
+                    SourceHolder.isSourceChanged = true // 触发Home数据刷新
+                    SourceHolder.switchSource(mode)     // 切换数据源
+                    onDismissRequest()                  // 关闭Dialog
+                    onRefresh()                         // Week页面重新获取数据
+                }
+            ) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(stringResource(R.string.cancel))
+            }
         }
-    }
+    )
 }
 
 @Composable
