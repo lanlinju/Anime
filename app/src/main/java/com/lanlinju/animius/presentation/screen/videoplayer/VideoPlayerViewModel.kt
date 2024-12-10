@@ -156,13 +156,13 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             // 使用用例从远程获取视频信息
             getWebVideo(episodeUrl, mode!!)
-                .onSuccess {
+                .onSuccess { webVideo ->
                     val lastPlayPosition =
                         roomRepository.getEpisode(episodeUrl).first()?.lastPlayPosition ?: 0L
                     _videoState.value = Resource.Success(
                         _videoState.value.data!!.let {
                             it.copy(
-                                url = it.url,
+                                url = webVideo.url,
                                 currentEpisodeIndex = index,
                                 episodeName = it.episodes[index].name,
                                 episodeUrl = episodeUrl,
