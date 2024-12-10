@@ -26,7 +26,7 @@ object CycanimeSource : AnimeSource {
     private val headers = mapOf("Host" to "www.cyc-anime.net")
 
     override suspend fun getHomeData(): List<HomeBean> {
-        val source = DownloadManager.getHtml(baseUrl, headers)
+        val source = DownloadManager.getHtml(baseUrl)
         val document = Jsoup.parse(source)
 
         val homeBeanList = mutableListOf<HomeBean>()
