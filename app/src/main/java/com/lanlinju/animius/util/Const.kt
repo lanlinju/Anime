@@ -9,9 +9,9 @@ val TABS = listOf("一", "二", "三", "四", "五", "六", "日")
 
 const val CRASH_LOG_FILE = "anime_crash_logs.txt"
 
-const val GITHUB_ADDRESS = "https://github.com/lanlinju/Anime"
-const val CHECK_UPDATE_ADDRESS = "https://api.github.com/repos/lanlinju/Anime/releases/latest"
-const val GITHUB_RELEASE_ADDRESS = "https://github.com/lanlinju/Anime/releases/latest"
+const val GITHUB_ADDRESS = "https://github.com/lanlinju/Animius"
+const val CHECK_UPDATE_ADDRESS = "https://api.github.com/repos/lanlinju/Animius/releases/latest"
+const val GITHUB_RELEASE_ADDRESS = "https://github.com/lanlinju/Animius/releases/latest"
 
 const val ANIME_DATABASE = "anime_database.db"
 const val FAVOURITE_TABLE = "favourite_table"
