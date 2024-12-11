@@ -49,7 +49,7 @@ object AgedmSource : AnimeSource {
                 element.select("li").forEach { el ->
                     val title = el.select("a").text()
                     val episodeName = el.select("div.title_sub").text()
-                    val url = el.select("a").attr("href").trimDomain()
+                    val url = el.select("a").attr("href")
                     dayList.add(AnimeBean(title = title, img = "", url = url, episodeName))
                 }
                 weekMap[index] = dayList
@@ -63,7 +63,7 @@ object AgedmSource : AnimeSource {
         val animeList = mutableListOf<AnimeBean>()
         document.select("div.card").forEach { el ->
             val title = el.select("h5").text()
-            val url = el.select("h5 > a").attr("href").trimDomain()
+            val url = el.select("h5 > a").attr("href")
             val imgUrl = el.select("img").attr("data-original")
             animeList.add(AnimeBean(title = title, img = imgUrl, url = url))
         }
@@ -77,7 +77,7 @@ object AgedmSource : AnimeSource {
         val homeBeanList = mutableListOf<HomeBean>()
         document.select("div.container").select("div.video_list_box").forEach { element ->
             val title = element.select("h6").text().replace("更多 »", "")
-            val moreUrl = element.select("a").attr("href").trimDomain()
+            val moreUrl = element.select("a").attr("href")
             val homeItemBeanList = getAnimeList(element.select("div.video_item"))
             homeBeanList.add(HomeBean(title = title, moreUrl = moreUrl, animes = homeItemBeanList))
         }
@@ -86,7 +86,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getAnimeDetail(detailUrl: String): AnimeDetailBean {
-        val source = DownloadManager.getHtml("$baseUrl/$detailUrl")
+        val source = DownloadManager.getHtml(detailUrl)
         val document = Jsoup.parse(source)
         val videoDetailRight = document.select("div.video_detail_right")
         val title = videoDetailRight.select("h2").text()
@@ -107,7 +107,7 @@ object AgedmSource : AnimeSource {
     }
 
     override suspend fun getVideoData(episodeUrl: String): VideoBean {
-        val source = DownloadManager.getHtml("$baseUrl/$episodeUrl")
+        val source = DownloadManager.getHtml(episodeUrl)
         val document = Jsoup.parse(source)
         /*val elements = document.select("div.cata_video_item")
         val title = elements.select("h5").text()
@@ -123,7 +123,7 @@ object AgedmSource : AnimeSource {
         val animeList = mutableListOf<AnimeBean>()
         elements.forEach { el ->
             val title = el.select("a").text()
-            val url = el.select("a").attr("href").trimDomain()
+            val url = el.select("a").attr("href")
             val imgUrl = el.select("img").attr("data-original")
             val episodeName = el.select("span.video_item--info").text()
             animeList.add(AnimeBean(title = title, img = imgUrl, url = url, episodeName))
@@ -138,7 +138,7 @@ object AgedmSource : AnimeSource {
         elements.forEachIndexed { i, e ->
             e.select("li").forEach { el ->
                 val name = el.text()
-                val url = el.select("a").attr("href").trimDomain()
+                val url = el.select("a").attr("href")
                 episodes.add(EpisodeBean(name, url))
             }
             channels[i] = episodes
@@ -174,13 +174,6 @@ object AgedmSource : AnimeSource {
             filterRequestUrl = filterReqUrl
         )
     }
-
-    /**
-     * age动漫的跳转链接是完整形式，需要去掉域名
-     *  eg. http://www.agedm.org/detail/20240060 裁剪成为 /detail/20240060
-     *  // TODO: 去除trimDomain方法
-     */
-    private fun String.trimDomain() = replace("http://www.agedm.org", "")
 
     private fun Response<*>.header(key: String): String {
         val header = headers()[key]
