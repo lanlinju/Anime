@@ -60,7 +60,7 @@ object GirigiriSource : AnimeSource {
         for ((i, el) in elements.withIndex()) {
             if (i == 1) continue
             val title = el.select("div.title-left > h4").text()
-            val moreUrl = el.select("div.title-right > a").attr("href").trimDomain()
+            val moreUrl = el.select("div.title-right > a").attr("href")
             val homeItemBeanList = getAnimeList(el.select("div.public-list-box"))
             homeBeanList.add(HomeBean(title = title, moreUrl = moreUrl, animes = homeItemBeanList))
         }
@@ -152,6 +152,4 @@ object GirigiriSource : AnimeSource {
     private fun String.padDomain(): String {
         return "$baseUrl$this"
     }
-
-    private fun String.trimDomain() = replace(baseUrl, "")
 }
