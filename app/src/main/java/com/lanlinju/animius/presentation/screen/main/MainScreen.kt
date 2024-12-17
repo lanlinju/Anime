@@ -3,6 +3,7 @@ package com.lanlinju.animius.presentation.screen.main
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,7 +88,11 @@ fun MainScreen(
     }
 
     if (isWideScreen) {
-        Row(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .displayCutoutPadding()
+        ) {
             navigationBar()
             pagerContent(
                 Modifier
