@@ -1,5 +1,6 @@
 package com.lanlinju.animius.presentation.component
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +18,7 @@ import com.lanlinju.animius.R
 @Composable
 fun BackTopAppBar(
     title: String,
+    actions: @Composable RowScope.() -> Unit = {},
     onBackClick: () -> Unit
 ) {
     TopAppBar(
@@ -35,6 +37,7 @@ fun BackTopAppBar(
                     contentDescription = stringResource(id = R.string.back)
                 )
             }
-        }
+        },
+        actions = actions
     )
 }

@@ -14,12 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -49,6 +58,7 @@ fun HistoryScreen(
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyListState by viewModel.historyList.collectAsState()
+    var showDeleteAllHistoriesDialog by remember { mutableStateOf(false) }
 
     StateHandler(state = historyListState,
         onLoading = { LoadingIndicator() },
@@ -63,6 +73,9 @@ fun HistoryScreen(
             ) {
                 BackTopAppBar(
                     title = stringResource(id = R.string.play_history),
+                    actions = {
+                        DeleteHistoryButton(onClick = { showDeleteAllHistoriesDialog = true })
+                    },
                     onBackClick = onBackClick
                 )
 
@@ -85,6 +98,12 @@ fun HistoryScreen(
         }
     }
 
+    if (showDeleteAllHistoriesDialog) {
+        DeleteAllHistoriesDialog(
+            onDismissRequest = { showDeleteAllHistoriesDialog = false },
+            onDeleteAllHistories = viewModel::deleteAllHistories
+        )
+    }
 }
 
 @Composable
@@ -154,4 +173,39 @@ fun HistoryItem(
         }
     }
 
+}
+
+@Composable
+fun DeleteHistoryButton(
+    onClick: () -> Unit,
+) {
+    IconButton(onClick = onClick) {
+        Icon(Icons.Outlined.DeleteOutline, contentDescription = "Delete")
+    }
+}
+
+@Composable
+fun DeleteAllHistoriesDialog(
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onDeleteAllHistories: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text(text = stringResource(R.string.clear_all_histories)) },
+        text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_clear_all_histories)) },
+        confirmButton = {
+            TextButton(onClick = {
+                onDismissRequest()
+                onDeleteAllHistories()
+            }) {
+                Text(stringResource(id = R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(stringResource(id = R.string.cancel))
+            }
+        }
+    )
 }
