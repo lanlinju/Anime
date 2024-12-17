@@ -94,10 +94,9 @@ class VideoPlayerViewModel @Inject constructor(
                                 headers = it.headers
                             ).let {
                                 _videoState.value = Resource.Success(it)
-                                // 如果启用了弹幕，获取弹幕会话
-                                if (_enabledDanmaku.value) {
-                                    _danmakuSession.value = fetchDanmakuSession()
-                                }
+
+                                // 获取弹幕会话
+                                fetchDanmakuSession()
                             }
                         }
                         .onError {
@@ -140,6 +139,8 @@ class VideoPlayerViewModel @Inject constructor(
                     episodes = episodes
                 )
             )
+
+            fetchDanmakuSession()
         }
     }
 
@@ -152,7 +153,6 @@ class VideoPlayerViewModel @Inject constructor(
      * @param episodeUrl 视频集数的URL
      */
     private fun getVideoFromRemote(episodeUrl: String, index: Int) {
-        _danmakuSession.value = null
         viewModelScope.launch {
             // 使用用例从远程获取视频信息
             getWebVideo(episodeUrl, mode!!)
@@ -170,10 +170,8 @@ class VideoPlayerViewModel @Inject constructor(
                             )
                         }
                     )
-                    // 如果启用了弹幕，获取弹幕会话
-                    if (_enabledDanmaku.value) {
-                        _danmakuSession.value = fetchDanmakuSession()
-                    }
+
+                    fetchDanmakuSession() // 视频加载成功后获取弹幕
                 }
                 .onError {
                     _videoState.value = Resource.Error(it)
@@ -184,11 +182,21 @@ class VideoPlayerViewModel @Inject constructor(
     /**
      * 获取弹幕会话
      * @return 弹幕会话或null
+     *
+     * TODO: 优化
      */
-    private suspend fun fetchDanmakuSession(): DanmakuSession? {
-        return _videoState.value.data?.let { video ->
-            // 使用视频的标题和集数名获取对应的弹幕
-            danmakuRepository.fetchDanmakuSession(video.title, video.episodeName)
+    private fun fetchDanmakuSession() {
+        _danmakuSession.value = null // 清除当前剧集的弹幕
+
+        // 如果未启用了弹幕，直接返回
+        if (!_enabledDanmaku.value) return
+
+        viewModelScope.launch {
+            _videoState.value.data?.let { video ->
+                // 使用视频的标题和集数名获取对应的弹幕
+                _danmakuSession.value =
+                    danmakuRepository.fetchDanmakuSession(video.title, video.episodeName)
+            }
         }
     }
 
@@ -202,7 +210,7 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             // 如果启用了弹幕且当前弹幕会话为空，则获取弹幕会话
             if (enabled && _danmakuSession.value == null) {
-                _danmakuSession.value = fetchDanmakuSession()
+                fetchDanmakuSession()
             }
         }
     }
@@ -222,6 +230,7 @@ class VideoPlayerViewModel @Inject constructor(
                     video.copy(url = url, episodeName = episodeName, currentEpisodeIndex = index)
                 )
             }
+            fetchDanmakuSession()
         } else {
             // 如果是远程视频，保存播放进度并重新获取远程视频
             currentEpisodeUrl = url
